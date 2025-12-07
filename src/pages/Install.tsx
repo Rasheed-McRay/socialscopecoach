@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Share, Plus, Check, Smartphone, ArrowDown } from "lucide-react";
+import { Share, Plus, Check, Smartphone, ArrowDown, AudioWaveform } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -78,8 +78,8 @@ const Install = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-lg">
-            <img src="/pwa-512x512.png" alt="SocialScope" className="w-full h-full object-cover" />
+          <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-primary flex items-center justify-center mb-4 shadow-lg">
+            <AudioWaveform className="w-10 h-10 text-primary-foreground" />
           </div>
           <CardTitle className="text-2xl">Install SocialScope</CardTitle>
           <CardDescription>

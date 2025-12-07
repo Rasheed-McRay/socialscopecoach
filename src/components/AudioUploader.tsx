@@ -1,9 +1,13 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { Upload, Mic, Square, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+const MAX_RECORDING_TIME = 600; // 10 minutes in seconds
+const WARNING_TIME = 540; // 9 minutes - warn 1 minute before limit
 
 interface AudioUploaderProps {
   onAudioReady: (audioBlob: Blob, fileName: string) => void;
@@ -13,11 +17,31 @@ interface AudioUploaderProps {
 export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [hasWarned, setHasWarned] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const remainingTime = MAX_RECORDING_TIME - recordingTime;
+  const isInWarningZone = recordingTime >= WARNING_TIME;
+  const progressPercent = (recordingTime / MAX_RECORDING_TIME) * 100;
+
+  // Auto-stop when max time reached
+  useEffect(() => {
+    if (recordingTime >= MAX_RECORDING_TIME && isRecording) {
+      toast.info("Maximum recording time reached (10 minutes)", {
+        description: "Your recording has been automatically saved.",
+      });
+      stopRecording();
+    } else if (recordingTime >= WARNING_TIME && !hasWarned && isRecording) {
+      toast.warning("1 minute remaining", {
+        description: "Recording will auto-stop at 10 minutes.",
+      });
+      setHasWarned(true);
+    }
+  }, [recordingTime, isRecording, hasWarned]);
 
   const startRecording = async () => {
     try {
@@ -41,9 +65,15 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingTime(0);
+      setHasWarned(false);
 
       timerRef.current = setInterval(() => {
-        setRecordingTime((prev) => prev + 1);
+        setRecordingTime((prev) => {
+          if (prev >= MAX_RECORDING_TIME) {
+            return prev;
+          }
+          return prev + 1;
+        });
       }, 1000);
     } catch (error) {
       console.error("Error accessing microphone:", error);
@@ -163,18 +193,43 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
           {isRecording ? (
             <div className="space-y-6">
               <div className="relative">
-                <div className="w-24 h-24 mx-auto rounded-full bg-destructive/20 flex items-center justify-center animate-pulse">
-                  <div className="w-16 h-16 rounded-full bg-destructive/30 flex items-center justify-center">
-                    <div className="w-4 h-4 rounded-full bg-destructive animate-pulse" />
+                <div className={cn(
+                  "w-24 h-24 mx-auto rounded-full flex items-center justify-center animate-pulse",
+                  isInWarningZone ? "bg-amber-500/20" : "bg-destructive/20"
+                )}>
+                  <div className={cn(
+                    "w-16 h-16 rounded-full flex items-center justify-center",
+                    isInWarningZone ? "bg-amber-500/30" : "bg-destructive/30"
+                  )}>
+                    <div className={cn(
+                      "w-4 h-4 rounded-full animate-pulse",
+                      isInWarningZone ? "bg-amber-500" : "bg-destructive"
+                    )} />
                   </div>
                 </div>
               </div>
               <div className="space-y-2">
-                <p className="text-2xl font-mono font-semibold text-foreground">
+                <p className={cn(
+                  "text-2xl font-mono font-semibold",
+                  isInWarningZone ? "text-amber-500" : "text-foreground"
+                )}>
                   {formatTime(recordingTime)}
                 </p>
-                <p className="text-sm text-muted-foreground">Recording...</p>
+                {isInWarningZone ? (
+                  <p className="text-sm text-amber-500 font-medium">
+                    Auto-stop in {formatTime(remainingTime)}
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Recording...</p>
+                )}
               </div>
+              <Progress 
+                value={progressPercent} 
+                className={cn(
+                  "h-1.5 w-48 mx-auto",
+                  isInWarningZone && "[&>div]:bg-amber-500"
+                )}
+              />
               <Button
                 variant="destructive"
                 size="lg"

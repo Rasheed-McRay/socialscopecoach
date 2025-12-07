@@ -6,6 +6,45 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const TRANSCRIPTION_PROMPT = `You are an expert conversation transcriber. Transcribe this audio recording with RICH CONTEXTUAL DETAIL.
+
+TRANSCRIPTION REQUIREMENTS:
+
+1. SPEAKER IDENTIFICATION
+- Label speakers as "Speaker A:", "Speaker B:", etc.
+- Be consistent with speaker labels throughout
+
+2. EMOTIONAL & TONAL MARKERS (include in brackets)
+- Confidence indicators: [speaking confidently], [hesitant], [uncertain], [assertive]
+- Emotional states: [laughs], [nervous laughter], [sighs], [excited], [frustrated], [warm tone]
+- Energy levels: [high energy], [low energy], [enthusiastic], [monotone], [trailing off]
+- Pacing: [speaking quickly], [speaking slowly], [measured pace], [rushing]
+
+3. CONVERSATIONAL DYNAMICS (include in brackets)
+- [pause - X seconds] for notable pauses
+- [long pause] for extended silences
+- [interruption] when someone cuts in
+- [overlapping speech] when people talk over each other
+- [voice rising] or [voice dropping] for pitch changes
+- [emphasis on "word"] for stressed words
+
+4. APPROXIMATE TIMESTAMPS
+- Include timestamps every 30-60 seconds: [0:00], [0:30], [1:00], etc.
+
+5. COMPLETENESS
+- Transcribe EVERYTHING including filler words (um, uh, like, you know)
+- Include false starts and self-corrections
+- Note any background sounds that affect the conversation
+
+Example format:
+[0:00] Speaker A: [confident, warm tone] Hey! So I wanted to talk to you about, um, the project.
+[0:05] Speaker B: [enthusiastic] Oh yeah! [speaking quickly] I've been thinking about that actually—
+[0:08] Speaker A: [interruption] —sorry, go ahead.
+[0:10] Speaker B: [laughs] No, you first.
+[pause - 2 seconds]
+
+Provide a complete and detailed transcription.`;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -57,7 +96,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: `Transcribe this audio recording. If there are multiple speakers, label them as "Speaker A:", "Speaker B:", etc. Include all dialogue and any notable pauses or emotional indicators in brackets like [laughs] or [pause]. Provide a complete and accurate transcription.`,
+                text: TRANSCRIPTION_PROMPT,
               },
               {
                 type: "input_audio",

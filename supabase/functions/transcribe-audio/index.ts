@@ -138,6 +138,32 @@ serve(async (req) => {
       throw new Error("No transcription generated");
     }
 
+    // Check for silent/empty audio indicators
+    const silentIndicators = [
+      "no speech",
+      "no audio",
+      "silence",
+      "no conversation",
+      "no dialogue",
+      "no sound",
+      "empty audio",
+      "nothing to transcribe",
+      "no discernible",
+      "cannot transcribe",
+      "unable to transcribe",
+    ];
+    
+    const lowerTranscript = transcript.toLowerCase();
+    const isSilent = silentIndicators.some(indicator => lowerTranscript.includes(indicator)) 
+      && transcript.length < 200; // Only flag as silent if it's a short response
+    
+    if (isSilent) {
+      return new Response(
+        JSON.stringify({ error: "No speech detected in the audio. Please upload a recording with audible conversation." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     console.log("Transcription completed, length:", transcript.length);
 
     return new Response(JSON.stringify({ transcript }), {

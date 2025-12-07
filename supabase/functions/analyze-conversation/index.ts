@@ -158,6 +158,16 @@ serve(async (req) => {
       );
     }
 
+    // Security: Limit transcript length to prevent abuse (100,000 characters ≈ ~25,000 words)
+    const MAX_TRANSCRIPT_LENGTH = 100000;
+    if (transcript.length > MAX_TRANSCRIPT_LENGTH) {
+      console.log("Rejected oversized transcript:", transcript.length);
+      return new Response(
+        JSON.stringify({ error: "Transcript too long. Maximum length is 100,000 characters." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       console.error("LOVABLE_API_KEY is not configured");

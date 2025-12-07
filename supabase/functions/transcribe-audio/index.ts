@@ -61,6 +61,16 @@ serve(async (req) => {
       );
     }
 
+    // Security: Limit file size to 25MB to prevent abuse
+    const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+    if (audioFile.size > MAX_FILE_SIZE) {
+      console.log("Rejected oversized file:", audioFile.size);
+      return new Response(
+        JSON.stringify({ error: "Audio file too large. Maximum size is 25MB." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     console.log("Received audio file:", audioFile.name, "size:", audioFile.size, "type:", audioFile.type);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");

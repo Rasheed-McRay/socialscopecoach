@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Mic2, Loader2, Mail, Lock, User } from 'lucide-react';
+import { AudioWaveform, Loader2, Mail, Lock, User } from 'lucide-react';
 import { z } from 'zod';
 
 const emailSchema = z.string().email('Please enter a valid email address');
@@ -144,8 +144,8 @@ const Auth = () => {
       <Card className="w-full max-w-md glass shadow-elevated animate-fade-in relative z-10">
         <CardHeader className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-primary">
-              <Mic2 className="h-6 w-6 text-primary-foreground" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
+              <AudioWaveform className="w-5 h-5 text-primary-foreground" />
             </div>
             <CardTitle className="text-2xl font-serif text-gradient-primary">
               SocialScope

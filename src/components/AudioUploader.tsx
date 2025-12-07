@@ -119,7 +119,7 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
           </div>
           <h3 className="text-xl font-medium mb-2">Drop your audio file here</h3>
           <p className="text-muted-foreground text-sm mb-4">
-            Supports MP3, WAV, M4A, WebM
+            Supports MP3, WAV, M4A, WebM, and iPhone Voice Memos
           </p>
           <Button variant="outline" size="sm" disabled={isProcessing}>
             Browse Files

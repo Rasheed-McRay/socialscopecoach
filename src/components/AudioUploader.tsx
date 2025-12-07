@@ -60,11 +60,21 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
     }
   };
 
+  const isAudioFile = useCallback((file: File) => {
+    // Check MIME type first
+    if (file.type.startsWith("audio/")) return true;
+    
+    // Fallback: check file extension (iOS Voice Memos sometimes have empty MIME types)
+    const audioExtensions = ['.mp3', '.wav', '.m4a', '.webm', '.ogg', '.aac', '.flac', '.wma', '.aiff', '.caf'];
+    const fileName = file.name.toLowerCase();
+    return audioExtensions.some(ext => fileName.endsWith(ext));
+  }, []);
+
   const handleFileSelect = useCallback(
     (file: File) => {
       if (!file) return;
       
-      if (!file.type.startsWith("audio/")) {
+      if (!isAudioFile(file)) {
         toast.error("Invalid file type", {
           description: "Please upload an audio file (MP3, WAV, M4A, WebM)",
         });
@@ -73,7 +83,7 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
       
       onAudioReady(file, file.name);
     },
-    [onAudioReady]
+    [onAudioReady, isAudioFile]
   );
 
   const handleDrop = useCallback(

@@ -62,10 +62,10 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
 
   const isAudioFile = useCallback((file: File) => {
     // Check MIME type first
-    if (file.type.startsWith("audio/")) return true;
+    if (file.type.startsWith("audio/") || file.type === "video/mp4" || file.type.includes("mpeg")) return true;
     
     // Fallback: check file extension (iOS Voice Memos sometimes have empty MIME types)
-    const audioExtensions = ['.mp3', '.wav', '.m4a', '.webm', '.ogg', '.aac', '.flac', '.wma', '.aiff', '.caf'];
+    const audioExtensions = ['.mp3', '.wav', '.m4a', '.webm', '.ogg', '.aac', '.flac', '.wma', '.aiff', '.caf', '.mp4', '.mpeg', '.mpg'];
     const fileName = file.name.toLowerCase();
     return audioExtensions.some(ext => fileName.endsWith(ext));
   }, []);

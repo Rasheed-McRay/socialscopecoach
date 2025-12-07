@@ -15,7 +15,8 @@ import {
   CheckCircle,
   Loader2,
   Mail,
-  Lock
+  Lock,
+  Download
 } from 'lucide-react';
 import { z } from 'zod';
 
@@ -119,13 +120,25 @@ const Landing = () => {
             <span className="text-xl font-serif font-semibold text-foreground">SocialScope</span>
           </Link>
           
-          <Button 
-            variant="ghost" 
-            onClick={() => { setShowAuth(true); setIsLogin(true); }}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            Sign In
-          </Button>
+          <div className="flex items-center gap-2">
+            <Link to="/install">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Install App
+              </Button>
+            </Link>
+            <Button 
+              variant="ghost" 
+              onClick={() => { setShowAuth(true); setIsLogin(true); }}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Sign In
+            </Button>
+          </div>
         </div>
       </header>
 

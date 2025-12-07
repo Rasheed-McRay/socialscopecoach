@@ -2,6 +2,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { AnalysisResult } from "@/components/AnalysisReport";
 
 export async function transcribeAudio(audioBlob: Blob): Promise<string> {
+  // Get the current user's session for authenticated requests
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session?.access_token) {
+    throw new Error("You must be logged in to transcribe audio");
+  }
+
   const formData = new FormData();
   formData.append("audio", audioBlob, "audio.webm");
 
@@ -10,7 +17,7 @@ export async function transcribeAudio(audioBlob: Blob): Promise<string> {
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        Authorization: `Bearer ${session.access_token}`,
       },
       body: formData,
     }

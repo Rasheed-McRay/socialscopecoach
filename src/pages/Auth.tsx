@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -143,14 +143,14 @@ const Auth = () => {
 
       <Card className="w-full max-w-md glass shadow-elevated animate-fade-in relative z-10">
         <CardHeader className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-3">
+          <Link to="/" className="flex items-center justify-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
               <AudioWaveform className="w-5 h-5 text-primary-foreground" />
             </div>
             <CardTitle className="text-2xl font-serif text-gradient-primary">
               SocialScope
             </CardTitle>
-          </div>
+          </Link>
           <CardDescription className="text-muted-foreground">
             {isSignUp 
               ? 'Create an account to analyze your conversations' 

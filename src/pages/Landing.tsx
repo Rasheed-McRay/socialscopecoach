@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -112,12 +112,12 @@ const Landing = () => {
       {/* Header */}
       <header className="relative z-20 border-b border-border/30 backdrop-blur-md">
         <div className="container py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
               <AudioWaveform className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-serif font-semibold text-foreground">SocialScope</span>
-          </div>
+          </Link>
           
           <Button 
             variant="ghost" 

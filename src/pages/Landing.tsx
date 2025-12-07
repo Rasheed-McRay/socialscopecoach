@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { usePWA } from '@/hooks/use-pwa';
 import { 
   AudioWaveform, 
   ArrowRight, 
@@ -24,6 +25,7 @@ const emailSchema = z.string().email('Please enter a valid email');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
 const Landing = () => {
+  const { isPWA } = usePWA();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(false);
@@ -121,16 +123,19 @@ const Landing = () => {
           </Link>
           
           <div className="flex items-center gap-2">
-            <Link to="/install">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Install App
-              </Button>
-            </Link>
+            {/* Hide Install button when in PWA mode */}
+            {!isPWA && (
+              <Link to="/install">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Install App
+                </Button>
+              </Link>
+            )}
             <Button 
               variant="ghost" 
               onClick={() => { setShowAuth(true); setIsLogin(true); }}

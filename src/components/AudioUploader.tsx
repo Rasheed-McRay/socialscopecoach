@@ -23,6 +23,32 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+
+  // Request wake lock to keep screen on during recording
+  const requestWakeLock = async () => {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLockRef.current = await navigator.wakeLock.request('screen');
+        console.log('Wake lock acquired');
+      }
+    } catch (err) {
+      console.log('Wake lock not available:', err);
+    }
+  };
+
+  // Release wake lock when recording stops
+  const releaseWakeLock = async () => {
+    if (wakeLockRef.current) {
+      try {
+        await wakeLockRef.current.release();
+        wakeLockRef.current = null;
+        console.log('Wake lock released');
+      } catch (err) {
+        console.log('Error releasing wake lock:', err);
+      }
+    }
+  };
 
   const remainingTime = MAX_RECORDING_TIME - recordingTime;
   const isInWarningZone = recordingTime >= WARNING_TIME;
@@ -45,6 +71,9 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
 
   const startRecording = async () => {
     try {
+      // Request wake lock to prevent screen from turning off
+      await requestWakeLock();
+      
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -87,8 +116,17 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
+      // Release wake lock when recording stops
+      releaseWakeLock();
     }
   };
+
+  // Cleanup wake lock on unmount
+  useEffect(() => {
+    return () => {
+      releaseWakeLock();
+    };
+  }, []);
 
   const isAudioFile = useCallback((file: File) => {
     // Check MIME type first

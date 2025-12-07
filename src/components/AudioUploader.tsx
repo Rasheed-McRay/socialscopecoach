@@ -60,21 +60,11 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
     }
   };
 
-  const isAudioFile = (file: File): boolean => {
-    // Check MIME type
-    if (file.type.startsWith("audio/")) return true;
-    
-    // Check file extension for common audio formats (fallback for incorrect MIME types)
-    const audioExtensions = ['.mp3', '.wav', '.m4a', '.webm', '.ogg', '.aac', '.flac', '.wma'];
-    const fileName = file.name.toLowerCase();
-    return audioExtensions.some(ext => fileName.endsWith(ext));
-  };
-
   const handleFileSelect = useCallback(
     (file: File) => {
       if (!file) return;
       
-      if (!isAudioFile(file)) {
+      if (!file.type.startsWith("audio/")) {
         toast.error("Invalid file type", {
           description: "Please upload an audio file (MP3, WAV, M4A, WebM)",
         });
@@ -129,7 +119,7 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
           </div>
           <h3 className="text-xl font-medium mb-2">Drop your audio file here</h3>
           <p className="text-muted-foreground text-sm mb-4">
-            Supports MP3, WAV, M4A, WebM, and iPhone Voice Memos
+            Supports MP3, WAV, M4A, WebM
           </p>
           <Button variant="outline" size="sm" disabled={isProcessing}>
             Browse Files

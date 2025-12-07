@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { AudioWaveform } from "lucide-react";
+import { AudioWaveform, LogOut } from "lucide-react";
 import { AudioUploader } from "@/components/AudioUploader";
 import { ProcessingState } from "@/components/ProcessingState";
 import { AnalysisReport, AnalysisResult } from "@/components/AnalysisReport";
 import { useToast } from "@/hooks/use-toast";
 import { transcribeAudio, analyzeConversation } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 type AppState = "idle" | "processing" | "complete";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
@@ -15,6 +17,7 @@ const Index = () => {
   const [progress, setProgress] = useState(0);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const { toast } = useToast();
+  const { signOut, user } = useAuth();
 
   const handleAudioReady = async (audioBlob: Blob, fileName: string) => {
     setAppState("processing");
@@ -77,13 +80,32 @@ const Index = () => {
         {/* Header */}
         <header className="border-b border-border/50 backdrop-blur-sm">
           <div className="container py-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-                <AudioWaveform className="w-5 h-5 text-primary-foreground" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
+                  <AudioWaveform className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-serif font-semibold text-foreground">SocialScope</h1>
+                  <p className="text-xs text-muted-foreground">AI-Powered Conversation Coach</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl font-serif font-semibold text-foreground">SocialScope</h1>
-                <p className="text-xs text-muted-foreground">AI-Powered Conversation Coach</p>
+              
+              <div className="flex items-center gap-4">
+                {user?.email && (
+                  <span className="text-sm text-muted-foreground hidden sm:block">
+                    {user.email}
+                  </span>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={signOut}
+                  className="gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </Button>
               </div>
             </div>
           </div>

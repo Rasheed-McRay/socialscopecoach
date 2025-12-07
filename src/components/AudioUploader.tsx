@@ -3,6 +3,7 @@ import { Upload, Mic, Square, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface AudioUploaderProps {
   onAudioReady: (audioBlob: Blob, fileName: string) => void;
@@ -61,9 +62,16 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
 
   const handleFileSelect = useCallback(
     (file: File) => {
-      if (file && file.type.startsWith("audio/")) {
-        onAudioReady(file, file.name);
+      if (!file) return;
+      
+      if (!file.type.startsWith("audio/")) {
+        toast.error("Invalid file type", {
+          description: "Please upload an audio file (MP3, WAV, M4A, WebM)",
+        });
+        return;
       }
+      
+      onAudioReady(file, file.name);
     },
     [onAudioReady]
   );

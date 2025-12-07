@@ -1,11 +1,11 @@
 import { useRef, useState, useCallback } from "react";
-import { Upload, Mic, Square, Loader2 } from "lucide-react";
+import { Upload, Mic, Square, Loader2, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface AudioUploaderProps {
-  onAudioReady: (audioBlob: Blob, fileName: string) => void;
+  onAudioReady: (mediaBlob: Blob, fileName: string) => void;
   isProcessing: boolean;
 }
 
@@ -59,9 +59,13 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
     }
   };
 
+  const isValidMediaFile = (file: File): boolean => {
+    return file.type.startsWith("audio/") || file.type.startsWith("video/");
+  };
+
   const handleFileSelect = useCallback(
     (file: File) => {
-      if (file && file.type.startsWith("audio/")) {
+      if (file && isValidMediaFile(file)) {
         onAudioReady(file, file.name);
       }
     },
@@ -105,13 +109,16 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
         <div className="p-12 text-center">
           <div className="mb-6 relative">
             <div className="w-20 h-20 mx-auto rounded-2xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-              <Upload className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
+              <div className="flex items-center gap-1">
+                <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                <Video className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
           </div>
-          <h3 className="text-xl font-medium mb-2">Drop your audio file here</h3>
+          <h3 className="text-xl font-medium mb-2">Drop your audio or video file here</h3>
           <p className="text-muted-foreground text-sm mb-4">
-            Supports MP3, WAV, M4A, WebM
+            Supports MP3, WAV, M4A, WebM, MP4, MOV, AVI
           </p>
           <Button variant="outline" size="sm" disabled={isProcessing}>
             Browse Files
@@ -120,7 +127,7 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
         <input
           ref={fileInputRef}
           type="file"
-          accept="audio/*"
+          accept="audio/*,video/*"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];

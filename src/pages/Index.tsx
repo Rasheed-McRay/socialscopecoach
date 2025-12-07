@@ -4,7 +4,7 @@ import { AudioUploader } from "@/components/AudioUploader";
 import { ProcessingState } from "@/components/ProcessingState";
 import { AnalysisReport, AnalysisResult } from "@/components/AnalysisReport";
 import { useToast } from "@/hooks/use-toast";
-import { transcribeAudio, analyzeConversation } from "@/lib/api";
+import { transcribeMedia, analyzeConversation } from "@/lib/api";
 
 type AppState = "idle" | "processing" | "complete";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
@@ -29,7 +29,7 @@ const Index = () => {
       setProcessingStage("transcribing");
       setProgress(30);
       
-      const transcript = await transcribeAudio(audioBlob);
+      const transcript = await transcribeMedia(audioBlob, fileName);
       setProgress(60);
 
       // Stage 3: Analyze

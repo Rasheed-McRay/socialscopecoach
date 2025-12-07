@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { AudioWaveform, LogOut } from "lucide-react";
 import { AudioUploader } from "@/components/AudioUploader";
 import { ProcessingState } from "@/components/ProcessingState";
@@ -81,7 +82,7 @@ const Index = () => {
         <header className="border-b border-border/50 backdrop-blur-sm">
           <div className="container py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                 <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
                   <AudioWaveform className="w-5 h-5 text-primary-foreground" />
                 </div>
@@ -89,7 +90,7 @@ const Index = () => {
                   <h1 className="text-xl font-serif font-semibold text-foreground">SocialScope</h1>
                   <p className="text-xs text-muted-foreground">AI-Powered Conversation Coach</p>
                 </div>
-              </div>
+              </Link>
               
               <div className="flex items-center gap-4">
                 {user?.email && (

@@ -3,6 +3,10 @@ import { Upload, Mic, Square, Loader2, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
+const MAX_FILE_SIZE_MB = 15;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 interface AudioUploaderProps {
   onAudioReady: (mediaBlob: Blob, fileName: string) => void;
@@ -65,9 +69,19 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
 
   const handleFileSelect = useCallback(
     (file: File) => {
-      if (file && isValidMediaFile(file)) {
-        onAudioReady(file, file.name);
+      if (!file) return;
+      
+      if (!isValidMediaFile(file)) {
+        toast.error("Please upload an audio or video file");
+        return;
       }
+      
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        toast.error(`File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB. Your file is ${(file.size / (1024 * 1024)).toFixed(1)}MB.`);
+        return;
+      }
+      
+      onAudioReady(file, file.name);
     },
     [onAudioReady]
   );
@@ -118,7 +132,7 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
           </div>
           <h3 className="text-xl font-medium mb-2">Drop your audio or video file here</h3>
           <p className="text-muted-foreground text-sm mb-4">
-            Supports MP3, WAV, M4A, WebM, MP4, MOV, AVI
+            Supports MP3, WAV, M4A, WebM, MP4, MOV, AVI (max {MAX_FILE_SIZE_MB}MB)
           </p>
           <Button variant="outline" size="sm" disabled={isProcessing}>
             Browse Files

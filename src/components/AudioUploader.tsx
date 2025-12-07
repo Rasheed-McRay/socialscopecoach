@@ -60,11 +60,21 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
     }
   };
 
+  const isAudioFile = (file: File): boolean => {
+    // Check MIME type
+    if (file.type.startsWith("audio/")) return true;
+    
+    // Check file extension for common audio formats (fallback for incorrect MIME types)
+    const audioExtensions = ['.mp3', '.wav', '.m4a', '.webm', '.ogg', '.aac', '.flac', '.wma'];
+    const fileName = file.name.toLowerCase();
+    return audioExtensions.some(ext => fileName.endsWith(ext));
+  };
+
   const handleFileSelect = useCallback(
     (file: File) => {
       if (!file) return;
       
-      if (!file.type.startsWith("audio/")) {
+      if (!isAudioFile(file)) {
         toast.error("Invalid file type", {
           description: "Please upload an audio file (MP3, WAV, M4A, WebM)",
         });

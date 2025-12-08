@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { usePWA } from '@/hooks/use-pwa';
 import { 
-  AudioWaveform, 
   ArrowRight, 
   Mic, 
   Brain, 
@@ -20,6 +19,7 @@ import {
   Download
 } from 'lucide-react';
 import { z } from 'zod';
+import logo from '@/assets/logo.png';
 
 const emailSchema = z.string().email('Please enter a valid email');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -116,9 +116,7 @@ const Landing = () => {
       <header className="relative z-20 border-b border-border/30 backdrop-blur-md">
         <div className="container py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-              <AudioWaveform className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <img src={logo} alt="SocialScope" className="w-10 h-10 rounded-xl" />
             <span className="text-xl font-serif font-semibold text-foreground">SocialScope</span>
           </Link>
           

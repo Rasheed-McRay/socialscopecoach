@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { usePWA } from '@/hooks/use-pwa';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   AudioWaveform, 
   ArrowRight, 
@@ -29,6 +30,7 @@ const Landing = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   
@@ -41,6 +43,37 @@ const Landing = () => {
       navigate('/app');
     }
   }, [user, navigate]);
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) {
+      toast({ title: 'Invalid email', description: emailResult.error.errors[0].message, variant: 'destructive' });
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const redirectUrl = `${window.location.origin}/reset-password`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+      
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        return;
+      }
+      
+      toast({ title: 'Check your email', description: 'We sent you a password reset link.' });
+      setIsForgotPassword(false);
+    } catch (error) {
+      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,56 +215,102 @@ const Landing = () => {
           ) : (
             <div className="max-w-md mx-auto animate-scale-in">
               <div className="glass p-8 rounded-2xl shadow-elevated">
-                <div className="flex gap-2 mb-6">
-                  <button
-                    onClick={() => setIsLogin(false)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      !isLogin ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    Sign Up
-                  </button>
-                  <button
-                    onClick={() => setIsLogin(true)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      isLogin ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    Sign In
-                  </button>
-                </div>
-                
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="email"
-                      placeholder="you@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 bg-secondary/50"
-                      required
-                    />
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 bg-secondary/50"
-                      required
-                    />
-                  </div>
-                  <Button type="submit" variant="gradient" size="lg" className="w-full" disabled={isLoading}>
-                    {isLoading ? (
-                      <><Loader2 className="h-4 w-4 animate-spin" /> Please wait...</>
-                    ) : (
-                      isLogin ? 'Sign In' : 'Create Free Account'
-                    )}
-                  </Button>
-                </form>
+                {isForgotPassword ? (
+                  <>
+                    <h3 className="text-lg font-medium text-center mb-6">Reset Password</h3>
+                    <form onSubmit={handleForgotPassword} className="space-y-4">
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="email"
+                          placeholder="you@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-10 bg-secondary/50"
+                          required
+                        />
+                      </div>
+                      <Button type="submit" variant="gradient" size="lg" className="w-full" disabled={isLoading}>
+                        {isLoading ? (
+                          <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</>
+                        ) : (
+                          'Send Reset Link'
+                        )}
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={() => setIsForgotPassword(false)}
+                        className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Back to Sign In
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex gap-2 mb-6">
+                      <button
+                        onClick={() => setIsLogin(false)}
+                        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          !isLogin ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        Sign Up
+                      </button>
+                      <button
+                        onClick={() => setIsLogin(true)}
+                        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isLogin ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        Sign In
+                      </button>
+                    </div>
+                    
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="email"
+                          placeholder="you@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-10 bg-secondary/50"
+                          required
+                        />
+                      </div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-10 bg-secondary/50"
+                          required
+                        />
+                      </div>
+                      {isLogin && (
+                        <div className="text-right">
+                          <button
+                            type="button"
+                            onClick={() => setIsForgotPassword(true)}
+                            className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            Forgot password?
+                          </button>
+                        </div>
+                      )}
+                      <Button type="submit" variant="gradient" size="lg" className="w-full" disabled={isLoading}>
+                        {isLoading ? (
+                          <><Loader2 className="h-4 w-4 animate-spin" /> Please wait...</>
+                        ) : (
+                          isLogin ? 'Sign In' : 'Create Free Account'
+                        )}
+                      </Button>
+                    </form>
+                  </>
+                )}
               </div>
             </div>
           )}

@@ -33,6 +33,7 @@ export const VoiceRecorder = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const recordingTimeRef = useRef(0);
 
   const prompt = SAMPLE_PROMPTS[sampleNumber - 1];
 
@@ -52,7 +53,7 @@ export const VoiceRecorder = ({
       mediaRecorder.onstop = async () => {
         stream.getTracks().forEach((track) => track.stop());
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-        const duration = recordingTime;
+        const duration = recordingTimeRef.current;
         
         if (duration >= MIN_DURATION) {
           await onRecordingComplete(audioBlob, duration);
@@ -62,20 +63,23 @@ export const VoiceRecorder = ({
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingTime(0);
+      recordingTimeRef.current = 0;
 
       timerRef.current = setInterval(() => {
         setRecordingTime((prev) => {
-          if (prev >= MAX_DURATION - 1) {
+          const newTime = prev + 1;
+          recordingTimeRef.current = newTime;
+          if (newTime >= MAX_DURATION) {
             stopRecording();
             return MAX_DURATION;
           }
-          return prev + 1;
+          return newTime;
         });
       }, 1000);
     } catch (error) {
       console.error("Error accessing microphone:", error);
     }
-  }, [recordingTime, onRecordingComplete]);
+  }, [onRecordingComplete]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {

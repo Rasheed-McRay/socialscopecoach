@@ -82,10 +82,16 @@ export const VoiceRegistration = ({
 
       if (uploadError) throw uploadError;
 
-      // Get the URL
-      const { data: urlData } = supabase.storage
+      // Get signed URL for private bucket
+      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
         .from("voice-samples")
-        .getPublicUrl(fileName);
+        .createSignedUrl(fileName, 3600); // 1 hour expiry
+
+      if (signedUrlError || !signedUrlData?.signedUrl) {
+        throw new Error("Failed to generate signed URL for voice sample");
+      }
+
+      const audioUrl = signedUrlData.signedUrl;
 
       // Delete existing sample for this number if exists
       await supabase
@@ -100,7 +106,7 @@ export const VoiceRegistration = ({
         .insert({
           user_id: user.id,
           sample_number: sampleNumber,
-          audio_url: urlData.publicUrl,
+          audio_url: audioUrl,
           duration_seconds: duration,
         });
 
@@ -109,7 +115,7 @@ export const VoiceRegistration = ({
       // Update local state
       setSamples((prev) => {
         const filtered = prev.filter((s) => s.sample_number !== sampleNumber);
-        return [...filtered, { sample_number: sampleNumber, audio_url: urlData.publicUrl, duration_seconds: duration }].sort(
+        return [...filtered, { sample_number: sampleNumber, audio_url: audioUrl, duration_seconds: duration }].sort(
           (a, b) => a.sample_number - b.sample_number
         );
       });

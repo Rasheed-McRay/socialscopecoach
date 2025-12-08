@@ -17,12 +17,8 @@ const VoiceSetup = () => {
     if (user) {
       await supabase
         .from("profiles")
-        .upsert({ 
-          user_id: user.id, 
-          voice_registered: true 
-        }, { 
-          onConflict: 'user_id' 
-        });
+        .update({ voice_registered: true })
+        .eq("user_id", user.id);
     }
     navigate("/app");
   };

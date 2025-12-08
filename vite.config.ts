@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
         name: "SocialScope - AI Conversation Coach",
         short_name: "SocialScope",
         description: "Get instant AI-powered feedback on your conversations and unlock your social superpowers.",
-        theme_color: "#0f172a",
+        theme_color: "#f97316",
         background_color: "#0f172a",
         display: "standalone",
         orientation: "portrait",

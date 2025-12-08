@@ -22,6 +22,7 @@ export type Database = {
           id: string
           updated_at: string
           user_id: string
+          voice_registered: boolean
         }
         Insert: {
           avatar_url?: string | null
@@ -30,6 +31,7 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id: string
+          voice_registered?: boolean
         }
         Update: {
           avatar_url?: string | null
@@ -37,6 +39,34 @@ export type Database = {
           display_name?: string | null
           id?: string
           updated_at?: string
+          user_id?: string
+          voice_registered?: boolean
+        }
+        Relationships: []
+      }
+      voice_samples: {
+        Row: {
+          audio_url: string
+          created_at: string
+          duration_seconds: number
+          id: string
+          sample_number: number
+          user_id: string
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string
+          duration_seconds: number
+          id?: string
+          sample_number: number
+          user_id: string
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          sample_number?: number
           user_id?: string
         }
         Relationships: []

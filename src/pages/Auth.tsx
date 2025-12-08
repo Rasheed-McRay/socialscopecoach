@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { AudioWaveform, Loader2, Mail, Lock, User } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 
 const emailSchema = z.string().email('Please enter a valid email address');
@@ -20,16 +21,38 @@ const Auth = () => {
   const [displayName, setDisplayName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; displayName?: string }>({});
+  const [justSignedUp, setJustSignedUp] = useState(false);
   
   const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!loading && user) {
-      navigate('/app');
-    }
-  }, [user, loading, navigate]);
+    const checkVoiceRegistration = async () => {
+      if (!loading && user) {
+        // If just signed up, redirect to voice setup
+        if (justSignedUp) {
+          navigate('/voice-setup');
+          return;
+        }
+
+        // Check if voice is registered for existing users
+        const { data } = await supabase
+          .from('profiles')
+          .select('voice_registered')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data && !data.voice_registered) {
+          navigate('/voice-setup');
+        } else {
+          navigate('/app');
+        }
+      }
+    };
+
+    checkVoiceRegistration();
+  }, [user, loading, navigate, justSignedUp]);
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string; displayName?: string } = {};
@@ -81,9 +104,10 @@ const Auth = () => {
           }
           return;
         }
+        setJustSignedUp(true);
         toast({
           title: 'Account created!',
-          description: 'Welcome to SocialScope.',
+          description: 'Welcome to SocialScope. Let\'s set up your voice profile.',
         });
       } else {
         const { error } = await signIn(email, password);

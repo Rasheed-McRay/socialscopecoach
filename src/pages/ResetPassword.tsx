@@ -9,7 +9,11 @@ import { AudioWaveform, Loader2, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 
-const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
+const passwordSchema = z.string()
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[A-Z]/, 'Password must contain an uppercase letter')
+  .regex(/[a-z]/, 'Password must contain a lowercase letter')
+  .regex(/[0-9]/, 'Password must contain a number');
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');

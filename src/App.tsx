@@ -11,6 +11,8 @@ import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Install from "./pages/Install";
+import VoiceSetup from "./pages/VoiceSetup";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +29,22 @@ const App = () => (
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/install" element={<Install />} />
+              <Route
+                path="/voice-setup"
+                element={
+                  <ProtectedRoute>
+                    <VoiceSetup />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/app"
                 element={

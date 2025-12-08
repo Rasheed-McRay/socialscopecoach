@@ -1,15 +1,25 @@
 import { useNavigate } from "react-router-dom";
 import { VoiceRegistration } from "@/components/VoiceRegistration";
 import { AudioWaveform } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const VoiceSetup = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleComplete = () => {
     navigate("/app");
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
+    // Mark as skipped so user isn't redirected back
+    if (user) {
+      await supabase
+        .from("profiles")
+        .update({ voice_registered: true })
+        .eq("user_id", user.id);
+    }
     navigate("/app");
   };
 

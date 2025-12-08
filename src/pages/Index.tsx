@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { AudioWaveform, LogOut } from "lucide-react";
 import { AudioUploader } from "@/components/AudioUploader";
 import { ProcessingState } from "@/components/ProcessingState";
 import { AnalysisReport, AnalysisResult } from "@/components/AnalysisReport";
@@ -10,7 +10,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { usePWA } from "@/hooks/use-pwa";
 import { BottomNav } from "@/components/BottomNav";
-import logo from "@/assets/logo.png";
 
 type AppState = "idle" | "processing" | "complete";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
@@ -88,7 +87,9 @@ const Index = () => {
             <div className="container py-4">
               <div className="flex items-center justify-center">
                 <div className="flex items-center gap-2">
-                  <img src={logo} alt="SocialScope" className="w-8 h-8 rounded-lg" />
+                  <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+                    <AudioWaveform className="w-4 h-4 text-primary-foreground" />
+                  </div>
                   <h1 className="text-lg font-serif font-semibold text-foreground">SocialScope</h1>
                 </div>
               </div>
@@ -99,7 +100,9 @@ const Index = () => {
             <div className="container py-4">
               <div className="flex items-center justify-between">
                 <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                  <img src={logo} alt="SocialScope" className="w-10 h-10 rounded-xl" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
+                    <AudioWaveform className="w-5 h-5 text-primary-foreground" />
+                  </div>
                   <div>
                     <h1 className="text-xl font-serif font-semibold text-foreground">SocialScope</h1>
                     <p className="text-xs text-muted-foreground">AI-Powered Conversation Coach</p>

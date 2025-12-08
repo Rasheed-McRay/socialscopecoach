@@ -16,6 +16,7 @@ const displayNameSchema = z.string().min(2, 'Display name must be at least 2 cha
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -76,6 +77,48 @@ const Auth = () => {
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) {
+      setErrors({ email: emailResult.error.errors[0].message });
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const redirectUrl = `${window.location.origin}/reset-password`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+      
+      if (error) {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      toast({
+        title: 'Check your email',
+        description: 'We sent you a password reset link.',
+      });
+      setIsForgotPassword(false);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -176,13 +219,67 @@ const Auth = () => {
             </CardTitle>
           </Link>
           <CardDescription className="text-muted-foreground">
-            {isSignUp 
-              ? 'Create an account to analyze your conversations' 
-              : 'Sign in to analyze your conversations'}
+            {isForgotPassword 
+              ? 'Enter your email to reset your password'
+              : isSignUp 
+                ? 'Create an account to analyze your conversations' 
+                : 'Sign in to analyze your conversations'}
           </CardDescription>
         </CardHeader>
         
         <CardContent>
+          {isForgotPassword ? (
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-foreground">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 bg-secondary/50 border-border focus:border-primary"
+                    required
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email}</p>
+                )}
+              </div>
+              
+              <Button
+                type="submit"
+                variant="gradient"
+                size="lg"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  'Send Reset Link'
+                )}
+              </Button>
+              
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsForgotPassword(false);
+                    setErrors({});
+                  }}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            </form>
+          ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {isSignUp && (
               <div className="space-y-2">
@@ -242,6 +339,21 @@ const Auth = () => {
               )}
             </div>
             
+            {!isSignUp && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsForgotPassword(true);
+                    setErrors({});
+                  }}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
+            
             <Button
               type="submit"
               variant="gradient"
@@ -259,7 +371,9 @@ const Auth = () => {
               )}
             </Button>
           </form>
+          )}
           
+          {!isForgotPassword && (
           <div className="mt-6 text-center">
             <button
               type="button"
@@ -274,6 +388,7 @@ const Auth = () => {
                 : "Don't have an account? Sign up"}
             </button>
           </div>
+          )}
         </CardContent>
       </Card>
     </div>

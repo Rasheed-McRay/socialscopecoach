@@ -103,16 +103,37 @@ export const VoiceRecorder = ({
   const progressPercent = (recordingTime / MAX_DURATION) * 100;
   const canStop = recordingTime >= MIN_DURATION;
 
-  if (isComplete) {
+  if (isComplete && !isRecording) {
     return (
-      <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20">
-        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-          <Check className="w-5 h-5 text-primary" />
+      <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+            <Check className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="font-medium text-foreground">Sample {sampleNumber} recorded</p>
+            <p className="text-sm text-muted-foreground">Voice sample saved successfully</p>
+          </div>
         </div>
-        <div className="flex-1">
-          <p className="font-medium text-foreground">Sample {sampleNumber} recorded</p>
-          <p className="text-sm text-muted-foreground">Voice sample saved successfully</p>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={startRecording}
+          disabled={isUploading}
+          className="w-full gap-2 text-muted-foreground hover:text-foreground"
+        >
+          {isUploading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Uploading...
+            </>
+          ) : (
+            <>
+              <Mic className="w-4 h-4" />
+              Re-record this sample
+            </>
+          )}
+        </Button>
       </div>
     );
   }

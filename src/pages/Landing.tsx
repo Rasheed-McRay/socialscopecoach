@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { usePWA } from '@/hooks/use-pwa';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   AudioWaveform, 
@@ -17,8 +16,7 @@ import {
   CheckCircle,
   Loader2,
   Mail,
-  Lock,
-  Download
+  Lock
 } from 'lucide-react';
 import { z } from 'zod';
 
@@ -30,7 +28,6 @@ const passwordSchema = z.string()
   .regex(/[0-9]/, 'Password must contain a number');
 
 const Landing = () => {
-  const { isPWA } = usePWA();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(false);
@@ -159,28 +156,13 @@ const Landing = () => {
             <span className="text-xl font-serif font-semibold text-foreground">SocialScope</span>
           </Link>
           
-          <div className="flex items-center gap-2">
-            {/* Hide Install button when in PWA mode */}
-            {!isPWA && (
-              <Link to="/install">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Install App
-                </Button>
-              </Link>
-            )}
-            <Button 
-              variant="ghost" 
-              onClick={() => { setShowAuth(true); setIsLogin(true); }}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Sign In
-            </Button>
-          </div>
+          <Button 
+            variant="ghost" 
+            onClick={() => { setShowAuth(true); setIsLogin(true); }}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            Sign In
+          </Button>
         </div>
       </header>
 
@@ -437,8 +419,8 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-border/30 py-8">
-        <div className="container text-center text-sm text-muted-foreground">
-          <p>Built with care for better human connection</p>
+        <div className="container text-center text-muted-foreground text-sm">
+          <p>© 2024 SocialScope. Built with care for better human connection.</p>
         </div>
       </footer>
     </div>

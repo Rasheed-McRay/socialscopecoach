@@ -6,12 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { VoiceRegistration } from "@/components/VoiceRegistration";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePWA } from "@/hooks/use-pwa";
-import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 
 const Settings = () => {
-  const { isPWA } = usePWA();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
@@ -57,7 +54,7 @@ const Settings = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-background ${isPWA ? "pb-20" : ""}`}>
+    <div className="min-h-screen bg-background">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
@@ -66,39 +63,29 @@ const Settings = () => {
 
       <div className="relative z-10">
         {/* Header */}
-        {isPWA ? (
-          <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border/50 safe-area-top">
-            <div className="container py-4">
-              <div className="flex items-center justify-center">
-                <h1 className="text-lg font-serif font-semibold text-foreground">Settings</h1>
-              </div>
-            </div>
-          </header>
-        ) : (
-          <header className="border-b border-border/50 backdrop-blur-sm">
-            <div className="container py-4">
-              <div className="flex items-center justify-between">
-                <Link
-                  to="/app"
-                  className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-                    <AudioWaveform className="w-5 h-5 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-serif font-semibold text-foreground">SocialScope</h1>
-                    <p className="text-xs text-muted-foreground">Settings</p>
-                  </div>
-                </Link>
+        <header className="border-b border-border/50 backdrop-blur-sm">
+          <div className="container py-4">
+            <div className="flex items-center justify-between">
+              <Link
+                to="/app"
+                className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
+                  <AudioWaveform className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-serif font-semibold text-foreground">SocialScope</h1>
+                  <p className="text-xs text-muted-foreground">Settings</p>
+                </div>
+              </Link>
 
-                <Button variant="ghost" size="sm" onClick={() => navigate("/app")} className="gap-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back
-                </Button>
-              </div>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/app")} className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
             </div>
-          </header>
-        )}
+          </div>
+        </header>
 
         {/* Main Content */}
         <main className="container py-8 md:py-12">
@@ -189,9 +176,6 @@ const Settings = () => {
           )}
         </main>
       </div>
-
-      {/* Bottom Navigation - Only in PWA */}
-      {isPWA && <BottomNav />}
     </div>
   );
 };

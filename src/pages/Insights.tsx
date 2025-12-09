@@ -304,17 +304,16 @@ const Insights = () => {
                       confidenceScore={report.analysis_result.confidenceScore}
                       onClick={() => setSelectedReport(report)}
                     />
-                    {/* Delete button overlay */}
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute top-4 right-12 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full h-7 w-7"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDelete(report.id);
                       }}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                   </div>
                 ))}

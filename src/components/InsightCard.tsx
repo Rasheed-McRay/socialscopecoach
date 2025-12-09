@@ -11,7 +11,7 @@ export function InsightCard({ children, className, onClick }: InsightCardProps) 
     <div 
       onClick={onClick}
       className={cn(
-        "relative rounded-xl bg-card border border-primary/20 p-2.5 transition-all duration-200 cursor-pointer",
+        "relative rounded-xl bg-card border border-primary/20 p-2.5 md:p-4 transition-all duration-200 cursor-pointer",
         "hover:border-primary/40 hover:shadow-[0_0_20px_rgba(247,165,58,0.1)]",
         "active:scale-[0.98]",
         className

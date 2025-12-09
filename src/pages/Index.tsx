@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { AudioWaveform, LogOut } from "lucide-react";
+import { AudioWaveform, LogOut, Settings } from "lucide-react";
 import { AudioUploader } from "@/components/AudioUploader";
 import { ProcessingState } from "@/components/ProcessingState";
 import { AnalysisReport, AnalysisResult } from "@/components/AnalysisReport";
@@ -118,6 +118,16 @@ const Index = () => {
                       {user.email}
                     </span>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    asChild
+                  >
+                    <Link to="/settings" className="gap-2">
+                      <Settings className="h-4 w-4" />
+                      <span className="hidden sm:inline">Settings</span>
+                    </Link>
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"

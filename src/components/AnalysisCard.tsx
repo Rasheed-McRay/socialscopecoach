@@ -25,24 +25,24 @@ export function AnalysisCard({ title, date, tone, toneEmoji, onClick }: Analysis
       <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg bg-primary/15" />
       
       {/* Card content */}
-      <div className="relative bg-gradient-to-br from-card via-card to-background/80 rounded-[11px] p-3 shadow-card">
-        <div className="flex items-center gap-3">
+      <div className="relative bg-gradient-to-br from-card via-card to-background/80 rounded-[10px] px-3 py-2 shadow-card">
+        <div className="flex items-center gap-2">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm text-foreground truncate mb-1 group-hover:text-primary transition-colors">
+            <h3 className="font-medium text-xs text-foreground truncate group-hover:text-primary transition-colors">
               {title}
             </h3>
-            <p className="text-xs text-muted-foreground mb-1.5">
+            <p className="text-[10px] text-muted-foreground mb-1">
               {date}
             </p>
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
-              <span className="text-xs">{toneEmoji}</span>
-              <span className="text-[10px] font-medium text-primary">{tone}</span>
+            <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+              <span className="text-[10px]">{toneEmoji}</span>
+              <span className="text-[9px] font-medium text-primary">{tone}</span>
             </div>
           </div>
           
           <div className="flex-shrink-0">
-            <div className="w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+            <div className="w-6 h-6 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <ChevronRight className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
           </div>
         </div>

@@ -25,23 +25,32 @@ const demoAnalyses = [
   { 
     id: "demo-1", 
     title: "A flirty convo about dogs", 
+    description: "Talked about favorite dog breeds and shared funny pet stories.",
     date: "Dec 9th, 2025", 
     tone: "Playful + Curious", 
-    toneEmoji: "🔥" 
+    toneEmoji: "🔥",
+    socialScore: 82,
+    confidenceScore: 75
   },
   { 
     id: "demo-2", 
     title: "A serious convo at work", 
+    description: "Discussed project deadlines and negotiated timeline expectations.",
     date: "Dec 4th, 2025", 
     tone: "Professional + Assertive", 
-    toneEmoji: "🧠" 
+    toneEmoji: "🧠",
+    socialScore: 71,
+    confidenceScore: 84
   },
   { 
     id: "demo-3", 
     title: "A fiery debate about anime", 
+    description: "Debated which anime has the best storyline and character development.",
     date: "Dec 12th, 2025", 
     tone: "Excited + Competitive", 
-    toneEmoji: "🎭" 
+    toneEmoji: "🎭",
+    socialScore: 78,
+    confidenceScore: 69
   },
 ];
 
@@ -267,7 +276,10 @@ const Insights = () => {
                   >
                     <AnalysisCard
                       title={analysis.title}
+                      description={analysis.description}
                       date={analysis.date}
+                      socialScore={analysis.socialScore}
+                      confidenceScore={analysis.confidenceScore}
                       tone={analysis.tone}
                       toneEmoji={analysis.toneEmoji}
                       onClick={() => toast.info("Analyze a conversation to see your insights!")}
@@ -288,7 +300,10 @@ const Insights = () => {
                   >
                     <AnalysisCard
                       title={report.title || `Analysis from ${formatDate(report.created_at)}`}
+                      description={report.analysis_result.summary?.slice(0, 80) + "..."}
                       date={formatDate(report.created_at)}
+                      socialScore={report.analysis_result.socialScore}
+                      confidenceScore={report.analysis_result.confidenceScore}
                       tone={report.analysis_result.vocalTone?.archetype || "Engaging"}
                       toneEmoji={report.analysis_result.socialScore >= 70 ? "🔥" : report.analysis_result.confidenceScore >= 70 ? "🧠" : "💬"}
                       onClick={() => setSelectedReport(report)}

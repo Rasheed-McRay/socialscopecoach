@@ -7,8 +7,6 @@ interface AnalysisCardProps {
   description?: string;
   socialScore?: number;
   confidenceScore?: number;
-  tone: string;
-  toneEmoji: string;
   onClick?: () => void;
 }
 
@@ -18,8 +16,6 @@ export function AnalysisCard({
   description,
   socialScore,
   confidenceScore,
-  tone, 
-  toneEmoji, 
   onClick 
 }: AnalysisCardProps) {
   return (
@@ -33,46 +29,36 @@ export function AnalysisCard({
       )}
     >
       <div className="flex items-center gap-3 md:gap-4">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="font-medium text-sm md:text-base text-foreground truncate group-hover:text-primary transition-colors">
-              {title}
-            </h3>
-            {/* Score badges */}
-            {(socialScore !== undefined || confidenceScore !== undefined) && (
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                {socialScore !== undefined && (
-                  <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-primary/10 text-primary">
-                    <span className="text-[9px] md:text-[10px] font-medium">{socialScore}</span>
-                    <span className="text-[8px] md:text-[9px] opacity-70">S</span>
-                  </div>
-                )}
-                {confidenceScore !== undefined && (
-                  <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-accent/10 text-accent">
-                    <span className="text-[9px] md:text-[10px] font-medium">{confidenceScore}</span>
-                    <span className="text-[8px] md:text-[9px] opacity-70">C</span>
-                  </div>
-                )}
+        {/* Score badges on left */}
+        {(socialScore !== undefined || confidenceScore !== undefined) && (
+          <div className="flex flex-col gap-1 flex-shrink-0">
+            {socialScore !== undefined && (
+              <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-lg bg-primary/10 border border-primary/20">
+                <span className="text-sm md:text-base font-bold text-primary">{socialScore}</span>
+              </div>
+            )}
+            {confidenceScore !== undefined && (
+              <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-lg bg-accent/10 border border-accent/20">
+                <span className="text-sm md:text-base font-bold text-accent">{confidenceScore}</span>
               </div>
             )}
           </div>
+        )}
+
+        <div className="flex-1 min-w-0">
+          <h3 className="font-medium text-sm md:text-base text-foreground group-hover:text-primary transition-colors">
+            {title}
+          </h3>
           
           {description && (
-            <p className="text-[11px] md:text-xs text-muted-foreground mt-0.5 line-clamp-1">
+            <p className="text-[11px] md:text-xs text-muted-foreground mt-1">
               {description}
             </p>
           )}
           
-          <div className="flex items-center gap-2 mt-1.5 md:mt-2">
-            <span className="text-[10px] md:text-xs text-muted-foreground">
-              {date}
-            </span>
-            <span className="text-muted-foreground/30">•</span>
-            <div className="inline-flex items-center gap-1">
-              <span className="text-[10px] md:text-xs">{toneEmoji}</span>
-              <span className="text-[9px] md:text-[11px] font-medium text-primary">{tone}</span>
-            </div>
-          </div>
+          <span className="text-[10px] md:text-xs text-muted-foreground/70 mt-1.5 block">
+            {date}
+          </span>
         </div>
         
         <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />

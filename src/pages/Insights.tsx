@@ -280,8 +280,6 @@ const Insights = () => {
                       date={analysis.date}
                       socialScore={analysis.socialScore}
                       confidenceScore={analysis.confidenceScore}
-                      tone={analysis.tone}
-                      toneEmoji={analysis.toneEmoji}
                       onClick={() => toast.info("Analyze a conversation to see your insights!")}
                     />
                   </div>
@@ -300,12 +298,10 @@ const Insights = () => {
                   >
                     <AnalysisCard
                       title={report.title || `Analysis from ${formatDate(report.created_at)}`}
-                      description={report.analysis_result.summary?.slice(0, 80) + "..."}
+                      description={report.analysis_result.summary}
                       date={formatDate(report.created_at)}
                       socialScore={report.analysis_result.socialScore}
                       confidenceScore={report.analysis_result.confidenceScore}
-                      tone={report.analysis_result.vocalTone?.archetype || "Engaging"}
-                      toneEmoji={report.analysis_result.socialScore >= 70 ? "🔥" : report.analysis_result.confidenceScore >= 70 ? "🧠" : "💬"}
                       onClick={() => setSelectedReport(report)}
                     />
                     {/* Delete button overlay */}

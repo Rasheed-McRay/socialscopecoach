@@ -11,19 +11,19 @@ export function ScoreDial({ score, label, size = "md" }: ScoreDialProps) {
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
   const sizeClasses = {
-    sm: "w-16 h-16",
-    md: "w-20 h-20",
-    lg: "w-24 h-24",
+    sm: "w-14 h-14",
+    md: "w-16 h-16",
+    lg: "w-20 h-20",
   };
 
   const textSizes = {
-    sm: "text-lg",
-    md: "text-xl",
-    lg: "text-2xl",
+    sm: "text-base",
+    md: "text-lg",
+    lg: "text-xl",
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-1.5">
       <div className={cn("relative", sizeClasses[size])}>
         {/* Background glow */}
         <div className="absolute inset-0 rounded-full bg-primary/10 blur-md" />
@@ -67,7 +67,7 @@ export function ScoreDial({ score, label, size = "md" }: ScoreDialProps) {
           </span>
         </div>
       </div>
-      <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+      <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
         {label}
       </span>
     </div>

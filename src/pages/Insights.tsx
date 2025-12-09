@@ -156,18 +156,18 @@ const Insights = () => {
         <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 pb-28">
+      <div className="relative z-10 pb-24">
         {/* Header */}
         <header className="border-b border-primary/10 backdrop-blur-sm safe-area-top">
-          <div className="px-4 py-4">
+          <div className="px-4 py-3">
             <div className="flex items-center justify-between">
-              <Link to="/app" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center glow-primary">
-                  <AudioWaveform className="w-5 h-5 text-primary-foreground" />
+              <Link to="/app" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+                <div className="w-9 h-9 rounded-xl bg-gradient-primary flex items-center justify-center glow-primary">
+                  <AudioWaveform className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-serif font-semibold text-foreground">SocialScope</h1>
-                  <p className="text-[10px] text-muted-foreground">AI-Powered Conversation Coach</p>
+                  <h1 className="text-base font-serif font-semibold text-foreground">SocialScope</h1>
+                  <p className="text-[9px] text-muted-foreground">AI-Powered Conversation Coach</p>
                 </div>
               </Link>
               
@@ -201,34 +201,34 @@ const Insights = () => {
         </header>
 
         {/* Main Content */}
-        <main className="px-4 py-6 space-y-8">
+        <main className="px-4 py-4 space-y-6">
           {/* Section: Your Insights */}
-          <section className="space-y-4 animate-fade-in">
-            <h2 className="text-xl font-serif text-foreground">
+          <section className="space-y-3 animate-fade-in">
+            <h2 className="text-lg font-serif text-foreground">
               Your <span className="text-gradient-primary">Insights</span>
             </h2>
             
             {/* Horizontal scrollable insight cards */}
-            <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {/* Social Skill Score */}
-              <InsightCard className="flex-shrink-0 w-[140px]">
-                <ScoreDial score={avgSocialScore} label="Social Skill" size="md" />
+              <InsightCard className="flex-shrink-0 w-[110px]">
+                <ScoreDial score={avgSocialScore} label="Social Skill" size="sm" />
               </InsightCard>
 
               {/* Confidence Score */}
-              <InsightCard className="flex-shrink-0 w-[140px]">
-                <ScoreDial score={avgConfidenceScore} label="Confidence" size="md" />
+              <InsightCard className="flex-shrink-0 w-[110px]">
+                <ScoreDial score={avgConfidenceScore} label="Confidence" size="sm" />
               </InsightCard>
 
               {/* Main Focus */}
-              <InsightCard className="flex-shrink-0 w-[160px]">
-                <div className="flex flex-col items-center justify-center h-full py-2 gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Target className="w-5 h-5 text-primary" />
+              <InsightCard className="flex-shrink-0 w-[130px]">
+                <div className="flex flex-col items-center justify-center h-full py-1 gap-2">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Target className="w-4 h-4 text-primary" />
                   </div>
                   <div className="text-center">
-                    <h3 className="text-sm font-semibold text-foreground mb-0.5">Main Focus</h3>
-                    <p className="text-xs text-primary">Ask better questions</p>
+                    <h3 className="text-xs font-semibold text-foreground mb-0.5">Main Focus</h3>
+                    <p className="text-[10px] text-primary leading-tight">Ask better questions</p>
                   </div>
                 </div>
               </InsightCard>
@@ -236,8 +236,8 @@ const Insights = () => {
           </section>
 
           {/* Section: Recent Analyses */}
-          <section className="space-y-4" style={{ animationDelay: "0.1s" }}>
-            <h2 className="text-xl font-serif text-foreground animate-fade-in">
+          <section className="space-y-3" style={{ animationDelay: "0.1s" }}>
+            <h2 className="text-lg font-serif text-foreground animate-fade-in">
               Recent <span className="text-gradient-primary">Analyses</span>
             </h2>
 

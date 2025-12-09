@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Settings, LogOut } from 'lucide-react';
+import { Home, Settings, LogOut, Lightbulb } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function BottomNav() {
@@ -8,6 +8,7 @@ export function BottomNav() {
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/app' },
+    { icon: Lightbulb, label: 'Insights', path: '/insights' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];
 

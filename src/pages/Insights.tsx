@@ -48,10 +48,10 @@ const demoAnalyses = [
   },
 ];
 
-// Helper to truncate summary to max 12 words
-const truncateSummary = (summary: string): string => {
-  const words = summary.split(' ').slice(0, 12);
-  return words.join(' ');
+// Helper to get first sentence only
+const getFirstSentence = (text: string): string => {
+  const match = text.match(/^[^.!?]+[.!?]/);
+  return match ? match[0] : text;
 };
 
 const Insights = () => {
@@ -298,7 +298,7 @@ const Insights = () => {
                   >
                     <AnalysisCard
                       title={report.title || `Analysis from ${formatDate(report.created_at)}`}
-                      description={truncateSummary(report.analysis_result.summary)}
+                      description={getFirstSentence(report.analysis_result.summary)}
                       date={formatDate(report.created_at)}
                       socialScore={report.analysis_result.socialScore}
                       confidenceScore={report.analysis_result.confidenceScore}

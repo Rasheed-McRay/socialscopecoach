@@ -25,34 +25,34 @@ const demoAnalyses = [
   { 
     id: "demo-1", 
     title: "A flirty convo about dogs", 
-    description: "Talked about favorite dog breeds and shared funny pet stories.",
+    description: "A flirty conversation between strangers about puppies",
     date: "Dec 9th, 2025", 
-    tone: "Playful + Curious", 
-    toneEmoji: "🔥",
     socialScore: 82,
     confidenceScore: 75
   },
   { 
     id: "demo-2", 
     title: "A serious convo at work", 
-    description: "Discussed project deadlines and negotiated timeline expectations.",
+    description: "A tense negotiation about project deadlines",
     date: "Dec 4th, 2025", 
-    tone: "Professional + Assertive", 
-    toneEmoji: "🧠",
     socialScore: 71,
     confidenceScore: 84
   },
   { 
     id: "demo-3", 
     title: "A fiery debate about anime", 
-    description: "Debated which anime has the best storyline and character development.",
+    description: "A heated debate about which anime is best",
     date: "Dec 12th, 2025", 
-    tone: "Excited + Competitive", 
-    toneEmoji: "🎭",
     socialScore: 78,
     confidenceScore: 69
   },
 ];
+
+// Helper to truncate summary to max 12 words
+const truncateSummary = (summary: string): string => {
+  const words = summary.split(' ').slice(0, 12);
+  return words.join(' ');
+};
 
 const Insights = () => {
   const { user } = useAuth();
@@ -298,7 +298,7 @@ const Insights = () => {
                   >
                     <AnalysisCard
                       title={report.title || `Analysis from ${formatDate(report.created_at)}`}
-                      description={report.analysis_result.summary}
+                      description={truncateSummary(report.analysis_result.summary)}
                       date={formatDate(report.created_at)}
                       socialScore={report.analysis_result.socialScore}
                       confidenceScore={report.analysis_result.confidenceScore}

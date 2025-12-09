@@ -3,7 +3,7 @@ import { Mic, Square, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-
+import { toast } from "sonner";
 interface VoiceRecorderProps {
   sampleNumber: number;
   isComplete: boolean;
@@ -78,6 +78,26 @@ export const VoiceRecorder = ({
       }, 1000);
     } catch (error) {
       console.error("Error accessing microphone:", error);
+      
+      if (error instanceof Error) {
+        if (error.name === 'NotFoundError') {
+          toast.error("No microphone found", {
+            description: "Please connect a microphone and try again.",
+          });
+        } else if (error.name === 'NotAllowedError') {
+          toast.error("Microphone access denied", {
+            description: "Please allow microphone access in your browser settings.",
+          });
+        } else if (error.name === 'NotReadableError') {
+          toast.error("Microphone unavailable", {
+            description: "Your microphone may be in use by another application.",
+          });
+        } else {
+          toast.error("Unable to access microphone", {
+            description: "Please check your microphone settings and try again.",
+          });
+        }
+      }
     }
   }, [onRecordingComplete]);
 

@@ -106,6 +106,27 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
       }, 1000);
     } catch (error) {
       console.error("Error accessing microphone:", error);
+      releaseWakeLock();
+      
+      if (error instanceof Error) {
+        if (error.name === 'NotFoundError') {
+          toast.error("No microphone found", {
+            description: "Please connect a microphone and try again.",
+          });
+        } else if (error.name === 'NotAllowedError') {
+          toast.error("Microphone access denied", {
+            description: "Please allow microphone access in your browser settings.",
+          });
+        } else if (error.name === 'NotReadableError') {
+          toast.error("Microphone unavailable", {
+            description: "Your microphone may be in use by another application.",
+          });
+        } else {
+          toast.error("Unable to access microphone", {
+            description: "Please check your microphone settings and try again.",
+          });
+        }
+      }
     }
   };
 

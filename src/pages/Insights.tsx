@@ -209,26 +209,26 @@ const Insights = () => {
             </h2>
             
             {/* Horizontal scrollable insight cards */}
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
               {/* Social Skill Score */}
-              <InsightCard className="flex-shrink-0 w-[110px]">
-                <ScoreDial score={avgSocialScore} label="Social Skill" size="sm" />
+              <InsightCard className="flex-shrink-0 w-[90px]">
+                <ScoreDial score={avgSocialScore} label="Social" size="sm" />
               </InsightCard>
 
               {/* Confidence Score */}
-              <InsightCard className="flex-shrink-0 w-[110px]">
+              <InsightCard className="flex-shrink-0 w-[90px]">
                 <ScoreDial score={avgConfidenceScore} label="Confidence" size="sm" />
               </InsightCard>
 
               {/* Main Focus */}
-              <InsightCard className="flex-shrink-0 w-[130px]">
-                <div className="flex flex-col items-center justify-center h-full py-1 gap-2">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Target className="w-4 h-4 text-primary" />
+              <InsightCard className="flex-shrink-0 w-[100px]">
+                <div className="flex flex-col items-center justify-center h-full gap-1.5">
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Target className="w-3.5 h-3.5 text-primary" />
                   </div>
                   <div className="text-center">
-                    <h3 className="text-xs font-semibold text-foreground mb-0.5">Main Focus</h3>
-                    <p className="text-[10px] text-primary leading-tight">Ask better questions</p>
+                    <h3 className="text-[10px] font-semibold text-foreground">Main Focus</h3>
+                    <p className="text-[9px] text-primary leading-tight">Ask better questions</p>
                   </div>
                 </div>
               </InsightCard>

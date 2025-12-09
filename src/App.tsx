@@ -15,6 +15,7 @@ import VoiceSetup from "./pages/VoiceSetup";
 import Settings from "./pages/Settings";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import Insights from "./pages/Insights";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Settings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/insights"
+                element={
+                  <ProtectedRoute>
+                    <Insights />
                   </ProtectedRoute>
                 }
               />

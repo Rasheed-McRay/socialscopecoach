@@ -11,24 +11,13 @@ export function InsightCard({ children, className, onClick }: InsightCardProps) 
     <div 
       onClick={onClick}
       className={cn(
-        "relative rounded-2xl p-[1px] transition-all duration-300 cursor-pointer",
-        "bg-gradient-to-br from-primary/40 via-primary/20 to-transparent",
-        "hover:from-primary/60 hover:via-primary/30 hover:to-primary/10",
-        "group",
+        "relative rounded-xl bg-card border border-primary/20 p-2.5 transition-all duration-200 cursor-pointer",
+        "hover:border-primary/40 hover:shadow-[0_0_20px_rgba(247,165,58,0.1)]",
+        "active:scale-[0.98]",
         className
       )}
     >
-      {/* Outer glow */}
-      <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl bg-primary/20" />
-      
-      {/* Card content */}
-      <div className="relative bg-gradient-to-br from-card to-background rounded-xl p-2 shadow-card">
-        {/* Inner subtle shadow */}
-        <div className="absolute inset-0 rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" />
-        <div className="relative z-10">
-          {children}
-        </div>
-      </div>
+      {children}
     </div>
   );
 }

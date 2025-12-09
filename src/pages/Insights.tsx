@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import { AudioWaveform, Lightbulb, ArrowLeft, Trash2, Calendar, LogOut, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePWA } from "@/hooks/use-pwa";
-import { BottomNav } from "@/components/BottomNav";
 import { AnalysisReport, AnalysisResult } from "@/components/AnalysisReport";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,7 +19,6 @@ interface SavedReport {
 }
 
 const Insights = () => {
-  const { isPWA } = usePWA();
   const { user, signOut } = useAuth();
   const [reports, setReports] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,14 +72,14 @@ const Insights = () => {
 
   if (selectedReport) {
     return (
-      <div className={`min-h-screen bg-background ${isPWA ? 'pb-20' : ''}`}>
+      <div className="min-h-screen bg-background">
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
         </div>
 
         <div className="relative z-10">
-          <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border/50 safe-area-top">
+          <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border/50">
             <div className="container py-4">
               <Button
                 variant="ghost"
@@ -110,68 +107,51 @@ const Insights = () => {
             </div>
           </main>
         </div>
-
-        {isPWA && <BottomNav />}
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen bg-background ${isPWA ? 'pb-20' : ''}`}>
+    <div className="min-h-screen bg-background">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
       </div>
 
       <div className="relative z-10">
-        {isPWA ? (
-          <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border/50 safe-area-top">
-            <div className="container py-4">
-              <div className="flex items-center justify-center">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                    <Lightbulb className="w-4 h-4 text-primary-foreground" />
-                  </div>
-                  <h1 className="text-lg font-serif font-semibold text-foreground">Insights</h1>
+        <header className="border-b border-border/50 backdrop-blur-sm">
+          <div className="container py-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
+                  <AudioWaveform className="w-5 h-5 text-primary-foreground" />
                 </div>
+                <div>
+                  <h1 className="text-xl font-serif font-semibold text-foreground">SocialScope</h1>
+                  <p className="text-xs text-muted-foreground">AI-Powered Conversation Coach</p>
+                </div>
+              </Link>
+              
+              <div className="flex items-center gap-4">
+                {user?.email && (
+                  <span className="text-sm text-muted-foreground hidden sm:block">
+                    {user.email}
+                  </span>
+                )}
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/settings" className="gap-2">
+                    <Settings className="h-4 w-4" />
+                    <span className="hidden sm:inline">Settings</span>
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </Button>
               </div>
             </div>
-          </header>
-        ) : (
-          <header className="border-b border-border/50 backdrop-blur-sm">
-            <div className="container py-4">
-              <div className="flex items-center justify-between">
-                <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-                    <AudioWaveform className="w-5 h-5 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-serif font-semibold text-foreground">SocialScope</h1>
-                    <p className="text-xs text-muted-foreground">AI-Powered Conversation Coach</p>
-                  </div>
-                </Link>
-                
-                <div className="flex items-center gap-4">
-                  {user?.email && (
-                    <span className="text-sm text-muted-foreground hidden sm:block">
-                      {user.email}
-                    </span>
-                  )}
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to="/settings" className="gap-2">
-                      <Settings className="h-4 w-4" />
-                      <span className="hidden sm:inline">Settings</span>
-                    </Link>
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
-                    <LogOut className="h-4 w-4" />
-                    <span className="hidden sm:inline">Sign Out</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </header>
-        )}
+          </div>
+        </header>
 
         <main className="container py-8 md:py-12">
           <div className="max-w-3xl mx-auto space-y-8">
@@ -266,18 +246,14 @@ const Insights = () => {
           </div>
         </main>
 
-        {!isPWA && (
-          <footer className="border-t border-border/50 mt-auto">
-            <div className="container py-6">
-              <p className="text-center text-sm text-muted-foreground">
-                Built with care for better human connection
-              </p>
-            </div>
-          </footer>
-        )}
+        <footer className="border-t border-border/50 mt-auto">
+          <div className="container py-6">
+            <p className="text-center text-sm text-muted-foreground">
+              Built with care for better human connection
+            </p>
+          </div>
+        </footer>
       </div>
-
-      {isPWA && <BottomNav />}
     </div>
   );
 };

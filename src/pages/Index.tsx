@@ -8,14 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { transcribeAudio, analyzeConversation } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { usePWA } from "@/hooks/use-pwa";
-import { BottomNav } from "@/components/BottomNav";
 
 type AppState = "idle" | "processing" | "complete";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
 
 const Index = () => {
-  const { isPWA } = usePWA();
   const [appState, setAppState] = useState<AppState>("idle");
   const [processingStage, setProcessingStage] = useState<ProcessingStage>("uploading");
   const [progress, setProgress] = useState(0);
@@ -76,7 +73,7 @@ const Index = () => {
   const isProcessing = appState === "processing";
 
   return (
-    <div className={`min-h-screen bg-background ${isPWA ? 'pb-20' : ''}`}>
+    <div className="min-h-screen bg-background">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
@@ -84,61 +81,46 @@ const Index = () => {
       </div>
 
       <div className="relative z-10">
-        {/* Header - Different for PWA vs Website */}
-        {isPWA ? (
-          <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border/50 safe-area-top">
-            <div className="container py-4">
-              <div className="flex items-center justify-center">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                    <AudioWaveform className="w-4 h-4 text-primary-foreground" />
-                  </div>
-                  <h1 className="text-lg font-serif font-semibold text-foreground">SocialScope</h1>
+        {/* Header */}
+        <header className="border-b border-border/50 backdrop-blur-sm">
+          <div className="container py-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
+                  <AudioWaveform className="w-5 h-5 text-primary-foreground" />
                 </div>
+                <div>
+                  <h1 className="text-xl font-serif font-semibold text-foreground">SocialScope</h1>
+                  <p className="text-xs text-muted-foreground">AI-Powered Conversation Coach</p>
+                </div>
+              </Link>
+              
+              <div className="flex items-center gap-4">
+                {user?.email && (
+                  <span className="text-sm text-muted-foreground hidden sm:block">
+                    {user.email}
+                  </span>
+                )}
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/insights" className="gap-2">
+                    <Lightbulb className="h-4 w-4" />
+                    <span className="hidden sm:inline">Insights</span>
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/settings" className="gap-2">
+                    <Settings className="h-4 w-4" />
+                    <span className="hidden sm:inline">Settings</span>
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </Button>
               </div>
             </div>
-          </header>
-        ) : (
-          <header className="border-b border-border/50 backdrop-blur-sm">
-            <div className="container py-4">
-              <div className="flex items-center justify-between">
-                <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-                    <AudioWaveform className="w-5 h-5 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-serif font-semibold text-foreground">SocialScope</h1>
-                    <p className="text-xs text-muted-foreground">AI-Powered Conversation Coach</p>
-                  </div>
-                </Link>
-                
-                <div className="flex items-center gap-4">
-                  {user?.email && (
-                    <span className="text-sm text-muted-foreground hidden sm:block">
-                      {user.email}
-                    </span>
-                  )}
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to="/insights" className="gap-2">
-                      <Lightbulb className="h-4 w-4" />
-                      <span className="hidden sm:inline">Insights</span>
-                    </Link>
-                  </Button>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to="/settings" className="gap-2">
-                      <Settings className="h-4 w-4" />
-                      <span className="hidden sm:inline">Settings</span>
-                    </Link>
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
-                    <LogOut className="h-4 w-4" />
-                    <span className="hidden sm:inline">Sign Out</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </header>
-        )}
+          </div>
+        </header>
 
         {/* Main Content */}
         <main className="container py-12 md:py-16">
@@ -179,20 +161,15 @@ const Index = () => {
           )}
         </main>
 
-        {/* Footer - Only show on website, not PWA */}
-        {!isPWA && (
-          <footer className="border-t border-border/50 mt-auto">
-            <div className="container py-6">
-              <p className="text-center text-sm text-muted-foreground">
-                Built with care for better human connection
-              </p>
-            </div>
-          </footer>
-        )}
+        {/* Footer */}
+        <footer className="border-t border-border/50 mt-auto">
+          <div className="container py-6">
+            <p className="text-center text-sm text-muted-foreground">
+              Built with care for better human connection
+            </p>
+          </div>
+        </footer>
       </div>
-
-      {/* Bottom Navigation - Only in PWA */}
-      {isPWA && <BottomNav />}
     </div>
   );
 };

@@ -201,34 +201,34 @@ const Insights = () => {
         </header>
 
         {/* Main Content */}
-        <main className="px-4 py-4 space-y-6">
+        <main className="px-4 md:px-8 py-4 md:py-8 space-y-6 md:space-y-10 max-w-4xl mx-auto">
           {/* Section: Your Insights */}
-          <section className="space-y-3 animate-fade-in">
-            <h2 className="text-lg font-serif text-foreground">
+          <section className="space-y-3 md:space-y-4 animate-fade-in">
+            <h2 className="text-lg md:text-2xl font-serif text-foreground">
               Your <span className="text-gradient-primary">Insights</span>
             </h2>
             
             {/* Horizontal scrollable insight cards */}
-            <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+            <div className="flex gap-2 md:gap-4 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
               {/* Social Skill Score */}
-              <InsightCard className="flex-shrink-0 w-[90px]">
+              <InsightCard className="flex-shrink-0 w-[90px] md:w-[140px]">
                 <ScoreDial score={avgSocialScore} label="Social" size="sm" />
               </InsightCard>
 
               {/* Confidence Score */}
-              <InsightCard className="flex-shrink-0 w-[90px]">
+              <InsightCard className="flex-shrink-0 w-[90px] md:w-[140px]">
                 <ScoreDial score={avgConfidenceScore} label="Confidence" size="sm" />
               </InsightCard>
 
               {/* Main Focus */}
-              <InsightCard className="flex-shrink-0 w-[100px]">
-                <div className="flex flex-col items-center justify-center h-full gap-1.5">
-                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Target className="w-3.5 h-3.5 text-primary" />
+              <InsightCard className="flex-shrink-0 w-[100px] md:w-[160px]">
+                <div className="flex flex-col items-center justify-center h-full gap-1.5 md:gap-3">
+                  <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Target className="w-3.5 h-3.5 md:w-5 md:h-5 text-primary" />
                   </div>
                   <div className="text-center">
-                    <h3 className="text-[10px] font-semibold text-foreground">Main Focus</h3>
-                    <p className="text-[9px] text-primary leading-tight">Ask better questions</p>
+                    <h3 className="text-[10px] md:text-sm font-semibold text-foreground">Main Focus</h3>
+                    <p className="text-[9px] md:text-xs text-primary leading-tight">Ask better questions</p>
                   </div>
                 </div>
               </InsightCard>
@@ -236,8 +236,8 @@ const Insights = () => {
           </section>
 
           {/* Section: Recent Analyses */}
-          <section className="space-y-3" style={{ animationDelay: "0.1s" }}>
-            <h2 className="text-lg font-serif text-foreground animate-fade-in">
+          <section className="space-y-3 md:space-y-4" style={{ animationDelay: "0.1s" }}>
+            <h2 className="text-lg md:text-2xl font-serif text-foreground animate-fade-in">
               Recent <span className="text-gradient-primary">Analyses</span>
             </h2>
 

@@ -44,6 +44,33 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_reports: {
+        Row: {
+          analysis_result: Json
+          created_at: string
+          id: string
+          title: string | null
+          transcript: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis_result: Json
+          created_at?: string
+          id?: string
+          title?: string | null
+          transcript?: string | null
+          user_id: string
+        }
+        Update: {
+          analysis_result?: Json
+          created_at?: string
+          id?: string
+          title?: string | null
+          transcript?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       voice_samples: {
         Row: {
           audio_url: string

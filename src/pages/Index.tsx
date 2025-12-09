@@ -20,6 +20,7 @@ const Index = () => {
   const [processingStage, setProcessingStage] = useState<ProcessingStage>("uploading");
   const [progress, setProgress] = useState(0);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [transcript, setTranscript] = useState<string | null>(null);
   const { toast } = useToast();
   const { signOut, user } = useAuth();
 
@@ -36,14 +37,15 @@ const Index = () => {
       setProcessingStage("transcribing");
       setProgress(30);
       
-      const transcript = await transcribeAudio(audioBlob);
+      const transcriptResult = await transcribeAudio(audioBlob);
+      setTranscript(transcriptResult);
       setProgress(60);
 
       // Stage 3: Analyze
       setProcessingStage("analyzing");
       setProgress(70);
       
-      const result = await analyzeConversation(transcript);
+      const result = await analyzeConversation(transcriptResult);
       setProgress(100);
 
       setAnalysisResult(result);
@@ -68,6 +70,7 @@ const Index = () => {
     setAppState("idle");
     setProgress(0);
     setAnalysisResult(null);
+    setTranscript(null);
   };
 
   const isProcessing = appState === "processing";
@@ -164,7 +167,7 @@ const Index = () => {
 
           {appState === "complete" && analysisResult && (
             <div className="max-w-4xl mx-auto">
-              <AnalysisReport result={analysisResult} onReset={handleReset} />
+              <AnalysisReport result={analysisResult} transcript={transcript} onReset={handleReset} />
             </div>
           )}
         </main>

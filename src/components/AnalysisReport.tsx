@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -7,11 +8,14 @@ import {
   Sparkles,
   ChevronRight,
   RotateCcw,
+  FileText,
+  ChevronDown,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScoreCircle } from "@/components/ScoreCircle";
 import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export interface AnalysisResult {
   summary: string;
@@ -49,10 +53,12 @@ export interface AnalysisResult {
 
 interface AnalysisReportProps {
   result: AnalysisResult;
+  transcript?: string | null;
   onReset: () => void;
 }
 
-export function AnalysisReport({ result, onReset }: AnalysisReportProps) {
+export function AnalysisReport({ result, transcript, onReset }: AnalysisReportProps) {
+  const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header with Scores */}
@@ -221,6 +227,37 @@ export function AnalysisReport({ result, onReset }: AnalysisReportProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Transcript Section */}
+      {transcript && (
+        <Collapsible open={isTranscriptOpen} onOpenChange={setIsTranscriptOpen}>
+          <Card variant="glass">
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-secondary/30 transition-colors rounded-t-lg">
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-muted-foreground" />
+                    View Full Transcript
+                  </div>
+                  <ChevronDown className={cn(
+                    "w-5 h-5 text-muted-foreground transition-transform duration-200",
+                    isTranscriptOpen && "rotate-180"
+                  )} />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <div className="p-4 rounded-lg bg-secondary/30 max-h-96 overflow-y-auto">
+                  <pre className="whitespace-pre-wrap text-sm text-muted-foreground font-sans leading-relaxed">
+                    {transcript}
+                  </pre>
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+      )}
 
       {/* Reset Button */}
       <div className="flex justify-center pt-4">

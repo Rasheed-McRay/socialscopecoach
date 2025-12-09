@@ -10,12 +10,17 @@ import {
   RotateCcw,
   FileText,
   ChevronDown,
+  Save,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScoreCircle } from "@/components/ScoreCircle";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface AnalysisResult {
   summary: string;
@@ -55,10 +60,84 @@ interface AnalysisReportProps {
   result: AnalysisResult;
   transcript?: string | null;
   onReset: () => void;
+  reportId?: string;
+  onSaved?: (id: string) => void;
+  onDeleted?: () => void;
 }
 
-export function AnalysisReport({ result, transcript, onReset }: AnalysisReportProps) {
+export function AnalysisReport({ result, transcript, onReset, reportId, onSaved, onDeleted }: AnalysisReportProps) {
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(reportId || null);
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  const handleSave = async () => {
+    if (!user) return;
+    
+    setIsSaving(true);
+    try {
+      const { data, error } = await supabase
+        .from('saved_reports')
+        .insert([{
+          user_id: user.id,
+          title: `Analysis - ${new Date().toLocaleDateString()}`,
+          transcript: transcript || null,
+          analysis_result: JSON.parse(JSON.stringify(result)),
+        }])
+        .select('id')
+        .single();
+
+      if (error) throw error;
+
+      setSavedId(data.id);
+      onSaved?.(data.id);
+      toast({
+        title: "Report Saved",
+        description: "Your analysis report has been saved.",
+      });
+    } catch (error) {
+      console.error("Error saving report:", error);
+      toast({
+        title: "Save Failed",
+        description: "Could not save the report. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!savedId) return;
+    
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('saved_reports')
+        .delete()
+        .eq('id', savedId);
+
+      if (error) throw error;
+
+      setSavedId(null);
+      onDeleted?.();
+      toast({
+        title: "Report Deleted",
+        description: "Your saved report has been deleted.",
+      });
+    } catch (error) {
+      console.error("Error deleting report:", error);
+      toast({
+        title: "Delete Failed",
+        description: "Could not delete the report. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header with Scores */}
@@ -259,8 +338,46 @@ export function AnalysisReport({ result, transcript, onReset }: AnalysisReportPr
         </Collapsible>
       )}
 
-      {/* Reset Button */}
-      <div className="flex justify-center pt-4">
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4">
+        {!savedId ? (
+          <Button 
+            variant="default" 
+            size="lg" 
+            onClick={handleSave} 
+            disabled={isSaving}
+            className="gap-2"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                Save Report
+              </>
+            )}
+          </Button>
+        ) : (
+          <Button 
+            variant="destructive" 
+            size="lg" 
+            onClick={handleDelete} 
+            disabled={isDeleting}
+            className="gap-2"
+          >
+            {isDeleting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              "Delete Saved Report"
+            )}
+          </Button>
+        )}
         <Button variant="outline" size="lg" onClick={onReset} className="gap-2">
           <RotateCcw className="w-4 h-4" />
           Analyze Another Conversation

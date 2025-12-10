@@ -127,15 +127,6 @@ const PrivacyPolicy = () => {
             </p>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">11. Contact Us</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              If you have any questions about this Privacy Policy, please contact us at{" "}
-              <a href="mailto:support@socialscope.app" className="text-primary hover:underline">
-                support@socialscope.app
-              </a>
-            </p>
-          </section>
         </div>
       </div>
     </div>

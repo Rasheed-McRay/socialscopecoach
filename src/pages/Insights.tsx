@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
+import { HeaderNav } from "@/components/HeaderNav";
 import { InsightCard } from "@/components/InsightCard";
 import { ScoreDial } from "@/components/ScoreDial";
 import { AnalysisCard } from "@/components/AnalysisCard";
@@ -184,7 +185,7 @@ const Insights = () => {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="rounded-full hover:bg-primary/10 hover:text-primary transition-all group"
+                  className="rounded-full hover:bg-primary/10 hover:text-primary transition-all group md:hidden"
                 >
                   <div className="relative">
                     <Lightbulb className="h-5 w-5 group-hover:drop-shadow-[0_0_8px_hsl(var(--primary))]" />
@@ -194,7 +195,7 @@ const Insights = () => {
                   variant="ghost" 
                   size="icon" 
                   asChild
-                  className="rounded-full hover:bg-primary/10 hover:text-primary transition-all group"
+                  className="rounded-full hover:bg-primary/10 hover:text-primary transition-all group md:hidden"
                 >
                   <Link to="/settings">
                     <div className="relative">
@@ -202,6 +203,7 @@ const Insights = () => {
                     </div>
                   </Link>
                 </Button>
+                <HeaderNav />
               </div>
             </div>
           </div>

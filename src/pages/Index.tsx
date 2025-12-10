@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AudioWaveform, Mic } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
-import { AudioUploader } from "@/components/AudioUploader";
+import { HomeRecorder } from "@/components/HomeRecorder";
 import { supabase } from "@/integrations/supabase/client";
 
 // Daily scope prompts
@@ -29,7 +28,6 @@ const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -57,8 +55,7 @@ const Index = () => {
     return "";
   };
 
-  const handleAudioReady = (audioBlob: Blob, fileName: string) => {
-    // Navigate to record page with the audio data
+  const handleRecordingComplete = (audioBlob: Blob, fileName: string) => {
     navigate("/record", { state: { audioBlob, fileName } });
   };
 
@@ -115,7 +112,7 @@ const Index = () => {
           {/* Recording Section */}
           <section className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 border border-border/50 p-6 md:p-8 space-y-5">
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-3">
                 <div className="w-16 h-16 rounded-full bg-gradient-primary mx-auto flex items-center justify-center glow-primary">
                   <Mic className="w-8 h-8 text-primary-foreground" />
                 </div>
@@ -124,10 +121,7 @@ const Index = () => {
                 </h3>
               </div>
               
-              <AudioUploader 
-                onAudioReady={handleAudioReady}
-                isProcessing={isProcessing}
-              />
+              <HomeRecorder onRecordingComplete={handleRecordingComplete} />
             </div>
           </section>
         </main>

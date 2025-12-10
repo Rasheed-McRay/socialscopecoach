@@ -91,7 +91,8 @@ const getDaysUntilReset = (periodEnd: string): number => {
 export const useDailyAnalysisLimit = () => {
   const { user } = useAuth();
   const { effectiveTier, effectiveHasFullAccess, impersonation } = useRole();
-  const [analysisCount, setAnalysisCount] = useState(0);
+  const [monthlyCount, setMonthlyCount] = useState(0);
+  const [dailyBonusUsed, setDailyBonusUsed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(getTodayLocalDate());
   const [billingPeriod, setBillingPeriod] = useState<{ start: string; end: string } | null>(null);
@@ -100,9 +101,17 @@ export const useDailyAnalysisLimit = () => {
   const isPro = effectiveTier === 'premium' || effectiveTier === 'developer';
   const hasUnlimitedAccess = effectiveHasFullAccess && !impersonation.active;
   
-  const currentLimit = isPro ? PRO_MONTHLY_LIMIT : FREE_DAILY_LIMIT;
-  const canAnalyze = hasUnlimitedAccess || analysisCount < currentLimit;
-  const remainingAnalyses = Math.max(0, currentLimit - analysisCount);
+  // Pro users: 30 monthly + 1 daily bonus
+  // Free users: 1 daily only
+  const monthlyRemaining = isPro ? Math.max(0, PRO_MONTHLY_LIMIT - monthlyCount) : 0;
+  const dailyBonusRemaining = isPro && !dailyBonusUsed ? 1 : 0;
+  const freeRemaining = !isPro && !dailyBonusUsed ? 1 : 0;
+  
+  const totalRemaining = isPro 
+    ? monthlyRemaining + dailyBonusRemaining 
+    : freeRemaining;
+  
+  const canAnalyze = hasUnlimitedAccess || totalRemaining > 0;
 
   // Fetch subscription start date
   const fetchSubscriptionDate = useCallback(async () => {
@@ -139,48 +148,52 @@ export const useDailyAnalysisLimit = () => {
     }
 
     try {
+      const todayDate = getTodayLocalDate();
+      setCurrentDate(todayDate);
+
+      // Always fetch daily usage (for bonus tracking)
+      const { data: dailyData, error: dailyError } = await supabase
+        .from('daily_analysis_usage')
+        .select('analysis_count')
+        .eq('user_id', user.id)
+        .eq('usage_date', todayDate)
+        .maybeSingle();
+
+      if (dailyError) {
+        console.error('Error fetching daily usage:', dailyError);
+      }
+
       if (isPro) {
-        // Fetch subscription date first
+        // Fetch subscription date and monthly usage
         const subDate = await fetchSubscriptionDate();
         const period = getCurrentBillingPeriod(subDate);
         setBillingPeriod(period);
 
-        // Fetch monthly usage
-        const { data, error } = await supabase
+        const { data: monthlyData, error: monthlyError } = await supabase
           .from('monthly_analysis_usage')
           .select('analysis_count')
           .eq('user_id', user.id)
           .eq('billing_period_start', period.start)
           .maybeSingle();
 
-        if (error) {
-          console.error('Error fetching monthly usage:', error);
-          setAnalysisCount(0);
+        if (monthlyError) {
+          console.error('Error fetching monthly usage:', monthlyError);
+          setMonthlyCount(0);
         } else {
-          setAnalysisCount(data?.analysis_count ?? 0);
+          setMonthlyCount(monthlyData?.analysis_count ?? 0);
         }
+
+        // For pro users, daily count tracks bonus usage (1 = used, 0 = available)
+        setDailyBonusUsed((dailyData?.analysis_count ?? 0) >= 1);
       } else {
-        // Fetch daily usage for free users
-        const todayDate = getTodayLocalDate();
-        setCurrentDate(todayDate);
-
-        const { data, error } = await supabase
-          .from('daily_analysis_usage')
-          .select('analysis_count')
-          .eq('user_id', user.id)
-          .eq('usage_date', todayDate)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error fetching daily usage:', error);
-          setAnalysisCount(0);
-        } else {
-          setAnalysisCount(data?.analysis_count ?? 0);
-        }
+        // Free users only use daily
+        setMonthlyCount(0);
+        setDailyBonusUsed((dailyData?.analysis_count ?? 0) >= 1);
       }
     } catch (err) {
       console.error('Error fetching usage:', err);
-      setAnalysisCount(0);
+      setMonthlyCount(0);
+      setDailyBonusUsed(false);
     } finally {
       setLoading(false);
     }
@@ -194,8 +207,53 @@ export const useDailyAnalysisLimit = () => {
     if (hasUnlimitedAccess) return true;
 
     try {
+      const todayDate = getTodayLocalDate();
+
       if (isPro) {
-        // Pro user: track monthly usage
+        // Pro user logic: use daily bonus first, then monthly
+        if (!dailyBonusUsed) {
+          // Use daily bonus first
+          const { data: existing } = await supabase
+            .from('daily_analysis_usage')
+            .select('id, analysis_count')
+            .eq('user_id', user.id)
+            .eq('usage_date', todayDate)
+            .maybeSingle();
+
+          if (existing) {
+            const { error } = await supabase
+              .from('daily_analysis_usage')
+              .update({ analysis_count: existing.analysis_count + 1 })
+              .eq('id', existing.id);
+
+            if (error) {
+              console.error('Error updating daily usage:', error);
+              return false;
+            }
+          } else {
+            const { error } = await supabase
+              .from('daily_analysis_usage')
+              .insert({
+                user_id: user.id,
+                usage_date: todayDate,
+                analysis_count: 1,
+              });
+
+            if (error) {
+              console.error('Error inserting daily usage:', error);
+              return false;
+            }
+          }
+
+          setDailyBonusUsed(true);
+          return true;
+        }
+
+        // Daily bonus used, use monthly allocation
+        if (monthlyRemaining <= 0) {
+          return false;
+        }
+
         const subDate = subscriptionStartedAt || (await fetchSubscriptionDate());
         const period = getCurrentBillingPeriod(subDate);
 
@@ -207,10 +265,6 @@ export const useDailyAnalysisLimit = () => {
           .maybeSingle();
 
         if (existing) {
-          if (existing.analysis_count >= PRO_MONTHLY_LIMIT) {
-            return false;
-          }
-
           const { error } = await supabase
             .from('monthly_analysis_usage')
             .update({ analysis_count: existing.analysis_count + 1 })
@@ -221,7 +275,7 @@ export const useDailyAnalysisLimit = () => {
             return false;
           }
 
-          setAnalysisCount(existing.analysis_count + 1);
+          setMonthlyCount(existing.analysis_count + 1);
         } else {
           const { error } = await supabase
             .from('monthly_analysis_usage')
@@ -237,11 +291,13 @@ export const useDailyAnalysisLimit = () => {
             return false;
           }
 
-          setAnalysisCount(1);
+          setMonthlyCount(1);
         }
       } else {
-        // Free user: track daily usage
-        const todayDate = getTodayLocalDate();
+        // Free user: track daily usage only
+        if (dailyBonusUsed) {
+          return false;
+        }
 
         const { data: existing } = await supabase
           .from('daily_analysis_usage')
@@ -264,8 +320,6 @@ export const useDailyAnalysisLimit = () => {
             console.error('Error updating daily usage:', error);
             return false;
           }
-
-          setAnalysisCount(existing.analysis_count + 1);
         } else {
           const { error } = await supabase
             .from('daily_analysis_usage')
@@ -279,9 +333,9 @@ export const useDailyAnalysisLimit = () => {
             console.error('Error inserting daily usage:', error);
             return false;
           }
-
-          setAnalysisCount(1);
         }
+
+        setDailyBonusUsed(true);
       }
 
       return true;
@@ -289,27 +343,25 @@ export const useDailyAnalysisLimit = () => {
       console.error('Error incrementing usage:', err);
       return false;
     }
-  }, [user, isPro, hasUnlimitedAccess, subscriptionStartedAt, fetchSubscriptionDate]);
+  }, [user, isPro, hasUnlimitedAccess, dailyBonusUsed, monthlyRemaining, subscriptionStartedAt, fetchSubscriptionDate]);
 
   // Fetch usage on mount and when user/tier changes
   useEffect(() => {
     fetchUsage();
   }, [fetchUsage]);
 
-  // Set up timer to refresh at midnight for free users
+  // Set up timer to refresh at midnight (daily bonus resets)
   useEffect(() => {
-    if (isPro) return;
-
     const msUntilMidnight = getMsUntilMidnight();
 
     const timer = setTimeout(() => {
-      setAnalysisCount(0);
+      setDailyBonusUsed(false);
       setCurrentDate(getTodayLocalDate());
       fetchUsage();
     }, msUntilMidnight);
 
     return () => clearTimeout(timer);
-  }, [currentDate, fetchUsage, isPro]);
+  }, [currentDate, fetchUsage]);
 
   // Calculate reset info
   const getResetInfo = () => {
@@ -319,20 +371,22 @@ export const useDailyAnalysisLimit = () => {
         type: 'monthly' as const,
         daysUntilReset: daysUntil,
         periodEnd: billingPeriod.end,
+        dailyBonusAvailable: !dailyBonusUsed,
       };
     }
     return {
       type: 'daily' as const,
       daysUntilReset: 1,
       periodEnd: currentDate,
+      dailyBonusAvailable: !dailyBonusUsed,
     };
   };
 
   return {
     canAnalyze,
-    remainingAnalyses,
-    analysisCount,
-    limit: currentLimit,
+    remainingAnalyses: totalRemaining,
+    analysisCount: isPro ? monthlyCount : (dailyBonusUsed ? 1 : 0),
+    limit: isPro ? PRO_MONTHLY_LIMIT + 1 : FREE_DAILY_LIMIT,
     dailyLimit: FREE_DAILY_LIMIT,
     monthlyLimit: PRO_MONTHLY_LIMIT,
     loading,
@@ -341,5 +395,8 @@ export const useDailyAnalysisLimit = () => {
     isPro,
     hasUnlimitedAccess,
     resetInfo: getResetInfo(),
+    // Pro-specific info
+    monthlyRemaining,
+    dailyBonusAvailable: !dailyBonusUsed,
   };
 };

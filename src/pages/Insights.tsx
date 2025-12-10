@@ -195,20 +195,20 @@ const Insights = () => {
               Your <span className="text-gradient-primary">Insights</span>
             </h2>
             
-            {/* Horizontal scrollable insight cards */}
-            <div className="flex gap-2 md:gap-4 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
-              {/* Social Skill Score */}
-              <InsightCard className="flex-shrink-0 w-[90px] md:w-[140px]">
-                <ScoreDial score={avgSocialScore} label="Social" size="sm" />
+            {/* Insight cards grid */}
+            <div className="grid grid-cols-3 gap-2 md:flex md:gap-4">
+              {/* Social Skills Score */}
+              <InsightCard className="w-full md:w-[140px]">
+                <ScoreDial score={avgSocialScore} label="Social Skills" size="sm" />
               </InsightCard>
 
               {/* Confidence Score */}
-              <InsightCard className="flex-shrink-0 w-[90px] md:w-[140px]">
+              <InsightCard className="w-full md:w-[140px]">
                 <ScoreDial score={avgConfidenceScore} label="Confidence" size="sm" />
               </InsightCard>
 
               {/* Main Focus */}
-              <InsightCard className="flex-shrink-0 w-[100px] md:w-[160px]">
+              <InsightCard className="w-full md:w-[160px]">
                 <div className="flex flex-col items-center justify-center h-full gap-1.5 md:gap-3">
                   <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-primary/10 flex items-center justify-center">
                     <Target className="w-3.5 h-3.5 md:w-5 md:h-5 text-primary" />

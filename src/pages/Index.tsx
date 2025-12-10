@@ -81,7 +81,7 @@ const Index = () => {
         <main className="px-4 md:px-8 py-6 md:py-10 space-y-6 max-w-4xl mx-auto">
           {/* Welcome Section */}
           <section className="text-center space-y-1 animate-fade-in">
-            <h2 className="text-xl md:text-2xl font-serif text-foreground">
+            <h2 className="md:text-2xl font-serif text-foreground text-2xl">
               Welcome back{getGreetingName() ? `, ${getGreetingName()}` : ''}
             </h2>
           </section>

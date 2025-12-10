@@ -131,12 +131,21 @@ const Settings = () => {
     try {
       const { data, error } = await supabase.functions.invoke('customer-portal');
       if (error) throw error;
+      if (data?.error?.includes('No Stripe customer')) {
+        toast.info("Your subscription was granted by an admin. No billing to manage.");
+        return;
+      }
       if (data?.url) {
         window.location.href = data.url;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error opening customer portal:", error);
-      toast.error("Failed to open subscription management");
+      // Handle case where user was granted pro access without Stripe
+      if (error?.message?.includes('No Stripe customer') || error?.context?.body?.includes('No Stripe customer')) {
+        toast.info("Your subscription was granted by an admin. No billing to manage.");
+      } else {
+        toast.error("Failed to open subscription management");
+      }
     } finally {
       setIsManagingSubscription(false);
     }

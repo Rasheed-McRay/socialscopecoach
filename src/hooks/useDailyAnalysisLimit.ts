@@ -400,7 +400,7 @@ export const useDailyAnalysisLimit = () => {
     canAnalyze,
     remainingAnalyses: totalRemaining,
     analysisCount: isPro ? monthlyCount : (dailyBonusUsed ? 1 : 0),
-    limit: isPro ? PRO_MONTHLY_LIMIT + 1 : FREE_DAILY_LIMIT,
+    limit: isPro ? PRO_MONTHLY_LIMIT : FREE_DAILY_LIMIT,
     dailyLimit: FREE_DAILY_LIMIT,
     monthlyLimit: PRO_MONTHLY_LIMIT,
     loading,

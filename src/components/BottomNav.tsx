@@ -6,7 +6,7 @@ const navItems = [
   { icon: Sun, label: "Home", path: "/app" },
   { icon: Lightbulb, label: "Insights", path: "/insights" },
   { icon: Mic, label: "Record", path: "/record", isCenter: true },
-  { icon: NotebookText, label: "History", path: "/history" },
+  { icon: NotebookText, label: "Progress", path: "/progress" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 

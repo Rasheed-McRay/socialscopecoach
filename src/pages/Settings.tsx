@@ -8,14 +8,17 @@ import { Input } from "@/components/ui/input";
 import { VoiceRegistration } from "@/components/VoiceRegistration";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useRole } from "@/contexts/RoleContext";
 import { supabase } from "@/integrations/supabase/client";
 import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
+import { AdminPanel } from "@/components/AdminPanel";
 import { toast } from "sonner";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
   const { tier, isPro, refreshSubscription } = useSubscription();
+  const { isOwner, impersonation } = useRole();
   const navigate = useNavigate();
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
   const [voiceRegistered, setVoiceRegistered] = useState(false);
@@ -161,6 +164,18 @@ const Settings = () => {
             </div>
           ) : (
             <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
+              {/* Admin Panel - Owner Only */}
+              <AdminPanel />
+
+              {/* Impersonation Banner */}
+              {impersonation.active && (
+                <div className="p-3 rounded-lg bg-amber-500/20 border border-amber-500/50 text-center">
+                  <p className="text-sm text-amber-200">
+                    Viewing as: <strong>{impersonation.tier}</strong> user with <strong>{impersonation.accessLevel}</strong> access
+                  </p>
+                </div>
+              )}
+
               {/* Account Section */}
               <Card className="glass">
                 <CardHeader>

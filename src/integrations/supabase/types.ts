@@ -104,6 +104,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          access_level: Database["public"]["Enums"]["access_level"]
+          created_at: string
+          id: string
+          is_hidden: boolean
+          role: Database["public"]["Enums"]["app_role"]
+          tier: Database["public"]["Enums"]["subscription_tier_v2"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_level?: Database["public"]["Enums"]["access_level"]
+          created_at?: string
+          id?: string
+          is_hidden?: boolean
+          role?: Database["public"]["Enums"]["app_role"]
+          tier?: Database["public"]["Enums"]["subscription_tier_v2"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_level?: Database["public"]["Enums"]["access_level"]
+          created_at?: string
+          id?: string
+          is_hidden?: boolean
+          role?: Database["public"]["Enums"]["app_role"]
+          tier?: Database["public"]["Enums"]["subscription_tier_v2"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_subscriptions: {
         Row: {
           created_at: string
@@ -160,10 +193,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_view_profile: { Args: { _profile_user_id: string }; Returns: boolean }
+      get_access_level: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["access_level"]
+      }
+      get_user_tier: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["subscription_tier_v2"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_owner: { Args: { _user_id: string }; Returns: boolean }
+      is_user_visible: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
+      access_level: "restricted" | "standard" | "unlimited"
+      app_role: "owner" | "admin" | "moderator" | "user"
       subscription_tier: "basic" | "pro"
+      subscription_tier_v2: "free" | "premium" | "developer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -291,7 +344,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      access_level: ["restricted", "standard", "unlimited"],
+      app_role: ["owner", "admin", "moderator", "user"],
       subscription_tier: ["basic", "pro"],
+      subscription_tier_v2: ["free", "premium", "developer"],
     },
   },
 } as const

@@ -11,7 +11,7 @@ const VoiceSetup = () => {
   const { user } = useAuth();
 
   const handleComplete = () => {
-    navigate("/app");
+    navigate("/record");
   };
 
   const handleSkip = async () => {
@@ -22,7 +22,7 @@ const VoiceSetup = () => {
         .update({ voice_registered: true })
         .eq("user_id", user.id);
     }
-    navigate("/app");
+    navigate("/record");
   };
 
   return (

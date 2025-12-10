@@ -86,7 +86,7 @@ const Record = () => {
         <header className="border-b border-border/50 backdrop-blur-sm">
           <div className="container py-4">
             <div className="flex items-center justify-between">
-              <Link to="/app" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+              <Link to="/record" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                 <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
                   <AudioWaveform className="w-5 h-5 text-primary-foreground" />
                 </div>

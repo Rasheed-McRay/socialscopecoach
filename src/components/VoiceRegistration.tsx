@@ -196,36 +196,54 @@ export const VoiceRegistration = ({
           <Progress value={Math.min(progressPercent, 100)} className="h-2" />
         </div>
 
-        {/* Voice recorders */}
+        {/* Voice recorders - Required samples */}
         <div className="space-y-4">
-          {Array.from({ length: TOTAL_SAMPLES }, (_, i) => i + 1).map((num) => {
+          {Array.from({ length: REQUIRED_SAMPLES }, (_, i) => i + 1).map((num) => {
             const existingSample = samples.find((s) => s.sample_number === num);
-            const isRequired = num <= REQUIRED_SAMPLES;
-            
-            // Only show optional samples if required ones are done
-            if (!isRequired && completedCount < REQUIRED_SAMPLES) {
-              return null;
-            }
 
             return (
-              <div key={num} className="relative">
-                {!isRequired && (
-                  <span className="absolute -top-2 right-2 text-xs bg-secondary px-2 py-0.5 rounded-full text-muted-foreground">
-                    Optional
-                  </span>
-                )}
-                <VoiceRecorder
-                  sampleNumber={num}
-                  isComplete={!!existingSample}
-                  isUploading={uploadingSample === num}
-                  onRecordingComplete={async (blob, duration) => {
-                    await handleRecordingComplete(num, blob, duration);
-                  }}
-                />
-              </div>
+              <VoiceRecorder
+                key={num}
+                sampleNumber={num}
+                isComplete={!!existingSample}
+                isUploading={uploadingSample === num}
+                onRecordingComplete={async (blob, duration) => {
+                  await handleRecordingComplete(num, blob, duration);
+                }}
+              />
             );
           })}
         </div>
+
+        {/* Optional samples section - shown after required are complete */}
+        {isRegistrationComplete && (
+          <div className="space-y-4 pt-4 border-t border-border">
+            <p className="text-sm text-muted-foreground text-center">
+              Add more samples for better voice recognition accuracy
+            </p>
+            <div className="space-y-4">
+              {Array.from({ length: TOTAL_SAMPLES - REQUIRED_SAMPLES }, (_, i) => i + REQUIRED_SAMPLES + 1).map((num) => {
+                const existingSample = samples.find((s) => s.sample_number === num);
+
+                return (
+                  <div key={num} className="relative">
+                    <span className="absolute -top-2 right-2 text-xs bg-secondary px-2 py-0.5 rounded-full text-muted-foreground z-10">
+                      Optional
+                    </span>
+                    <VoiceRecorder
+                      sampleNumber={num}
+                      isComplete={!!existingSample}
+                      isUploading={uploadingSample === num}
+                      onRecordingComplete={async (blob, duration) => {
+                        await handleRecordingComplete(num, blob, duration);
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="pt-4">
@@ -241,7 +259,7 @@ export const VoiceRegistration = ({
                 <ArrowRight className="w-4 h-4" />
               </>
             ) : (
-              `Record ${REQUIRED_SAMPLES - completedCount} more`
+              `Record more samples`
             )}
           </Button>
         </div>

@@ -147,7 +147,7 @@ const Landing = () => {
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '1.5s' }} />
       </div>
 
-      {/* Header */}
+      <main>
       <header className="relative z-20 border-b border-border/30 backdrop-blur-md">
         <div className="container py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
@@ -433,6 +433,7 @@ const Landing = () => {
           <p>© 2024 SocialScope. Built with care for better human connection.</p>
         </div>
       </footer>
+      </main>
     </div>
   );
 };

@@ -99,7 +99,7 @@ const Index = () => {
 
           {/* Daily Scope Prompt */}
           <section className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <div className="rounded-2xl bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 border border-primary/20 p-5 md:p-6 text-center space-y-1">
+            <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 border border-border/50 p-5 md:p-6 text-center space-y-1">
               <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground">
                 Daily Scope
               </h3>

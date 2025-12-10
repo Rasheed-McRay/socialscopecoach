@@ -21,7 +21,7 @@ interface VoiceSample {
   duration_seconds: number;
 }
 
-const REQUIRED_SAMPLES = 2;
+const REQUIRED_SAMPLES = 3;
 const TOTAL_SAMPLES = 5;
 
 export const VoiceRegistration = ({

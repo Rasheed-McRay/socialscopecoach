@@ -125,14 +125,41 @@ export const VoiceRegistration = ({
         description: `Voice sample ${sampleNumber} saved successfully.`,
       });
 
-      // Check if we've hit the required samples
-      const newSampleCount = samples.filter(s => s.sample_number !== sampleNumber).length + 1;
-      if (newSampleCount >= REQUIRED_SAMPLES) {
+      // Check if we've hit the required samples for the first time
+      const previousCount = samples.filter(s => s.sample_number !== sampleNumber).length;
+      const newSampleCount = previousCount + 1;
+      const wasNotComplete = previousCount < REQUIRED_SAMPLES;
+      const isNowComplete = newSampleCount >= REQUIRED_SAMPLES;
+      
+      if (wasNotComplete && isNowComplete) {
         // Update profile to mark voice as registered
         await supabase
           .from("profiles")
           .update({ voice_registered: true })
           .eq("user_id", user.id);
+
+        // Grant 5 free analyses as a reward for completing voice registration
+        const today = new Date().toISOString().split('T')[0];
+        const { data: existingUsage } = await supabase
+          .from("daily_analysis_usage")
+          .select("analysis_count")
+          .eq("user_id", user.id)
+          .eq("usage_date", today)
+          .maybeSingle();
+
+        if (existingUsage) {
+          // Subtract 5 from count (giving 5 free analyses)
+          await supabase
+            .from("daily_analysis_usage")
+            .update({ analysis_count: Math.max(0, existingUsage.analysis_count - 5) })
+            .eq("user_id", user.id)
+            .eq("usage_date", today);
+        }
+
+        toast({
+          title: "🎉 Voice profile complete!",
+          description: "You've earned 5 free analyses as a reward!",
+        });
       }
     } catch (error) {
       console.error("Error saving voice sample:", error);

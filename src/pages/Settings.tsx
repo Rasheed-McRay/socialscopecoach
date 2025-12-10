@@ -7,6 +7,8 @@ import { Separator } from "@/components/ui/separator";
 import { VoiceRegistration } from "@/components/VoiceRegistration";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { BottomNav } from "@/components/BottomNav";
+import { HeaderNav } from "@/components/HeaderNav";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -79,10 +81,13 @@ const Settings = () => {
                 </div>
               </Link>
 
-              <Button variant="ghost" size="sm" onClick={() => navigate("/app")} className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => navigate("/app")} className="gap-2 md:hidden">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </Button>
+                <HeaderNav />
+              </div>
             </div>
           </div>
         </header>
@@ -176,6 +181,9 @@ const Settings = () => {
           )}
         </main>
       </div>
+
+      {/* Bottom Navigation - Mobile Only */}
+      <BottomNav />
     </div>
   );
 };

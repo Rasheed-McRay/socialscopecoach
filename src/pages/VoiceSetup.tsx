@@ -3,6 +3,8 @@ import { VoiceRegistration } from "@/components/VoiceRegistration";
 import { AudioWaveform } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { BottomNav } from "@/components/BottomNav";
+import { HeaderNav } from "@/components/HeaderNav";
 
 const VoiceSetup = () => {
   const navigate = useNavigate();
@@ -44,6 +46,9 @@ const VoiceSetup = () => {
             <AudioWaveform className="w-5 h-5 text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-serif font-semibold text-foreground">SocialScope</h1>
+          <div className="absolute right-4 top-4">
+            <HeaderNav />
+          </div>
         </div>
 
         <VoiceRegistration
@@ -53,6 +58,9 @@ const VoiceSetup = () => {
           isOnboarding={true}
         />
       </div>
+
+      {/* Bottom Navigation - Mobile Only */}
+      <BottomNav />
     </div>
   );
 };

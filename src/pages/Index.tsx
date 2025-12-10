@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { transcribeAudio, analyzeConversation } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { BottomNav } from "@/components/BottomNav";
+import { HeaderNav } from "@/components/HeaderNav";
 
 type AppState = "idle" | "processing" | "complete";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
@@ -101,22 +103,23 @@ const Index = () => {
                     {user.email}
                   </span>
                 )}
-                <Button variant="ghost" size="sm" asChild>
+                <Button variant="ghost" size="sm" asChild className="md:hidden">
                   <Link to="/insights" className="gap-2">
                     <Lightbulb className="h-4 w-4" />
                     <span className="hidden sm:inline">Insights</span>
                   </Link>
                 </Button>
-                <Button variant="ghost" size="sm" asChild>
+                <Button variant="ghost" size="sm" asChild className="md:hidden">
                   <Link to="/settings" className="gap-2">
                     <Settings className="h-4 w-4" />
                     <span className="hidden sm:inline">Settings</span>
                   </Link>
                 </Button>
-                <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
+                <Button variant="ghost" size="sm" onClick={signOut} className="gap-2 md:hidden">
                   <LogOut className="h-4 w-4" />
                   <span className="hidden sm:inline">Sign Out</span>
                 </Button>
+                <HeaderNav />
               </div>
             </div>
           </div>
@@ -170,6 +173,9 @@ const Index = () => {
           </div>
         </footer>
       </div>
+
+      {/* Bottom Navigation - Mobile Only */}
+      <BottomNav />
     </div>
   );
 };

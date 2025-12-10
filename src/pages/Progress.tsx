@@ -237,10 +237,10 @@ const Progress = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 rounded-xl bg-primary/5 border border-primary/10">
                   <p className="text-3xl font-bold text-primary">{bestScores.socialSkill || "—"}</p>
-                  <p className="text-sm text-muted-foreground">Social Skills</p>
+                  <p className="text-sm text-muted-foreground">Social Skill</p>
                 </div>
-                <div className="text-center p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                  <p className="text-3xl font-bold text-emerald-500">{bestScores.confidence || "—"}</p>
+                <div className="text-center p-4 rounded-xl bg-accent/5 border border-accent/10">
+                  <p className="text-3xl font-bold text-accent-foreground">{bestScores.confidence || "—"}</p>
                   <p className="text-sm text-muted-foreground">Confidence</p>
                 </div>
               </div>

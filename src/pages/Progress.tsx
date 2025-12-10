@@ -99,7 +99,9 @@ const Progress = () => {
     const entries = Object.entries(strengthCounts);
     if (entries.length === 0) return "Not yet determined";
     
-    return entries.sort((a, b) => b[1] - a[1])[0][0];
+    const topStrength = entries.sort((a, b) => b[1] - a[1])[0][0];
+    // Remove examples after colon
+    return topStrength.split(":")[0].trim();
   };
 
   const streak = calculateStreak();

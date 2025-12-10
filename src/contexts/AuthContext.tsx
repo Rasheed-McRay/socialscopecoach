@@ -82,10 +82,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       sessionStorage.removeItem('clearSessionOnClose');
     }
     
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    
+    // Track login activity (non-blocking)
+    if (!error && data.user) {
+      const userId = data.user.id;
+      (async () => {
+        try {
+          await supabase
+            .from('user_activity')
+            .insert({
+              user_id: userId,
+              activity_type: 'login',
+              metadata: {},
+            });
+        } catch (err) {
+          console.error('Failed to track login:', err);
+        }
+      })();
+    }
     
     return { error: error as Error | null };
   };

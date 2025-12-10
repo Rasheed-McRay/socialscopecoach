@@ -97,7 +97,7 @@ const Progress = () => {
     });
 
     const entries = Object.entries(strengthCounts);
-    if (entries.length === 0) return "Keep analyzing to discover!";
+    if (entries.length === 0) return "Not yet determined";
     
     return entries.sort((a, b) => b[1] - a[1])[0][0];
   };
@@ -256,7 +256,6 @@ const Progress = () => {
             <CardContent>
               <div className="text-center py-4">
                 <p className="text-xl font-semibold text-foreground">{biggestStrength}</p>
-                <p className="text-sm text-muted-foreground mt-1">Your most consistent strength across analyses</p>
               </div>
             </CardContent>
           </Card>

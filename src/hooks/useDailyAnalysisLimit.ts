@@ -91,18 +91,24 @@ const getDaysUntilReset = (periodEnd: string): number => {
 
 export const useDailyAnalysisLimit = () => {
   const { user } = useAuth();
-  const { effectiveTier, effectiveHasFullAccess, impersonation } = useRole();
-  const { isPro: isProFromSubscription } = useSubscription();
+  const { effectiveTier, effectiveHasFullAccess, impersonation, loading: roleLoading } = useRole();
+  const { isPro: isProFromSubscription, loading: subscriptionLoading } = useSubscription();
   const [monthlyCount, setMonthlyCount] = useState(0);
   const [dailyBonusUsed, setDailyBonusUsed] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [usageLoading, setUsageLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(getTodayLocalDate());
   const [billingPeriod, setBillingPeriod] = useState<{ start: string; end: string } | null>(null);
   const [subscriptionStartedAt, setSubscriptionStartedAt] = useState<Date | null>(null);
 
+  // Wait for both contexts to finish loading before determining isPro
+  const contextsLoading = roleLoading || subscriptionLoading;
+  
   // Check both user_roles (effectiveTier) AND user_subscriptions (isProFromSubscription)
   const isPro = effectiveTier === 'premium' || effectiveTier === 'developer' || isProFromSubscription;
   const hasUnlimitedAccess = effectiveHasFullAccess && !impersonation.active;
+  
+  // Overall loading state - contexts must load first, then usage data
+  const loading = contextsLoading || usageLoading;
   
   // Pro users: 30 monthly + 1 daily bonus
   // Free users: 1 daily only
@@ -146,7 +152,12 @@ export const useDailyAnalysisLimit = () => {
   // Fetch usage based on tier
   const fetchUsage = useCallback(async () => {
     if (!user) {
-      setLoading(false);
+      setUsageLoading(false);
+      return;
+    }
+
+    // Don't fetch if contexts are still loading
+    if (contextsLoading) {
       return;
     }
 
@@ -198,9 +209,9 @@ export const useDailyAnalysisLimit = () => {
       setMonthlyCount(0);
       setDailyBonusUsed(false);
     } finally {
-      setLoading(false);
+      setUsageLoading(false);
     }
-  }, [user, isPro, fetchSubscriptionDate]);
+  }, [user, isPro, contextsLoading, fetchSubscriptionDate]);
 
   // Increment the usage count
   const incrementUsage = useCallback(async (): Promise<boolean> => {

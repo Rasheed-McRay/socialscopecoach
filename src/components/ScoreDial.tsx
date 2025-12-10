@@ -11,15 +11,15 @@ export function ScoreDial({ score, label, size = "md" }: ScoreDialProps) {
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
   const sizeClasses = {
-    sm: "w-11 h-11 md:w-16 md:h-16",
-    md: "w-14 h-14 md:w-20 md:h-20",
-    lg: "w-18 h-18 md:w-24 md:h-24",
+    sm: "w-14 h-14 md:w-20 md:h-20",
+    md: "w-16 h-16 md:w-24 md:h-24",
+    lg: "w-20 h-20 md:w-28 md:h-28",
   };
 
   const textSizes = {
-    sm: "text-sm md:text-lg",
-    md: "text-base md:text-xl",
-    lg: "text-lg md:text-2xl",
+    sm: "text-base md:text-xl",
+    md: "text-lg md:text-2xl",
+    lg: "text-xl md:text-3xl",
   };
 
   return (
@@ -67,7 +67,7 @@ export function ScoreDial({ score, label, size = "md" }: ScoreDialProps) {
           </span>
         </div>
       </div>
-      <span className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wide">
+      <span className="text-xs md:text-sm text-muted-foreground font-medium uppercase tracking-wide">
         {label}
       </span>
     </div>

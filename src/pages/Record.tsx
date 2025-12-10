@@ -12,7 +12,7 @@ import { HeaderNav } from "@/components/HeaderNav";
 import { useDailyAnalysisLimit } from "@/hooks/useDailyAnalysisLimit";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-type AppState = "idle" | "processing" | "complete";
+type AppState = "idle" | "processing" | "complete" | "limit-reached";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
 
 const Record = () => {
@@ -36,22 +36,14 @@ const Record = () => {
   const handleAudioReady = async (audioBlob: Blob, fileName: string) => {
     // Check if user can analyze before proceeding
     if (!canAnalyze) {
-      toast({
-        title: "Daily Limit Reached",
-        description: "You've used your free analysis for today. Come back tomorrow!",
-        variant: "destructive",
-      });
+      setAppState("limit-reached");
       return;
     }
 
     // Increment usage before starting (to prevent race conditions)
     const usageSuccess = await incrementUsage();
     if (!usageSuccess) {
-      toast({
-        title: "Daily Limit Reached",
-        description: "You've used your free analysis for today. Come back tomorrow!",
-        variant: "destructive",
-      });
+      setAppState("limit-reached");
       return;
     }
 
@@ -201,6 +193,40 @@ const Record = () => {
 
           {appState === "processing" && (
             <ProcessingState stage={processingStage} progress={progress} />
+          )}
+
+          {appState === "limit-reached" && (
+            <div className="max-w-md mx-auto text-center space-y-6 animate-fade-in py-12">
+              <div className="w-20 h-20 mx-auto rounded-full bg-amber-500/20 flex items-center justify-center">
+                <Lock className="w-10 h-10 text-amber-500" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-serif font-semibold text-foreground">
+                  You've reached your analysis limit
+                </h2>
+                <p className="text-muted-foreground">
+                  {isPro ? (
+                    <>
+                      You've used all {limit} analyses this billing period.
+                      <br />
+                      Resets in {resetInfo.daysUntilReset} {resetInfo.daysUntilReset === 1 ? 'day' : 'days'}.
+                    </>
+                  ) : (
+                    <>
+                      You've used your free analysis for today.
+                      <br />
+                      Come back tomorrow at midnight!
+                    </>
+                  )}
+                </p>
+              </div>
+              <button
+                onClick={handleReset}
+                className="text-primary hover:underline text-sm"
+              >
+                Go back
+              </button>
+            </div>
           )}
 
           {appState === "complete" && analysisResult && (

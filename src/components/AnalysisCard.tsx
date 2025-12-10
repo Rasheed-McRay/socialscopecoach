@@ -33,30 +33,30 @@ export function AnalysisCard({
         {(socialScore !== undefined || confidenceScore !== undefined) && (
           <div className="flex flex-col gap-1 flex-shrink-0">
             {socialScore !== undefined && (
-              <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-lg bg-primary/10 border border-primary/20">
-                <span className="text-sm md:text-base font-bold text-primary">{socialScore}</span>
+              <div className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-lg bg-primary/10 border border-primary/20">
+                <span className="text-base md:text-lg font-bold text-primary">{socialScore}</span>
               </div>
             )}
             {confidenceScore !== undefined && (
-              <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-lg bg-accent/10 border border-accent/20">
-                <span className="text-sm md:text-base font-bold text-accent">{confidenceScore}</span>
+              <div className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-lg bg-accent/10 border border-accent/20">
+                <span className="text-base md:text-lg font-bold text-accent">{confidenceScore}</span>
               </div>
             )}
           </div>
         )}
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-sm md:text-base text-foreground group-hover:text-primary transition-colors">
+          <h3 className="font-medium text-base md:text-lg text-foreground group-hover:text-primary transition-colors">
             {title}
           </h3>
           
           {description && (
-            <p className="text-[11px] md:text-xs text-muted-foreground mt-1">
+            <p className="text-sm md:text-base text-muted-foreground mt-1">
               {description}
             </p>
           )}
           
-          <span className="text-[10px] md:text-xs text-muted-foreground/70 mt-1.5 block">
+          <span className="text-xs md:text-sm text-muted-foreground/70 mt-1.5 block">
             {date}
           </span>
         </div>

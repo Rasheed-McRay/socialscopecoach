@@ -270,7 +270,7 @@ const Insights = () => {
         <main className="px-4 md:px-8 py-4 md:py-8 space-y-6 md:space-y-10 max-w-4xl mx-auto">
           {/* Section: Your Insights */}
           <section className="space-y-3 md:space-y-4 animate-fade-in">
-            <h2 className="text-lg md:text-2xl font-serif text-foreground">
+            <h2 className="text-xl md:text-3xl font-serif text-foreground">
               Your <span className="text-gradient-primary">Insights</span>
             </h2>
             
@@ -291,13 +291,13 @@ const Insights = () => {
                 className="w-full md:w-[160px] cursor-pointer hover:border-primary/40 transition-colors"
                 onClick={() => setFocusDialogOpen(true)}
               >
-                <div className="flex flex-col items-center justify-center h-full gap-1.5 md:gap-3">
-                  <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Target className="w-3.5 h-3.5 md:w-5 md:h-5 text-primary" />
+                <div className="flex flex-col items-center justify-center h-full gap-2 md:gap-3">
+                  <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Target className="w-4 h-4 md:w-6 md:h-6 text-primary" />
                   </div>
                   <div className="text-center">
-                    <h3 className="text-[10px] md:text-sm font-semibold text-foreground">Main Focus</h3>
-                    <p className="text-[9px] md:text-xs text-primary leading-tight">{mainFocus}</p>
+                    <h3 className="text-xs md:text-base font-semibold text-foreground">Main Focus</h3>
+                    <p className="text-[10px] md:text-sm text-primary leading-tight">{mainFocus}</p>
                   </div>
                 </div>
               </InsightCard>
@@ -306,7 +306,7 @@ const Insights = () => {
 
           {/* Section: Recent Analyses */}
           <section className="space-y-3 md:space-y-4" style={{ animationDelay: "0.1s" }}>
-            <h2 className="text-lg md:text-2xl font-serif text-foreground animate-fade-in">
+            <h2 className="text-xl md:text-3xl font-serif text-foreground animate-fade-in">
               Recent <span className="text-gradient-primary">Analyses</span>
             </h2>
 
@@ -344,7 +344,7 @@ const Insights = () => {
                     />
                   </div>
                 ))}
-                <p className="text-center text-sm text-muted-foreground pt-2">
+                <p className="text-center text-base text-muted-foreground pt-2">
                   These are sample analyses. Record a conversation to see your real insights!
                 </p>
               </div>

@@ -126,22 +126,22 @@ const Insights = () => {
     // Remove trailing period
     simplified = simplified.replace(/\.$/, "");
     
-    // Truncate aggressively for mobile display
-    if (simplified.length > 35) {
+    // Truncate for display
+    if (simplified.length > 50) {
       // Try to cut at natural break points
       const breakPoints = [", ", " - ", " or ", " and ", " to ", " by ", " with "];
       for (const bp of breakPoints) {
         const idx = simplified.indexOf(bp);
-        if (idx > 10 && idx < 35) {
+        if (idx > 15 && idx < 50) {
           simplified = simplified.substring(0, idx);
           break;
         }
       }
       // If still too long, truncate at last space before limit
-      if (simplified.length > 35) {
-        const truncated = simplified.substring(0, 32);
+      if (simplified.length > 50) {
+        const truncated = simplified.substring(0, 47);
         const lastSpace = truncated.lastIndexOf(" ");
-        simplified = (lastSpace > 15 ? truncated.substring(0, lastSpace) : truncated) + "...";
+        simplified = (lastSpace > 20 ? truncated.substring(0, lastSpace) : truncated) + "...";
       }
     }
     

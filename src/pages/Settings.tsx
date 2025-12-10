@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -14,24 +14,52 @@ import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
 import { AdminPanel } from "@/components/AdminPanel";
 import { toast } from "sonner";
-
 const Settings = () => {
   const { user, signOut } = useAuth();
   const { tier, isPro, refreshSubscription } = useSubscription();
   const { isOwner, impersonation } = useRole();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
   const [voiceRegistered, setVoiceRegistered] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [displayName, setDisplayName] = useState("");
   const [isSavingName, setIsSavingName] = useState(false);
-  const [isUpdatingTier, setIsUpdatingTier] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isManagingSubscription, setIsManagingSubscription] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchProfile();
+      checkSubscriptionStatus();
     }
   }, [user]);
+
+  // Handle checkout success/cancel
+  useEffect(() => {
+    const checkoutStatus = searchParams.get('checkout');
+    if (checkoutStatus === 'success') {
+      toast.success("Welcome to Pro! Your subscription is now active.");
+      checkSubscriptionStatus();
+      // Clean up URL
+      navigate('/settings', { replace: true });
+    } else if (checkoutStatus === 'canceled') {
+      toast.info("Checkout was canceled");
+      navigate('/settings', { replace: true });
+    }
+  }, [searchParams]);
+
+  const checkSubscriptionStatus = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+      if (error) throw error;
+      if (data?.subscribed) {
+        await refreshSubscription();
+      }
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+    }
+  };
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -78,24 +106,39 @@ const Settings = () => {
     setVoiceRegistered(true);
   };
 
-  const handleTierChange = async (newTier: 'basic' | 'pro') => {
-    if (!user || newTier === tier) return;
+  const handleUpgradeToPro = async () => {
+    if (!user) return;
     
-    setIsUpdatingTier(true);
+    setIsCheckingOut(true);
     try {
-      const { error } = await supabase
-        .from("user_subscriptions")
-        .update({ tier: newTier })
-        .eq("user_id", user.id);
-
+      const { data, error } = await supabase.functions.invoke('create-checkout');
       if (error) throw error;
-      await refreshSubscription();
-      toast.success(`Switched to ${newTier === 'pro' ? 'Pro' : 'Basic'} plan`);
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
     } catch (error) {
-      console.error("Error updating subscription:", error);
-      toast.error("Failed to update subscription");
+      console.error("Error creating checkout:", error);
+      toast.error("Failed to start checkout");
     } finally {
-      setIsUpdatingTier(false);
+      setIsCheckingOut(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    if (!user) return;
+    
+    setIsManagingSubscription(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error("Error opening customer portal:", error);
+      toast.error("Failed to open subscription management");
+    } finally {
+      setIsManagingSubscription(false);
     }
   };
 
@@ -234,53 +277,67 @@ const Settings = () => {
                   <CardDescription>Manage your subscription plan</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => handleTierChange('basic')}
-                      disabled={isUpdatingTier}
-                      className={`relative p-4 rounded-xl border-2 transition-all text-left ${
-                        !isPro
-                          ? "border-primary bg-primary/10"
-                          : "border-border hover:border-primary/50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sparkles className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium">Basic</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">Free tier with essential features</p>
-                      {!isPro && (
-                        <div className="absolute top-2 right-2">
-                          <Check className="w-4 h-4 text-primary" />
+                  {isPro ? (
+                    <>
+                      <div className="p-4 rounded-xl border-2 border-amber-500 bg-gradient-to-br from-amber-500/10 to-orange-500/10">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Crown className="w-5 h-5 text-amber-500" />
+                          <span className="font-semibold text-lg">Pro Plan</span>
+                          <Check className="w-4 h-4 text-amber-500 ml-auto" />
                         </div>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => handleTierChange('pro')}
-                      disabled={isUpdatingTier}
-                      className={`relative p-4 rounded-xl border-2 transition-all text-left ${
-                        isPro
-                          ? "border-amber-500 bg-gradient-to-br from-amber-500/10 to-orange-500/10"
-                          : "border-border hover:border-amber-500/50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <Crown className="w-4 h-4 text-amber-500" />
-                        <span className="font-medium">Pro</span>
+                        <p className="text-sm text-muted-foreground">You have access to all premium features</p>
+                        <p className="text-2xl font-bold mt-2">$9.99<span className="text-sm font-normal text-muted-foreground">/month</span></p>
                       </div>
-                      <p className="text-xs text-muted-foreground">Advanced features & insights</p>
-                      {isPro && (
-                        <div className="absolute top-2 right-2">
-                          <Check className="w-4 h-4 text-amber-500" />
+                      <Button 
+                        variant="outline" 
+                        onClick={handleManageSubscription}
+                        disabled={isManagingSubscription}
+                        className="w-full gap-2"
+                      >
+                        {isManagingSubscription ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <CreditCard className="w-4 h-4" />
+                        )}
+                        Manage Subscription
+                        <ExternalLink className="w-3 h-3 ml-auto" />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="relative p-4 rounded-xl border-2 border-primary bg-primary/10">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Sparkles className="w-4 h-4 text-muted-foreground" />
+                            <span className="font-medium">Basic</span>
+                            <Check className="w-4 h-4 text-primary ml-auto" />
+                          </div>
+                          <p className="text-xs text-muted-foreground">Free tier with essential features</p>
+                          <p className="text-lg font-bold mt-2">Free</p>
                         </div>
-                      )}
-                    </button>
-                  </div>
-                  {isUpdatingTier && (
-                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Updating...
-                    </div>
+                        <div className="relative p-4 rounded-xl border-2 border-border hover:border-amber-500/50 transition-all">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Crown className="w-4 h-4 text-amber-500" />
+                            <span className="font-medium">Pro</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">Advanced features & insights</p>
+                          <p className="text-lg font-bold mt-2">$9.99<span className="text-xs font-normal text-muted-foreground">/mo</span></p>
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={handleUpgradeToPro}
+                        disabled={isCheckingOut}
+                        className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                      >
+                        {isCheckingOut ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Crown className="w-4 h-4" />
+                        )}
+                        Upgrade to Pro
+                        <ExternalLink className="w-3 h-3 ml-auto" />
+                      </Button>
+                    </>
                   )}
                 </CardContent>
               </Card>

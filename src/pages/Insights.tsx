@@ -222,6 +222,7 @@ const Insights = () => {
               <AnalysisReport
                 result={selectedReport.analysis_result}
                 transcript={selectedReport.transcript}
+                reportId={selectedReport.id}
                 onReset={() => setSelectedReport(null)}
                 onDeleted={() => {
                   setSelectedReport(null);

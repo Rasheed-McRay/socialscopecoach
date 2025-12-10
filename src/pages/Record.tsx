@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
 import { useDailyAnalysisLimit } from "@/hooks/useDailyAnalysisLimit";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+
 
 type AppState = "idle" | "processing" | "complete" | "limit-reached";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
@@ -140,10 +140,49 @@ const Record = () => {
                 </p>
               </div>
 
-              {/* Usage limit indicator */}
-              {!limitLoading && (
-                <div className="text-center">
-                  {canAnalyze ? (
+              {/* Loading state */}
+              {limitLoading && (
+                <div className="text-center py-8">
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-4 bg-muted rounded w-48 mx-auto"></div>
+                    <div className="h-32 bg-muted rounded-xl w-full max-w-md mx-auto"></div>
+                  </div>
+                </div>
+              )}
+
+              {/* Limit reached state */}
+              {!limitLoading && !canAnalyze && (
+                <div className="max-w-md mx-auto text-center space-y-6 py-8">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-amber-500/20 flex items-center justify-center">
+                    <Lock className="w-8 h-8 text-amber-500" />
+                  </div>
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-semibold text-foreground">
+                      You've reached your analysis limit
+                    </h2>
+                    <p className="text-muted-foreground">
+                      {isPro ? (
+                        <>
+                          You've used all {limit} analyses this billing period.
+                          <br />
+                          Resets in {resetInfo.daysUntilReset} {resetInfo.daysUntilReset === 1 ? 'day' : 'days'}.
+                        </>
+                      ) : (
+                        <>
+                          You've used your free analysis for today.
+                          <br />
+                          Come back tomorrow at midnight!
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Normal recording state */}
+              {!limitLoading && canAnalyze && (
+                <>
+                  <div className="text-center">
                     <p className="text-sm text-muted-foreground">
                       {isPro ? (
                         <>
@@ -160,34 +199,20 @@ const Record = () => {
                         </>
                       )}
                     </p>
-                  ) : (
-                    <Alert className="max-w-md mx-auto border-amber-500/50 bg-amber-500/10">
-                      <Lock className="h-4 w-4 text-amber-500" />
-                      <AlertDescription className="text-amber-600 dark:text-amber-400">
-                        {isPro ? (
-                          <>
-                            You've used all {limit} analyses this billing period. 
-                            Resets in {resetInfo.daysUntilReset} {resetInfo.daysUntilReset === 1 ? 'day' : 'days'}.
-                          </>
-                        ) : (
-                          <>You've used your free analysis for today. Come back tomorrow at midnight!</>
-                        )}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                </div>
+                  </div>
+
+                  <AudioUploader
+                    onAudioReady={handleAudioReady}
+                    isProcessing={isProcessing}
+                  />
+
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      🔒 Privacy-first: Your audio is processed and immediately discarded
+                    </p>
+                  </div>
+                </>
               )}
-
-              <AudioUploader
-                onAudioReady={handleAudioReady}
-                isProcessing={isProcessing || !canAnalyze}
-              />
-
-              <div className="text-center space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  🔒 Privacy-first: Your audio is processed and immediately discarded
-                </p>
-              </div>
             </div>
           )}
 

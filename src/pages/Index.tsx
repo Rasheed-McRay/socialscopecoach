@@ -13,10 +13,12 @@ const Index = () => {
   const { user } = useAuth();
   const [recentCount, setRecentCount] = useState(0);
   const [avgScore, setAvgScore] = useState(0);
+  const [displayName, setDisplayName] = useState("");
 
   useEffect(() => {
     fetchStats();
-  }, []);
+    fetchProfile();
+  }, [user]);
 
   const fetchStats = async () => {
     try {
@@ -38,6 +40,28 @@ const Index = () => {
     } catch (error) {
       console.error("Error fetching stats:", error);
     }
+  };
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setDisplayName(data?.display_name || "");
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
+
+  const getGreetingName = () => {
+    if (displayName) return displayName;
+    if (user?.email) return user.email.split('@')[0];
+    return "";
   };
 
   return (
@@ -74,7 +98,7 @@ const Index = () => {
           {/* Welcome Section */}
           <section className="space-y-2 animate-fade-in">
             <h2 className="text-2xl md:text-3xl font-serif text-foreground">
-              Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}
+              Welcome back{getGreetingName() ? `, ${getGreetingName()}` : ''}
             </h2>
             <p className="text-muted-foreground">
               Ready to unlock your social superpowers?

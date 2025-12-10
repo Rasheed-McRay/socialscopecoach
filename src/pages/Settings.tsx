@@ -350,7 +350,8 @@ const Settings = () => {
                     Voice Profile
                   </CardTitle>
                   <CardDescription>
-                    Register your voice for personalized conversation analysis
+                    Register your voice for personalized conversation analysis.
+                    {!voiceRegistered && " Complete setup to unlock 5 free analyses!"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">

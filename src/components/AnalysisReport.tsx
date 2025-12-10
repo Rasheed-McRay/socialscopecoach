@@ -254,7 +254,7 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
               <div key={key} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30">
                 <ChevronRight className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="text-sm font-medium text-foreground capitalize">
                     {key.replace(/([A-Z])/g, " $1").trim()}
                   </p>
                   <p className="text-sm text-muted-foreground">{value}</p>

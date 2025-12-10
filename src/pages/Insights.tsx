@@ -115,6 +115,35 @@ const Insights = () => {
     ? Math.round(reports.reduce((acc, r) => acc + r.analysis_result.confidenceScore, 0) / reports.length)
     : 67;
 
+  // Get most common next step from all reports
+  const getMostCommonNextStep = (): string => {
+    if (reports.length === 0) return "Ask better questions";
+    
+    // Collect all next steps from all reports
+    const allSteps: string[] = [];
+    reports.forEach(r => {
+      if (r.analysis_result.nextSteps && Array.isArray(r.analysis_result.nextSteps)) {
+        // Take the first step from each report (most important)
+        if (r.analysis_result.nextSteps[0]) {
+          allSteps.push(r.analysis_result.nextSteps[0]);
+        }
+      }
+    });
+
+    if (allSteps.length === 0) return "Ask better questions";
+
+    // Find most common by simple word matching or just return the most recent
+    // For simplicity, return the first step from the most recent report, shortened
+    const latestStep = allSteps[0];
+    
+    // Shorten to first few words (max ~5 words)
+    const words = latestStep.split(' ');
+    if (words.length <= 5) return latestStep;
+    return words.slice(0, 5).join(' ') + '...';
+  };
+
+  const mainFocus = getMostCommonNextStep();
+
   if (selectedReport) {
     return (
       <div className="min-h-screen bg-background">
@@ -215,7 +244,7 @@ const Insights = () => {
                   </div>
                   <div className="text-center">
                     <h3 className="text-[10px] md:text-sm font-semibold text-foreground">Main Focus</h3>
-                    <p className="text-[9px] md:text-xs text-primary leading-tight">Ask better questions</p>
+                    <p className="text-[9px] md:text-xs text-primary leading-tight">{mainFocus}</p>
                   </div>
                 </div>
               </InsightCard>

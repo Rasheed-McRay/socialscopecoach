@@ -383,6 +383,23 @@ export const useDailyAnalysisLimit = () => {
         setDailyBonusUsed(true);
       }
 
+      // Track analysis activity (non-blocking)
+      const userId = user.id;
+      const userTier = isPro ? 'pro' : 'free';
+      (async () => {
+        try {
+          await supabase
+            .from('user_activity')
+            .insert({
+              user_id: userId,
+              activity_type: 'analysis',
+              metadata: { tier: userTier },
+            });
+        } catch (err) {
+          console.error('Failed to track analysis:', err);
+        }
+      })();
+
       return true;
     } catch (err) {
       console.error('Error incrementing usage:', err);

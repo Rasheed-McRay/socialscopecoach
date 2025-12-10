@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_scope_completions: {
+        Row: {
+          analysis_result: Json
+          created_at: string
+          id: string
+          prompt: string
+          prompt_date: string
+          rating: number
+          transcript: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis_result: Json
+          created_at?: string
+          id?: string
+          prompt: string
+          prompt_date: string
+          rating: number
+          transcript?: string | null
+          user_id: string
+        }
+        Update: {
+          analysis_result?: Json
+          created_at?: string
+          id?: string
+          prompt?: string
+          prompt_date?: string
+          rating?: number
+          transcript?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

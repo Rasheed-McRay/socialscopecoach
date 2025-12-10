@@ -5,3 +5,9 @@ verify_jwt = true
 
 [functions.analyze-conversation]
 verify_jwt = true
+
+[functions.analyze-monologue]
+verify_jwt = true
+
+[functions.generate-focus-examples]
+verify_jwt = true

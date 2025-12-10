@@ -13,6 +13,7 @@ import {
   Save,
   Loader2,
   Lock,
+  Crown,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,21 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
   }, [user, isPro]);
 
   const canSaveReport = isPro || savedReportCount < 1;
+
+  // Pro section overlay component
+  const ProSectionOverlay = () => (
+    <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px] rounded-lg">
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={() => navigate("/settings")}
+        className="gap-2 border-primary/30 bg-background/80"
+      >
+        <Crown className="w-4 h-4 text-primary" />
+        Upgrade to Unlock
+      </Button>
+    </div>
+  );
 
   const handleSave = async () => {
     if (!user) return;
@@ -248,90 +264,102 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
       </div>
 
       {/* Vocal Tone Analysis */}
-      <Card variant="glass">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Heart className="w-5 h-5 text-primary" />
-            Vocal Tone & Delivery
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.entries(result.vocalTone).map(([key, value]) => (
-              <div key={key} className="p-4 rounded-lg bg-secondary/50">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                  {key.replace(/([A-Z])/g, " $1").trim()}
-                </p>
-                <p className="font-medium text-foreground">{value}</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Technical Skills */}
-      <Card variant="glass">
-        <CardHeader>
-          <CardTitle>Technical Conversation Skills</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {Object.entries(result.technicalSkills).map(([key, value]) => (
-              <div key={key} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30">
-                <ChevronRight className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-foreground capitalize">
+      <div className="relative">
+        <Card variant="glass" className={cn(!isPro && "opacity-50")}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-primary" />
+              Vocal Tone & Delivery
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Object.entries(result.vocalTone).map(([key, value]) => (
+                <div key={key} className="p-4 rounded-lg bg-secondary/50">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                     {key.replace(/([A-Z])/g, " $1").trim()}
                   </p>
-                  <p className="text-sm text-muted-foreground">{value}</p>
+                  <p className="font-medium text-foreground">{isPro ? value : "••••••"}</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        {!isPro && <ProSectionOverlay />}
+      </div>
+
+      {/* Technical Skills */}
+      <div className="relative">
+        <Card variant="glass" className={cn(!isPro && "opacity-50")}>
+          <CardHeader>
+            <CardTitle>Technical Conversation Skills</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {Object.entries(result.technicalSkills).map(([key, value]) => (
+                <div key={key} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30">
+                  <ChevronRight className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground capitalize">
+                      {key.replace(/([A-Z])/g, " $1").trim()}
+                    </p>
+                    <p className="text-sm text-muted-foreground">{isPro ? value : "••••••"}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        {!isPro && <ProSectionOverlay />}
+      </div>
 
       {/* Standout Moments */}
-      <Card variant="glass">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lightbulb className="w-5 h-5 text-primary" />
-            Standout Moments
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-3">
-            {result.standoutMoments.map((moment, i) => (
-              <li key={i} className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
-                <span className="text-primary font-bold">{i + 1}.</span>
-                <span className="text-muted-foreground">{moment}</span>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+      <div className="relative">
+        <Card variant="glass" className={cn(!isPro && "opacity-50")}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-primary" />
+              Standout Moments
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-3">
+              {(isPro ? result.standoutMoments : result.standoutMoments.slice(0, 1)).map((moment, i) => (
+                <li key={i} className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                  <span className="text-primary font-bold">{i + 1}.</span>
+                  <span className="text-muted-foreground">{isPro ? moment : "••••••••••••••••"}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+        {!isPro && <ProSectionOverlay />}
+      </div>
 
       {/* Next Steps */}
-      <Card className="bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-accent" />
-            Your Next Steps
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {result.nextSteps.map((step, i) => (
-              <div key={i} className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-                  <span className="text-accent font-bold text-sm">{i + 1}</span>
+      <div className="relative">
+        <Card className={cn("bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20", !isPro && "opacity-50")}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-accent" />
+              Your Next Steps
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {(isPro ? result.nextSteps : result.nextSteps.slice(0, 1)).map((step, i) => (
+                <div key={i} className="flex items-start gap-4">
+                  <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                    <span className="text-accent font-bold text-sm">{i + 1}</span>
+                  </div>
+                  <p className="text-foreground pt-1">{isPro ? step : "••••••••••••••••"}</p>
                 </div>
-                <p className="text-foreground pt-1">{step}</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        {!isPro && <ProSectionOverlay />}
+      </div>
 
       {/* Transcript Section */}
       {transcript && (

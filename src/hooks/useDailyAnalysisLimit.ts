@@ -99,6 +99,7 @@ export const useDailyAnalysisLimit = () => {
   const [currentDate, setCurrentDate] = useState(getTodayLocalDate());
   const [billingPeriod, setBillingPeriod] = useState<{ start: string; end: string } | null>(null);
   const [subscriptionStartedAt, setSubscriptionStartedAt] = useState<Date | null>(null);
+  const [voiceBonusRemaining, setVoiceBonusRemaining] = useState(0);
 
   // Wait for both contexts to finish loading before determining isPro
   const contextsLoading = roleLoading || subscriptionLoading;
@@ -110,15 +111,15 @@ export const useDailyAnalysisLimit = () => {
   // Overall loading state - contexts must load first, then usage data
   const loading = contextsLoading || usageLoading;
   
-  // Pro users: 30 monthly + 1 daily bonus
-  // Free users: 1 daily only
+  // Pro users: 30 monthly + 1 daily bonus + voice bonus
+  // Free users: 1 daily + voice bonus
   const monthlyRemaining = isPro ? Math.max(0, PRO_MONTHLY_LIMIT - monthlyCount) : 0;
   const dailyBonusRemaining = isPro && !dailyBonusUsed ? 1 : 0;
   const freeRemaining = !isPro && !dailyBonusUsed ? 1 : 0;
   
   const totalRemaining = isPro 
-    ? monthlyRemaining + dailyBonusRemaining 
-    : freeRemaining;
+    ? monthlyRemaining + dailyBonusRemaining + voiceBonusRemaining
+    : freeRemaining + voiceBonusRemaining;
   
   const canAnalyze = hasUnlimitedAccess || totalRemaining > 0;
 
@@ -165,6 +166,19 @@ export const useDailyAnalysisLimit = () => {
       const todayDate = getTodayLocalDate();
       setCurrentDate(todayDate);
 
+      // Fetch voice bonus remaining from profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('voice_bonus_remaining')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+      } else {
+        setVoiceBonusRemaining(profileData?.voice_bonus_remaining ?? 0);
+      }
+
       // Always fetch daily usage (for bonus tracking)
       const { data: dailyData, error: dailyError } = await supabase
         .from('daily_analysis_usage')
@@ -208,6 +222,7 @@ export const useDailyAnalysisLimit = () => {
       console.error('Error fetching usage:', err);
       setMonthlyCount(0);
       setDailyBonusUsed(false);
+      setVoiceBonusRemaining(0);
     } finally {
       setUsageLoading(false);
     }
@@ -222,6 +237,22 @@ export const useDailyAnalysisLimit = () => {
 
     try {
       const todayDate = getTodayLocalDate();
+
+      // Use voice bonus first (for both free and pro users)
+      if (voiceBonusRemaining > 0) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ voice_bonus_remaining: voiceBonusRemaining - 1 })
+          .eq('user_id', user.id);
+
+        if (error) {
+          console.error('Error decrementing voice bonus:', error);
+          return false;
+        }
+
+        setVoiceBonusRemaining(prev => prev - 1);
+        return true;
+      }
 
       if (isPro) {
         // Pro user logic: use daily bonus first, then monthly
@@ -357,7 +388,7 @@ export const useDailyAnalysisLimit = () => {
       console.error('Error incrementing usage:', err);
       return false;
     }
-  }, [user, isPro, hasUnlimitedAccess, dailyBonusUsed, monthlyRemaining, subscriptionStartedAt, fetchSubscriptionDate]);
+  }, [user, isPro, hasUnlimitedAccess, dailyBonusUsed, monthlyRemaining, voiceBonusRemaining, subscriptionStartedAt, fetchSubscriptionDate]);
 
   // Fetch usage on mount and when user/tier changes
   useEffect(() => {
@@ -412,5 +443,7 @@ export const useDailyAnalysisLimit = () => {
     // Pro-specific info
     monthlyRemaining,
     dailyBonusAvailable: !dailyBonusUsed,
+    // Voice bonus info
+    voiceBonusRemaining,
   };
 };

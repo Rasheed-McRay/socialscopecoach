@@ -115,15 +115,69 @@ const Insights = () => {
     ? Math.round(reports.reduce((acc, r) => acc + r.analysis_result.confidenceScore, 0) / reports.length)
     : 67;
 
+  // Simplify action step to be clear, concise, and actionable
+  const simplifyActionStep = (step: string): string => {
+    let simplified = step;
+    
+    // Remove common filler phrases at the start
+    const fillerPhrases = [
+      /^in your next[^,]*,?\s*/i,
+      /^next time[^,]*,?\s*/i,
+      /^try to\s*/i,
+      /^experiment with\s*/i,
+      /^practice\s*/i,
+      /^work on\s*/i,
+      /^focus on\s*/i,
+      /^consider\s*/i,
+      /^start\s*/i,
+      /^begin\s*/i,
+      /^make sure to\s*/i,
+      /^remember to\s*/i,
+      /^don't forget to\s*/i,
+      /^be sure to\s*/i,
+      /^when you[^,]*,?\s*/i,
+      /^before you[^,]*,?\s*/i,
+      /^after you[^,]*,?\s*/i,
+    ];
+    
+    for (const phrase of fillerPhrases) {
+      simplified = simplified.replace(phrase, "");
+    }
+    
+    // Capitalize first letter
+    simplified = simplified.charAt(0).toUpperCase() + simplified.slice(1);
+    
+    // Remove trailing period
+    simplified = simplified.replace(/\.$/, "");
+    
+    // If still too long, truncate at a natural break point
+    if (simplified.length > 50) {
+      // Try to cut at "or", "and", "to" for natural breaks
+      const breakPoints = [" or ", " and ", " to "];
+      for (const bp of breakPoints) {
+        const idx = simplified.indexOf(bp);
+        if (idx > 15 && idx < 45) {
+          simplified = simplified.substring(0, idx);
+          break;
+        }
+      }
+      // If still too long, just truncate
+      if (simplified.length > 50) {
+        simplified = simplified.substring(0, 47) + "...";
+      }
+    }
+    
+    return simplified;
+  };
+
   // Get most common next step from all reports
   const getMostCommonNextStep = (): string => {
     if (reports.length === 0) return "Ask better questions";
     
-    // Collect all next steps from all reports
+    // Collect first next step from each report
     const allSteps: string[] = [];
     reports.forEach(r => {
       if (r.analysis_result.nextSteps && Array.isArray(r.analysis_result.nextSteps)) {
-        // Take the first step from each report (most important)
         if (r.analysis_result.nextSteps[0]) {
           allSteps.push(r.analysis_result.nextSteps[0]);
         }
@@ -132,14 +186,8 @@ const Insights = () => {
 
     if (allSteps.length === 0) return "Ask better questions";
 
-    // Find most common by simple word matching or just return the most recent
-    // For simplicity, return the first step from the most recent report, shortened
-    const latestStep = allSteps[0];
-    
-    // Shorten to first few words (max ~5 words)
-    const words = latestStep.split(' ');
-    if (words.length <= 5) return latestStep;
-    return words.slice(0, 5).join(' ') + '...';
+    // Return simplified version of the most recent step
+    return simplifyActionStep(allSteps[0]);
   };
 
   const mainFocus = getMostCommonNextStep();

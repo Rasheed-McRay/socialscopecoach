@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { AudioWaveform, Lock } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { AudioWaveform, Lock, Crown } from "lucide-react";
 import { AudioUploader } from "@/components/AudioUploader";
 import { ProcessingState } from "@/components/ProcessingState";
 import { AnalysisReport, AnalysisResult } from "@/components/AnalysisReport";
@@ -10,12 +10,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
 import { useDailyAnalysisLimit } from "@/hooks/useDailyAnalysisLimit";
+import { Button } from "@/components/ui/button";
 
 
 type AppState = "idle" | "processing" | "complete" | "limit-reached";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
 
 const Record = () => {
+  const navigate = useNavigate();
   const [appState, setAppState] = useState<AppState>("idle");
   const [processingStage, setProcessingStage] = useState<ProcessingStage>("uploading");
   const [progress, setProgress] = useState(0);
@@ -171,11 +173,20 @@ const Record = () => {
                         <>
                           You've used your free analysis for today.
                           <br />
-                          Come back tomorrow at midnight!
+                          Upgrade to Pro for unlimited analyses!
                         </>
                       )}
                     </p>
                   </div>
+                  {!isPro && (
+                    <Button
+                      onClick={() => navigate('/settings')}
+                      className="bg-primary hover:bg-primary/90"
+                    >
+                      <Crown className="w-4 h-4 mr-2" />
+                      Upgrade to Pro
+                    </Button>
+                  )}
                 </div>
               )}
 

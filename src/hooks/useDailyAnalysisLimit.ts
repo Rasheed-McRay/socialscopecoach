@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 
 const FREE_DAILY_LIMIT = 1;
 const PRO_MONTHLY_LIMIT = 30;
@@ -91,6 +92,7 @@ const getDaysUntilReset = (periodEnd: string): number => {
 export const useDailyAnalysisLimit = () => {
   const { user } = useAuth();
   const { effectiveTier, effectiveHasFullAccess, impersonation } = useRole();
+  const { isPro: isProFromSubscription } = useSubscription();
   const [monthlyCount, setMonthlyCount] = useState(0);
   const [dailyBonusUsed, setDailyBonusUsed] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -98,7 +100,8 @@ export const useDailyAnalysisLimit = () => {
   const [billingPeriod, setBillingPeriod] = useState<{ start: string; end: string } | null>(null);
   const [subscriptionStartedAt, setSubscriptionStartedAt] = useState<Date | null>(null);
 
-  const isPro = effectiveTier === 'premium' || effectiveTier === 'developer';
+  // Check both user_roles (effectiveTier) AND user_subscriptions (isProFromSubscription)
+  const isPro = effectiveTier === 'premium' || effectiveTier === 'developer' || isProFromSubscription;
   const hasUnlimitedAccess = effectiveHasFullAccess && !impersonation.active;
   
   // Pro users: 30 monthly + 1 daily bonus

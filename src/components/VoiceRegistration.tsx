@@ -21,7 +21,7 @@ interface VoiceSample {
   duration_seconds: number;
 }
 
-const REQUIRED_SAMPLES = 3;
+const REQUIRED_SAMPLES = 2;
 const TOTAL_SAMPLES = 5;
 
 export const VoiceRegistration = ({
@@ -228,21 +228,11 @@ export const VoiceRegistration = ({
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
-          {showSkip && !isRegistrationComplete && (
-            <Button
-              variant="outline"
-              onClick={onSkip}
-              className="w-full sm:flex-1 gap-2 h-11"
-            >
-              Skip for now
-            </Button>
-          )}
-          
+        <div className="pt-4">
           <Button
             onClick={handleComplete}
             disabled={!isRegistrationComplete}
-            className="w-full sm:flex-1 gap-2 h-11"
+            className="w-full gap-2 h-11"
             variant="gradient"
           >
             {isRegistrationComplete ? (

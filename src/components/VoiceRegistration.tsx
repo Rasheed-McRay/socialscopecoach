@@ -112,40 +112,43 @@ export const VoiceRegistration = ({
 
       if (insertError) throw insertError;
 
-      // Update local state
+      // Update local state and check for completion
       setSamples((prev) => {
         const filtered = prev.filter((s) => s.sample_number !== sampleNumber);
-        return [...filtered, { sample_number: sampleNumber, audio_url: audioUrl, duration_seconds: duration }].sort(
+        const newSamples = [...filtered, { sample_number: sampleNumber, audio_url: audioUrl, duration_seconds: duration }].sort(
           (a, b) => a.sample_number - b.sample_number
         );
+        
+        // Check for first-time completion using the new state
+        const previousRequiredCount = prev.filter(s => s.sample_number <= REQUIRED_SAMPLES).length;
+        const newRequiredCount = newSamples.filter(s => s.sample_number <= REQUIRED_SAMPLES).length;
+        const wasNotComplete = previousRequiredCount < REQUIRED_SAMPLES;
+        const isNowComplete = newRequiredCount >= REQUIRED_SAMPLES;
+        
+        if (wasNotComplete && isNowComplete) {
+          // Update profile to mark voice as registered and grant 5 bonus analyses
+          supabase
+            .from("profiles")
+            .update({ 
+              voice_registered: true,
+              voice_bonus_remaining: 5 
+            })
+            .eq("user_id", user.id)
+            .then(() => {
+              toast({
+                title: "🎉 Voice profile complete!",
+                description: "You've earned 5 free analyses as a reward!",
+              });
+            });
+        }
+        
+        return newSamples;
       });
 
       toast({
         title: "Sample recorded",
         description: `Voice sample ${sampleNumber} saved successfully.`,
       });
-
-      // Check if we've hit the required samples for the first time
-      const previousCount = samples.filter(s => s.sample_number !== sampleNumber).length;
-      const newSampleCount = previousCount + 1;
-      const wasNotComplete = previousCount < REQUIRED_SAMPLES;
-      const isNowComplete = newSampleCount >= REQUIRED_SAMPLES;
-      
-      if (wasNotComplete && isNowComplete) {
-        // Update profile to mark voice as registered and grant 5 bonus analyses
-        await supabase
-          .from("profiles")
-          .update({ 
-            voice_registered: true,
-            voice_bonus_remaining: 5 
-          })
-          .eq("user_id", user.id);
-
-        toast({
-          title: "🎉 Voice profile complete!",
-          description: "You've earned 5 free analyses as a reward!",
-        });
-      }
     } catch (error) {
       console.error("Error saving voice sample:", error);
       toast({
@@ -159,12 +162,13 @@ export const VoiceRegistration = ({
   };
 
   const handleComplete = () => {
-    if (samples.length >= REQUIRED_SAMPLES && onComplete) {
+    const requiredSamplesCount = samples.filter(s => s.sample_number <= REQUIRED_SAMPLES).length;
+    if (requiredSamplesCount >= REQUIRED_SAMPLES && onComplete) {
       onComplete();
     }
   };
 
-  const completedCount = samples.length;
+  const completedCount = samples.filter(s => s.sample_number <= REQUIRED_SAMPLES).length;
   const progressPercent = (completedCount / REQUIRED_SAMPLES) * 100;
   const isRegistrationComplete = completedCount >= REQUIRED_SAMPLES;
 

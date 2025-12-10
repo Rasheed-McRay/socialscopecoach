@@ -112,6 +112,7 @@ export type Database = {
           id: string
           updated_at: string
           user_id: string
+          voice_bonus_remaining: number
           voice_registered: boolean
         }
         Insert: {
@@ -121,6 +122,7 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id: string
+          voice_bonus_remaining?: number
           voice_registered?: boolean
         }
         Update: {
@@ -130,6 +132,7 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+          voice_bonus_remaining?: number
           voice_registered?: boolean
         }
         Relationships: []

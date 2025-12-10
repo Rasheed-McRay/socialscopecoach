@@ -132,29 +132,14 @@ export const VoiceRegistration = ({
       const isNowComplete = newSampleCount >= REQUIRED_SAMPLES;
       
       if (wasNotComplete && isNowComplete) {
-        // Update profile to mark voice as registered
+        // Update profile to mark voice as registered and grant 5 bonus analyses
         await supabase
           .from("profiles")
-          .update({ voice_registered: true })
+          .update({ 
+            voice_registered: true,
+            voice_bonus_remaining: 5 
+          })
           .eq("user_id", user.id);
-
-        // Grant 5 free analyses as a reward for completing voice registration
-        const today = new Date().toISOString().split('T')[0];
-        const { data: existingUsage } = await supabase
-          .from("daily_analysis_usage")
-          .select("analysis_count")
-          .eq("user_id", user.id)
-          .eq("usage_date", today)
-          .maybeSingle();
-
-        if (existingUsage) {
-          // Subtract 5 from count (giving 5 free analyses)
-          await supabase
-            .from("daily_analysis_usage")
-            .update({ analysis_count: Math.max(0, existingUsage.analysis_count - 5) })
-            .eq("user_id", user.id)
-            .eq("usage_date", today);
-        }
 
         toast({
           title: "🎉 Voice profile complete!",

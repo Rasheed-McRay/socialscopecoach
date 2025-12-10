@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check } from "lucide-react";
+import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { VoiceRegistration } from "@/components/VoiceRegistration";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
@@ -14,12 +15,14 @@ import { toast } from "sonner";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
+  const { tier, isPro, refreshSubscription } = useSubscription();
   const navigate = useNavigate();
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
   const [voiceRegistered, setVoiceRegistered] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [displayName, setDisplayName] = useState("");
   const [isSavingName, setIsSavingName] = useState(false);
+  const [isUpdatingTier, setIsUpdatingTier] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -70,6 +73,27 @@ const Settings = () => {
   const handleVoiceComplete = () => {
     setShowVoiceSetup(false);
     setVoiceRegistered(true);
+  };
+
+  const handleTierChange = async (newTier: 'basic' | 'pro') => {
+    if (!user || newTier === tier) return;
+    
+    setIsUpdatingTier(true);
+    try {
+      const { error } = await supabase
+        .from("user_subscriptions")
+        .update({ tier: newTier })
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+      await refreshSubscription();
+      toast.success(`Switched to ${newTier === 'pro' ? 'Pro' : 'Basic'} plan`);
+    } catch (error) {
+      console.error("Error updating subscription:", error);
+      toast.error("Failed to update subscription");
+    } finally {
+      setIsUpdatingTier(false);
+    }
   };
 
   if (isLoading) {
@@ -182,6 +206,67 @@ const Settings = () => {
                     <LogOut className="w-4 h-4" />
                     Sign Out
                   </Button>
+                </CardContent>
+              </Card>
+
+              {/* Subscription Section */}
+              <Card className="glass">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Crown className="w-5 h-5" />
+                    Subscription
+                  </CardTitle>
+                  <CardDescription>Manage your subscription plan</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => handleTierChange('basic')}
+                      disabled={isUpdatingTier}
+                      className={`relative p-4 rounded-xl border-2 transition-all text-left ${
+                        !isPro
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium">Basic</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Free tier with essential features</p>
+                      {!isPro && (
+                        <div className="absolute top-2 right-2">
+                          <Check className="w-4 h-4 text-primary" />
+                        </div>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleTierChange('pro')}
+                      disabled={isUpdatingTier}
+                      className={`relative p-4 rounded-xl border-2 transition-all text-left ${
+                        isPro
+                          ? "border-amber-500 bg-gradient-to-br from-amber-500/10 to-orange-500/10"
+                          : "border-border hover:border-amber-500/50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <Crown className="w-4 h-4 text-amber-500" />
+                        <span className="font-medium">Pro</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Advanced features & insights</p>
+                      {isPro && (
+                        <div className="absolute top-2 right-2">
+                          <Check className="w-4 h-4 text-amber-500" />
+                        </div>
+                      )}
+                    </button>
+                  </div>
+                  {isUpdatingTier && (
+                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Updating...
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

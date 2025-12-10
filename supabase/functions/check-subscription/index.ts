@@ -72,7 +72,7 @@ serve(async (req) => {
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
 
       // Update user_subscriptions table to pro
-      const { error: updateError } = await supabaseClient
+      const { error: updateSubError } = await supabaseClient
         .from('user_subscriptions')
         .upsert({ 
           user_id: user.id, 
@@ -80,16 +80,32 @@ serve(async (req) => {
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
       
-      if (updateError) {
-        logStep("Error updating subscription", { error: updateError.message });
+      if (updateSubError) {
+        logStep("Error updating user_subscriptions", { error: updateSubError.message });
       } else {
         logStep("Updated user_subscriptions to pro");
+      }
+
+      // Also update user_roles table tier to sync
+      const { error: updateRoleError } = await supabaseClient
+        .from('user_roles')
+        .update({ 
+          tier: 'premium',
+          access_level: 'standard',
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+      
+      if (updateRoleError) {
+        logStep("Error updating user_roles", { error: updateRoleError.message });
+      } else {
+        logStep("Updated user_roles to premium tier");
       }
     } else {
       logStep("No active subscription found");
       
       // Update user_subscriptions table to basic
-      const { error: updateError } = await supabaseClient
+      const { error: updateSubError } = await supabaseClient
         .from('user_subscriptions')
         .upsert({ 
           user_id: user.id, 
@@ -97,8 +113,33 @@ serve(async (req) => {
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
       
-      if (updateError) {
-        logStep("Error updating subscription", { error: updateError.message });
+      if (updateSubError) {
+        logStep("Error updating user_subscriptions", { error: updateSubError.message });
+      }
+
+      // Also update user_roles table tier to sync (only if not owner/developer)
+      const { data: roleData } = await supabaseClient
+        .from('user_roles')
+        .select('tier, role')
+        .eq('user_id', user.id)
+        .single();
+
+      // Don't downgrade developers or owners
+      if (roleData && roleData.tier !== 'developer' && roleData.role !== 'owner') {
+        const { error: updateRoleError } = await supabaseClient
+          .from('user_roles')
+          .update({ 
+            tier: 'free',
+            access_level: 'restricted',
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+        
+        if (updateRoleError) {
+          logStep("Error updating user_roles", { error: updateRoleError.message });
+        } else {
+          logStep("Updated user_roles to free tier");
+        }
       }
     }
 

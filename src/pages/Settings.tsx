@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2 } from "lucide-react";
+import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 import { VoiceRegistration } from "@/components/VoiceRegistration";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
+import { toast } from "sonner";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -16,6 +18,8 @@ const Settings = () => {
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
   const [voiceRegistered, setVoiceRegistered] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [displayName, setDisplayName] = useState("");
+  const [isSavingName, setIsSavingName] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -29,16 +33,37 @@ const Settings = () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("voice_registered")
+        .select("voice_registered, display_name")
         .eq("user_id", user.id)
         .single();
 
       if (error) throw error;
       setVoiceRegistered(data?.voice_registered || false);
+      setDisplayName(data?.display_name || "");
     } catch (error) {
       console.error("Error fetching profile:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSaveDisplayName = async () => {
+    if (!user) return;
+    
+    setIsSavingName(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ display_name: displayName.trim() })
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+      toast.success("Display name updated");
+    } catch (error) {
+      console.error("Error updating display name:", error);
+      toast.error("Failed to update display name");
+    } finally {
+      setIsSavingName(false);
     }
   };
 
@@ -122,6 +147,30 @@ const Settings = () => {
                   <CardDescription>Manage your account settings</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div>
+                    <p className="font-medium text-foreground mb-2">Display Name</p>
+                    <div className="flex gap-2">
+                      <Input
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        placeholder="Enter your name"
+                        className="flex-1"
+                        maxLength={50}
+                      />
+                      <Button 
+                        onClick={handleSaveDisplayName} 
+                        disabled={isSavingName}
+                        size="icon"
+                      >
+                        {isSavingName ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Check className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                  <Separator />
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-foreground">Email</p>

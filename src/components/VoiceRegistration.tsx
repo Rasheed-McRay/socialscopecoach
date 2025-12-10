@@ -202,8 +202,12 @@ export const VoiceRegistration = ({
         </CardTitle>
         <CardDescription className="text-muted-foreground max-w-md mx-auto">
           Record {REQUIRED_SAMPLES} voice samples so we can identify your voice in conversations
-          and provide personalized analysis. You can add up to {TOTAL_SAMPLES} samples for better accuracy.
+          and provide personalized analysis.
         </CardDescription>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+          <span className="text-lg">🎁</span>
+          Complete all {REQUIRED_SAMPLES} samples to unlock 5 free analyses!
+        </div>
       </CardHeader>
 
       <CardContent className="space-y-6">

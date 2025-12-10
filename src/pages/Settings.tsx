@@ -142,7 +142,7 @@ const Settings = () => {
         </header>
 
         {/* Main Content */}
-        <main className="container py-8 md:py-12">
+        <main className="container py-8 md:py-12 pb-28 md:pb-12">
           {showVoiceSetup ? (
             <div className="animate-fade-in">
               <Button

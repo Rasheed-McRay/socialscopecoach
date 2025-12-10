@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 
 const navItems = [
   { icon: Telescope, label: "Scope", path: "/app" },
@@ -21,7 +22,8 @@ export function HeaderNav() {
   const location = useLocation();
 
   return (
-    <div className="hidden md:block">
+    <div className="hidden md:flex items-center gap-3">
+      <SubscriptionBadge />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/10 hover:text-primary transition-all">

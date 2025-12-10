@@ -26,7 +26,7 @@ const VoiceSetup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center px-4 py-8 pb-28 md:pb-8">
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div

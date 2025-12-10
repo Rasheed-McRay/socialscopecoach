@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -13,7 +13,6 @@ import {
   Save,
   Loader2,
   Lock,
-  Crown,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,10 +73,31 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(reportId || null);
+  const [savedReportCount, setSavedReportCount] = useState<number>(0);
   const { toast } = useToast();
   const { user } = useAuth();
   const { isPro } = useSubscription();
   const navigate = useNavigate();
+
+  // Fetch saved report count for free users
+  useEffect(() => {
+    const fetchSavedReportCount = async () => {
+      if (!user || isPro) return;
+      
+      const { count, error } = await supabase
+        .from('saved_reports')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+      
+      if (!error && count !== null) {
+        setSavedReportCount(count);
+      }
+    };
+    
+    fetchSavedReportCount();
+  }, [user, isPro]);
+
+  const canSaveReport = isPro || savedReportCount < 1;
 
   const handleSave = async () => {
     if (!user) return;
@@ -347,7 +367,7 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4">
         {!savedId ? (
-          isPro ? (
+          canSaveReport ? (
             <Button 
               variant="default" 
               size="lg" 
@@ -363,7 +383,7 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  Save Report
+                  Save Report {!isPro && "(1 of 1)"}
                 </>
               )}
             </Button>
@@ -375,7 +395,7 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
               className="gap-2 border-primary/30 text-muted-foreground"
             >
               <Lock className="w-4 h-4" />
-              Upgrade to Save Reports
+              Upgrade to Save More Reports
             </Button>
           )
         ) : (

@@ -12,6 +12,8 @@ import {
   ChevronDown,
   Save,
   Loader2,
+  Lock,
+  Crown,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +23,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useNavigate } from "react-router-dom";
 
 export interface AnalysisResult {
   summary: string;
@@ -72,6 +76,8 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
   const [savedId, setSavedId] = useState<string | null>(reportId || null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { isPro } = useSubscription();
+  const navigate = useNavigate();
 
   const handleSave = async () => {
     if (!user) return;
@@ -341,25 +347,37 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4">
         {!savedId ? (
-          <Button 
-            variant="default" 
-            size="lg" 
-            onClick={handleSave} 
-            disabled={isSaving}
-            className="gap-2"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                Save Report
-              </>
-            )}
-          </Button>
+          isPro ? (
+            <Button 
+              variant="default" 
+              size="lg" 
+              onClick={handleSave} 
+              disabled={isSaving}
+              className="gap-2"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  Save Report
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="lg" 
+              onClick={() => navigate("/settings")}
+              className="gap-2 border-primary/30 text-muted-foreground"
+            >
+              <Lock className="w-4 h-4" />
+              Upgrade to Save Reports
+            </Button>
+          )
         ) : (
           <Button 
             variant="destructive" 

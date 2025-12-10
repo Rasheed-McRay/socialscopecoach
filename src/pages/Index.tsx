@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
 import { HomeRecorder } from "@/components/HomeRecorder";
 import { DailyScopeAnalysis } from "@/components/DailyScopeAnalysis";
+import { ProFeatureGate } from "@/components/ProFeatureGate";
 import { supabase } from "@/integrations/supabase/client";
 import { transcribeAudio } from "@/lib/api";
 import { toast } from "sonner";
@@ -156,94 +157,99 @@ const Index = () => {
   const dailyPrompt = getDailyPrompt();
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Background Effects */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-      </div>
+    <ProFeatureGate 
+      featureName="Daily Scope" 
+      description="Practice your communication skills with daily prompts and get AI-powered feedback."
+    >
+      <div className="min-h-screen bg-background">
+        {/* Background Effects */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
+        </div>
 
-      <div className="relative z-10 pb-24">
-        {/* Header */}
-        <header className="border-b border-primary/10 backdrop-blur-sm safe-area-top">
-          <div className="px-4 py-3">
-            <div className="flex items-center justify-between">
-              <Link to="/record" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-                <div className="w-9 h-9 rounded-xl bg-gradient-primary flex items-center justify-center glow-primary">
-                  <AudioWaveform className="w-4 h-4 text-primary-foreground" />
-                </div>
-                <div>
-                  <h1 className="text-base font-serif font-semibold text-foreground">
-                    SocialScope
-                  </h1>
-                  <p className="text-[9px] text-muted-foreground">
-                    AI-Powered Conversation Coach
-                  </p>
-                </div>
-              </Link>
-
-              <HeaderNav />
-            </div>
-          </div>
-          <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-        </header>
-
-        {/* Main Content */}
-        <main className="px-4 md:px-8 py-6 md:py-10 space-y-6 max-w-4xl mx-auto">
-          {/* Welcome Section */}
-          <section className="text-center space-y-1 animate-fade-in">
-            <h2 className="md:text-2xl font-serif text-foreground text-2xl">
-              Welcome back{getGreetingName() ? `, ${getGreetingName()}` : ""}
-            </h2>
-          </section>
-
-          {/* Daily Scope Prompt */}
-          <section className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <div className="rounded-2xl bg-card border border-primary/20 p-5 md:p-6 text-center space-y-1 transition-all duration-200 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(247,165,58,0.1)]">
-              <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground">
-                Daily Scope
-              </h3>
-              <p className="text-muted-foreground md:text-base text-lg">{dailyPrompt}</p>
-            </div>
-          </section>
-
-          {/* Recording Section or Completed State */}
-          <section className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            {loadingCompletion ? (
-              <div className="rounded-2xl bg-card border border-primary/20 p-6 md:p-8 text-center">
-                <div className="animate-pulse text-muted-foreground">Loading...</div>
-              </div>
-            ) : todayCompletion ? (
-              <DailyScopeAnalysis completion={todayCompletion} />
-            ) : (
-              <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 border border-primary/20 p-6 md:p-8 space-y-5 transition-all duration-200 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(247,165,58,0.1)]">
-                <div className="text-center space-y-3">
-                  <div className="w-16 h-16 rounded-full bg-gradient-primary mx-auto flex items-center justify-center glow-primary">
-                    <Mic className="w-8 h-8 text-primary-foreground" />
+        <div className="relative z-10 pb-24">
+          {/* Header */}
+          <header className="border-b border-primary/10 backdrop-blur-sm safe-area-top">
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-between">
+                <Link to="/record" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-primary flex items-center justify-center glow-primary">
+                    <AudioWaveform className="w-4 h-4 text-primary-foreground" />
                   </div>
-                  <h3 className="text-lg md:text-xl font-serif text-foreground">
-                    Answer the Daily Scope
-                  </h3>
-                  <p className="text-sm text-muted-foreground">Your 60 seconds of clarity</p>
-                </div>
-
-                {isProcessing ? (
-                  <div className="text-center py-8">
-                    <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-muted-foreground">Processing your response...</p>
+                  <div>
+                    <h1 className="text-base font-serif font-semibold text-foreground">
+                      SocialScope
+                    </h1>
+                    <p className="text-[9px] text-muted-foreground">
+                      AI-Powered Conversation Coach
+                    </p>
                   </div>
-                ) : (
-                  <HomeRecorder onRecordingComplete={handleRecordingComplete} />
-                )}
-              </div>
-            )}
-          </section>
-        </main>
-      </div>
+                </Link>
 
-      {/* Bottom Navigation - Mobile Only */}
-      <BottomNav />
-    </div>
+                <HeaderNav />
+              </div>
+            </div>
+            <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          </header>
+
+          {/* Main Content */}
+          <main className="px-4 md:px-8 py-6 md:py-10 space-y-6 max-w-4xl mx-auto">
+            {/* Welcome Section */}
+            <section className="text-center space-y-1 animate-fade-in">
+              <h2 className="md:text-2xl font-serif text-foreground text-2xl">
+                Welcome back{getGreetingName() ? `, ${getGreetingName()}` : ""}
+              </h2>
+            </section>
+
+            {/* Daily Scope Prompt */}
+            <section className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
+              <div className="rounded-2xl bg-card border border-primary/20 p-5 md:p-6 text-center space-y-1 transition-all duration-200 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(247,165,58,0.1)]">
+                <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground">
+                  Daily Scope
+                </h3>
+                <p className="text-muted-foreground md:text-base text-lg">{dailyPrompt}</p>
+              </div>
+            </section>
+
+            {/* Recording Section or Completed State */}
+            <section className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
+              {loadingCompletion ? (
+                <div className="rounded-2xl bg-card border border-primary/20 p-6 md:p-8 text-center">
+                  <div className="animate-pulse text-muted-foreground">Loading...</div>
+                </div>
+              ) : todayCompletion ? (
+                <DailyScopeAnalysis completion={todayCompletion} />
+              ) : (
+                <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 border border-primary/20 p-6 md:p-8 space-y-5 transition-all duration-200 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(247,165,58,0.1)]">
+                  <div className="text-center space-y-3">
+                    <div className="w-16 h-16 rounded-full bg-gradient-primary mx-auto flex items-center justify-center glow-primary">
+                      <Mic className="w-8 h-8 text-primary-foreground" />
+                    </div>
+                    <h3 className="text-lg md:text-xl font-serif text-foreground">
+                      Answer the Daily Scope
+                    </h3>
+                    <p className="text-sm text-muted-foreground">Your 60 seconds of clarity</p>
+                  </div>
+
+                  {isProcessing ? (
+                    <div className="text-center py-8">
+                      <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+                      <p className="text-muted-foreground">Processing your response...</p>
+                    </div>
+                  ) : (
+                    <HomeRecorder onRecordingComplete={handleRecordingComplete} />
+                  )}
+                </div>
+              )}
+            </section>
+          </main>
+        </div>
+
+        {/* Bottom Navigation - Mobile Only */}
+        <BottomNav />
+      </div>
+    </ProFeatureGate>
   );
 };
 

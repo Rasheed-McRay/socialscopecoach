@@ -22,33 +22,6 @@ interface SavedReport {
   created_at: string;
 }
 
-// Demo data for showcase
-const demoAnalyses = [
-  { 
-    id: "demo-1", 
-    title: "A flirty convo about dogs", 
-    description: "A flirty conversation between strangers about puppies",
-    date: "Dec 9th, 2025", 
-    socialScore: 82,
-    confidenceScore: 75
-  },
-  { 
-    id: "demo-2", 
-    title: "A serious convo at work", 
-    description: "A tense negotiation about project deadlines",
-    date: "Dec 4th, 2025", 
-    socialScore: 71,
-    confidenceScore: 84
-  },
-  { 
-    id: "demo-3", 
-    title: "A fiery debate about anime", 
-    description: "A heated debate about which anime is best",
-    date: "Dec 12th, 2025", 
-    socialScore: 78,
-    confidenceScore: 69
-  },
-];
 
 // Helper to get first sentence only
 const getFirstSentence = (text: string): string => {
@@ -112,10 +85,10 @@ const Insights = () => {
   // Calculate average scores from reports
   const avgSocialScore = reports.length > 0 
     ? Math.round(reports.reduce((acc, r) => acc + r.analysis_result.socialScore, 0) / reports.length)
-    : 75;
+    : null;
   const avgConfidenceScore = reports.length > 0 
     ? Math.round(reports.reduce((acc, r) => acc + r.analysis_result.confidenceScore, 0) / reports.length)
-    : 67;
+    : null;
 
   // Simplify action step to be clear, concise, and actionable
   const simplifyActionStep = (step: string): string => {
@@ -173,8 +146,8 @@ const Insights = () => {
   };
 
   // Get most common next step from all reports
-  const getMostCommonNextStep = (): string => {
-    if (reports.length === 0) return "Ask better questions";
+  const getMostCommonNextStep = (): string | null => {
+    if (reports.length === 0) return null;
     
     // Collect first next step from each report
     const allSteps: string[] = [];
@@ -186,7 +159,7 @@ const Insights = () => {
       }
     });
 
-    if (allSteps.length === 0) return "Ask better questions";
+    if (allSteps.length === 0) return null;
 
     // Return simplified version of the most recent step
     return simplifyActionStep(allSteps[0]);
@@ -269,118 +242,121 @@ const Insights = () => {
 
         {/* Main Content */}
         <main className="px-4 md:px-8 py-4 md:py-8 space-y-6 md:space-y-10 max-w-4xl mx-auto">
-          {/* Section: Your Insights */}
-          <section className="space-y-3 md:space-y-4 animate-fade-in">
-            <h2 className="text-xl md:text-3xl font-serif text-foreground">
-              Your <span className="text-gradient-primary">Insights</span>
-            </h2>
-            
-            {/* Insight cards grid */}
-            <div className="grid grid-cols-3 gap-2 md:flex md:gap-4">
-              {/* Social Skills Score */}
-              <InsightCard className="w-full md:w-[140px]">
-                <ScoreDial score={avgSocialScore} label="Social Skills" size="sm" />
-              </InsightCard>
-
-              {/* Confidence Score */}
-              <InsightCard className="w-full md:w-[140px]">
-                <ScoreDial score={avgConfidenceScore} label="Confidence" size="sm" />
-              </InsightCard>
-
-              {/* Main Focus */}
-              <InsightCard 
-                className="w-full md:w-[160px] cursor-pointer hover:border-primary/40 transition-colors"
-                onClick={() => setFocusDialogOpen(true)}
-              >
-                <div className="flex flex-col items-center justify-center h-full gap-2 md:gap-3">
-                  <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Target className="w-4 h-4 md:w-6 md:h-6 text-primary" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-xs md:text-base font-semibold text-foreground">Main Focus</h3>
-                    <p className="text-[10px] md:text-sm text-primary leading-tight">{mainFocus}</p>
-                  </div>
-                </div>
-              </InsightCard>
-            </div>
-          </section>
-
-          {/* Section: Recent Analyses */}
-          <section className="space-y-3 md:space-y-4" style={{ animationDelay: "0.1s" }}>
-            <h2 className="text-xl md:text-3xl font-serif text-foreground animate-fade-in">
-              Recent <span className="text-gradient-primary">Analyses</span>
-            </h2>
-
-            {loading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="rounded-2xl bg-card/50 p-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-5 w-48" />
-                        <Skeleton className="h-4 w-32" />
-                        <Skeleton className="h-6 w-36 rounded-full" />
-                      </div>
-                      <Skeleton className="h-8 w-8 rounded-full" />
-                    </div>
-                  </div>
-                ))}
+          {reports.length === 0 && !loading ? (
+            // Empty state for new users
+            <section className="space-y-6 animate-fade-in text-center py-12">
+              <div className="w-20 h-20 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
+                <AudioWaveform className="w-10 h-10 text-primary" />
               </div>
-            ) : reports.length === 0 ? (
-              <div className="space-y-3 animate-fade-in">
-                {/* Show demo analyses when no real data */}
-                {demoAnalyses.map((analysis, index) => (
-                  <div 
-                    key={analysis.id}
-                    className="animate-fade-in"
-                    style={{ animationDelay: `${0.1 + index * 0.05}s` }}
-                  >
-                    <AnalysisCard
-                      title={analysis.title}
-                      description={analysis.description}
-                      date={analysis.date}
-                      socialScore={analysis.socialScore}
-                      confidenceScore={analysis.confidenceScore}
-                      onClick={() => toast.info("Analyze a conversation to see your insights!")}
-                    />
-                  </div>
-                ))}
-                <p className="text-center text-base text-muted-foreground pt-2">
-                  These are sample analyses. Record a conversation to see your real insights!
+              <div className="space-y-2">
+                <h2 className="text-2xl md:text-3xl font-serif text-foreground">
+                  No insights yet
+                </h2>
+                <p className="text-muted-foreground max-w-sm mx-auto">
+                  Record and analyze a conversation to see your personalized insights and social skills scores.
                 </p>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {reports.map((report, index) => (
-                  <div 
-                    key={report.id}
-                    className="animate-fade-in relative group"
-                    style={{ animationDelay: `${0.1 + index * 0.05}s` }}
-                  >
-                    <AnalysisCard
-                      title={report.title || `Analysis from ${formatDate(report.created_at)}`}
-                      description={getFirstSentence(report.analysis_result.summary)}
-                      date={formatDate(report.created_at)}
-                      socialScore={report.analysis_result.socialScore}
-                      confidenceScore={report.analysis_result.confidenceScore}
-                      onClick={() => setSelectedReport(report)}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full h-7 w-7"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(report.id);
-                      }}
+              <Link to="/record">
+                <Button variant="gradient" size="lg" className="gap-2">
+                  Start Recording
+                </Button>
+              </Link>
+            </section>
+          ) : (
+            <>
+              {/* Section: Your Insights */}
+              <section className="space-y-3 md:space-y-4 animate-fade-in">
+                <h2 className="text-xl md:text-3xl font-serif text-foreground">
+                  Your <span className="text-gradient-primary">Insights</span>
+                </h2>
+                
+                {/* Insight cards grid */}
+                <div className="grid grid-cols-3 gap-2 md:flex md:gap-4">
+                  {/* Social Skills Score */}
+                  <InsightCard className="w-full md:w-[140px]">
+                    <ScoreDial score={avgSocialScore ?? 0} label="Social Skills" size="sm" />
+                  </InsightCard>
+
+                  {/* Confidence Score */}
+                  <InsightCard className="w-full md:w-[140px]">
+                    <ScoreDial score={avgConfidenceScore ?? 0} label="Confidence" size="sm" />
+                  </InsightCard>
+
+                  {/* Main Focus */}
+                  {mainFocus && (
+                    <InsightCard 
+                      className="w-full md:w-[160px] cursor-pointer hover:border-primary/40 transition-colors"
+                      onClick={() => setFocusDialogOpen(true)}
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
+                      <div className="flex flex-col items-center justify-center h-full gap-2 md:gap-3">
+                        <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Target className="w-4 h-4 md:w-6 md:h-6 text-primary" />
+                        </div>
+                        <div className="text-center">
+                          <h3 className="text-xs md:text-base font-semibold text-foreground">Main Focus</h3>
+                          <p className="text-[10px] md:text-sm text-primary leading-tight">{mainFocus}</p>
+                        </div>
+                      </div>
+                    </InsightCard>
+                  )}
+                </div>
+              </section>
+
+              {/* Section: Recent Analyses */}
+              <section className="space-y-3 md:space-y-4" style={{ animationDelay: "0.1s" }}>
+                <h2 className="text-xl md:text-3xl font-serif text-foreground animate-fade-in">
+                  Recent <span className="text-gradient-primary">Analyses</span>
+                </h2>
+
+                {loading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="rounded-2xl bg-card/50 p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-5 w-48" />
+                            <Skeleton className="h-4 w-32" />
+                            <Skeleton className="h-6 w-36 rounded-full" />
+                          </div>
+                          <Skeleton className="h-8 w-8 rounded-full" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
+                ) : (
+                  <div className="space-y-3">
+                    {reports.map((report, index) => (
+                      <div 
+                        key={report.id}
+                        className="animate-fade-in relative group"
+                        style={{ animationDelay: `${0.1 + index * 0.05}s` }}
+                      >
+                        <AnalysisCard
+                          title={report.title || `Analysis from ${formatDate(report.created_at)}`}
+                          description={getFirstSentence(report.analysis_result.summary)}
+                          date={formatDate(report.created_at)}
+                          socialScore={report.analysis_result.socialScore}
+                          confidenceScore={report.analysis_result.confidenceScore}
+                          onClick={() => setSelectedReport(report)}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full h-7 w-7"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(report.id);
+                          }}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
         </main>
       </div>
 
@@ -388,11 +364,13 @@ const Insights = () => {
       <BottomNav />
 
       {/* Focus Examples Dialog */}
-      <FocusExamplesDialog
-        open={focusDialogOpen}
-        onOpenChange={setFocusDialogOpen}
-        focusArea={mainFocus}
-      />
+      {mainFocus && (
+        <FocusExamplesDialog
+          open={focusDialogOpen}
+          onOpenChange={setFocusDialogOpen}
+          focusArea={mainFocus}
+        />
+      )}
     </div>
   );
 };

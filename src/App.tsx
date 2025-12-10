@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
+import Record from "./pages/Record";
 import Auth from "./pages/Auth";
 import VoiceSetup from "./pages/VoiceSetup";
 import Settings from "./pages/Settings";
@@ -57,6 +58,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Index />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/record"
+              element={
+                <ProtectedRoute>
+                  <Record />
                 </ProtectedRoute>
               }
             />

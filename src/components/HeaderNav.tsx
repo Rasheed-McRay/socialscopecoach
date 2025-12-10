@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { icon: Sun, label: "Home", path: "/app" },
   { icon: Lightbulb, label: "Insights", path: "/insights" },
-  { icon: Mic, label: "Record", path: "/app" },
+  { icon: Mic, label: "Record", path: "/record" },
   { icon: NotebookText, label: "History", path: "/history" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];

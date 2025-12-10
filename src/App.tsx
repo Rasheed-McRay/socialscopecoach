@@ -18,6 +18,9 @@ import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import Insights from "./pages/Insights";
 import Progress from "./pages/Progress";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +37,16 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route
+              path="/checkout-success"
+              element={
+                <ProtectedRoute>
+                  <CheckoutSuccess />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/voice-setup"
               element={

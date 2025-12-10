@@ -59,7 +59,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/settings?checkout=success`,
+      success_url: `${req.headers.get("origin")}/checkout-success`,
       cancel_url: `${req.headers.get("origin")}/settings?checkout=canceled`,
     });
 

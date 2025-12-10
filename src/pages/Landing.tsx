@@ -429,8 +429,23 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-border/30 py-8">
-        <div className="container text-center text-muted-foreground text-sm">
-          <p>© 2024 SocialScope. Built with care for better human connection.</p>
+        <div className="container">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-muted-foreground text-sm">
+              © 2024 SocialScope. Built with care for better human connection.
+            </p>
+            <div className="flex items-center gap-6 text-sm">
+              <a href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
+                Privacy Policy
+              </a>
+              <a href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
+                Terms of Service
+              </a>
+              <a href="mailto:support@socialscope.app" className="text-muted-foreground hover:text-foreground transition-colors">
+                Contact
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
       </main>

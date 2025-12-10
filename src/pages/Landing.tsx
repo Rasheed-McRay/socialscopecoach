@@ -30,6 +30,7 @@ const passwordSchema = z.string()
 const Landing = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -95,7 +96,7 @@ const Landing = () => {
     
     try {
       if (isLogin) {
-        const { error } = await signIn(email, password);
+        const { error } = await signIn(email, password, rememberMe);
         if (error) {
           toast({ title: 'Sign in failed', description: error.message, variant: 'destructive' });
           return;
@@ -277,7 +278,16 @@ const Landing = () => {
                         />
                       </div>
                       {isLogin && (
-                        <div className="text-right">
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={rememberMe}
+                              onChange={(e) => setRememberMe(e.target.checked)}
+                              className="w-4 h-4 rounded border-border bg-secondary/50 text-primary focus:ring-primary focus:ring-offset-0"
+                            />
+                            <span className="text-sm text-muted-foreground">Remember me</span>
+                          </label>
                           <button
                             type="button"
                             onClick={() => setIsForgotPassword(true)}

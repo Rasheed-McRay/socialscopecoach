@@ -128,6 +128,15 @@ serve(async (req) => {
       );
     }
 
+    const MAX_PROMPT_LENGTH = 1000;
+    if (prompt && prompt.length > MAX_PROMPT_LENGTH) {
+      console.log("Rejected oversized prompt:", prompt.length);
+      return new Response(
+        JSON.stringify({ error: "Prompt too long" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       console.error("LOVABLE_API_KEY is not configured");

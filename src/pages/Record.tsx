@@ -33,6 +33,7 @@ const Record = () => {
     incrementUsage,
     isPro,
     resetInfo,
+    voiceBonusRemaining,
   } = useDailyAnalysisLimit();
 
   const handleAudioReady = async (audioBlob: Blob, fileName: string) => {
@@ -193,7 +194,7 @@ const Record = () => {
               {/* Normal recording state */}
               {!limitLoading && canAnalyze && (
                 <>
-                  <div className="text-center">
+                  <div className="text-center space-y-2">
                     <p className="text-sm text-muted-foreground">
                       {isPro ? (
                         <>
@@ -210,6 +211,12 @@ const Record = () => {
                         </>
                       )}
                     </p>
+                    {voiceBonusRemaining > 0 && (
+                      <p className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                        <span>🎁</span>
+                        {voiceBonusRemaining} voice bonus {voiceBonusRemaining === 1 ? 'analysis' : 'analyses'}
+                      </p>
+                    )}
                   </div>
 
                   <AudioUploader

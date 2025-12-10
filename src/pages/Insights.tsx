@@ -12,6 +12,7 @@ import { HeaderNav } from "@/components/HeaderNav";
 import { InsightCard } from "@/components/InsightCard";
 import { ScoreDial } from "@/components/ScoreDial";
 import { AnalysisCard } from "@/components/AnalysisCard";
+import { FocusExamplesDialog } from "@/components/FocusExamplesDialog";
 
 interface SavedReport {
   id: string;
@@ -60,6 +61,7 @@ const Insights = () => {
   const [reports, setReports] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState<SavedReport | null>(null);
+  const [focusDialogOpen, setFocusDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchReports();
@@ -285,7 +287,10 @@ const Insights = () => {
               </InsightCard>
 
               {/* Main Focus */}
-              <InsightCard className="w-full md:w-[160px]">
+              <InsightCard 
+                className="w-full md:w-[160px] cursor-pointer hover:border-primary/40 transition-colors"
+                onClick={() => setFocusDialogOpen(true)}
+              >
                 <div className="flex flex-col items-center justify-center h-full gap-1.5 md:gap-3">
                   <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-primary/10 flex items-center justify-center">
                     <Target className="w-3.5 h-3.5 md:w-5 md:h-5 text-primary" />
@@ -380,6 +385,13 @@ const Insights = () => {
 
       {/* Bottom Navigation */}
       <BottomNav />
+
+      {/* Focus Examples Dialog */}
+      <FocusExamplesDialog
+        open={focusDialogOpen}
+        onOpenChange={setFocusDialogOpen}
+        focusArea={mainFocus}
+      />
     </div>
   );
 };

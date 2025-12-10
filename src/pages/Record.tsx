@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { AudioWaveform } from "lucide-react";
+import { AudioWaveform, Lock } from "lucide-react";
 import { AudioUploader } from "@/components/AudioUploader";
 import { ProcessingState } from "@/components/ProcessingState";
 import { AnalysisReport, AnalysisResult } from "@/components/AnalysisReport";
@@ -9,6 +9,8 @@ import { transcribeAudio, analyzeConversation } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
+import { useDailyAnalysisLimit } from "@/hooks/useDailyAnalysisLimit";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type AppState = "idle" | "processing" | "complete";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
@@ -21,8 +23,30 @@ const Record = () => {
   const [transcript, setTranscript] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { canAnalyze, remainingAnalyses, dailyLimit, loading: limitLoading, incrementUsage } = useDailyAnalysisLimit();
 
   const handleAudioReady = async (audioBlob: Blob, fileName: string) => {
+    // Check if user can analyze before proceeding
+    if (!canAnalyze) {
+      toast({
+        title: "Daily Limit Reached",
+        description: "You've used your free analysis for today. Come back tomorrow!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Increment usage before starting (to prevent race conditions)
+    const usageSuccess = await incrementUsage();
+    if (!usageSuccess) {
+      toast({
+        title: "Daily Limit Reached",
+        description: "You've used your free analysis for today. Come back tomorrow!",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setAppState("processing");
     setProcessingStage("uploading");
     setProgress(10);
@@ -116,9 +140,27 @@ const Record = () => {
                 </p>
               </div>
 
+              {/* Daily limit indicator */}
+              {!limitLoading && (
+                <div className="text-center">
+                  {canAnalyze ? (
+                    <p className="text-sm text-muted-foreground">
+                      {remainingAnalyses} of {dailyLimit} free {dailyLimit === 1 ? 'analysis' : 'analyses'} remaining today
+                    </p>
+                  ) : (
+                    <Alert className="max-w-md mx-auto border-amber-500/50 bg-amber-500/10">
+                      <Lock className="h-4 w-4 text-amber-500" />
+                      <AlertDescription className="text-amber-600 dark:text-amber-400">
+                        You've used your free analysis for today. Come back tomorrow at midnight!
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              )}
+
               <AudioUploader
                 onAudioReady={handleAudioReady}
-                isProcessing={isProcessing}
+                isProcessing={isProcessing || !canAnalyze}
               />
 
               <div className="text-center space-y-2">

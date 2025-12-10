@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_analysis_usage: {
+        Row: {
+          analysis_count: number
+          created_at: string
+          id: string
+          updated_at: string
+          usage_date: string
+          user_id: string
+        }
+        Insert: {
+          analysis_count?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          usage_date: string
+          user_id: string
+        }
+        Update: {
+          analysis_count?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          usage_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_scope_completions: {
         Row: {
           analysis_result: Json

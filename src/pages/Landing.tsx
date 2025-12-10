@@ -441,9 +441,6 @@ const Landing = () => {
               <a href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
                 Terms of Service
               </a>
-              <a href="mailto:support@socialscope.app" className="text-muted-foreground hover:text-foreground transition-colors">
-                Contact
-              </a>
             </div>
           </div>
         </div>

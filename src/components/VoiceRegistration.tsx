@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Mic, CheckCircle, X, Loader2, ArrowRight } from "lucide-react";
+import { Mic, CheckCircle, Loader2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -228,14 +228,13 @@ export const VoiceRegistration = ({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 pt-4">
+        <div className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
           {showSkip && !isRegistrationComplete && (
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={onSkip}
-              className="flex-1 gap-2"
+              className="w-full sm:flex-1 gap-2 h-11"
             >
-              <X className="w-4 h-4" />
               Skip for now
             </Button>
           )}
@@ -243,7 +242,7 @@ export const VoiceRegistration = ({
           <Button
             onClick={handleComplete}
             disabled={!isRegistrationComplete}
-            className="flex-1 gap-2"
+            className="w-full sm:flex-1 gap-2 h-11"
             variant="gradient"
           >
             {isRegistrationComplete ? (
@@ -252,7 +251,7 @@ export const VoiceRegistration = ({
                 <ArrowRight className="w-4 h-4" />
               </>
             ) : (
-              `Record ${REQUIRED_SAMPLES - completedCount} more sample${REQUIRED_SAMPLES - completedCount > 1 ? 's' : ''}`
+              `Record ${REQUIRED_SAMPLES - completedCount} more`
             )}
           </Button>
         </div>

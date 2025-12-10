@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { AudioWaveform, Loader2, Mail, Lock, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +25,7 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; displayName?: string }>({});
   const [justSignedUp, setJustSignedUp] = useState(false);
@@ -157,7 +159,7 @@ const Auth = () => {
           description: 'Welcome to SocialScope. Let\'s set up your voice profile.',
         });
       } else {
-        const { error } = await signIn(email, password);
+        const { error } = await signIn(email, password, rememberMe);
         if (error) {
           if (error.message.includes('Invalid login credentials')) {
             toast({
@@ -344,7 +346,20 @@ const Auth = () => {
             </div>
             
             {!isSignUp && (
-              <div className="text-right">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="rememberMe"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  />
+                  <Label 
+                    htmlFor="rememberMe" 
+                    className="text-sm text-muted-foreground cursor-pointer"
+                  >
+                    Remember me
+                  </Label>
+                </div>
                 <button
                   type="button"
                   onClick={() => {

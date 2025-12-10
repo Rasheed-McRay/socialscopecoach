@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { AudioWaveform, Lightbulb, ArrowLeft, Trash2, Settings, Target } from "lucide-react";
+import { AudioWaveform, ArrowLeft, Trash2, Target } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnalysisReport, AnalysisResult } from "@/components/AnalysisReport";
@@ -180,31 +180,7 @@ const Insights = () => {
                   <p className="text-[9px] text-muted-foreground">AI-Powered Conversation Coach</p>
                 </div>
               </Link>
-              
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="rounded-full hover:bg-primary/10 hover:text-primary transition-all group md:hidden"
-                >
-                  <div className="relative">
-                    <Lightbulb className="h-5 w-5 group-hover:drop-shadow-[0_0_8px_hsl(var(--primary))]" />
-                  </div>
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  asChild
-                  className="rounded-full hover:bg-primary/10 hover:text-primary transition-all group md:hidden"
-                >
-                  <Link to="/settings">
-                    <div className="relative">
-                      <Settings className="h-5 w-5 group-hover:drop-shadow-[0_0_8px_hsl(var(--primary))]" />
-                    </div>
-                  </Link>
-                </Button>
-                <HeaderNav />
-              </div>
+              <HeaderNav />
             </div>
           </div>
           {/* Gold tinted divider */}

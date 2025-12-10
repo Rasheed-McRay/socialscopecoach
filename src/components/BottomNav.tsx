@@ -1,9 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import { Sun, Lightbulb, Mic, NotebookText, Settings } from "lucide-react";
+import { Telescope, Lightbulb, Mic, NotebookText, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { icon: Sun, label: "Home", path: "/app" },
+  { icon: Telescope, label: "Scope", path: "/app" },
   { icon: Lightbulb, label: "Insights", path: "/insights" },
   { icon: Mic, label: "Record", path: "/record", isCenter: true },
   { icon: NotebookText, label: "Progress", path: "/progress" },

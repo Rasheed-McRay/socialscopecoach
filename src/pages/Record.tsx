@@ -23,7 +23,15 @@ const Record = () => {
   const [transcript, setTranscript] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
-  const { canAnalyze, remainingAnalyses, dailyLimit, loading: limitLoading, incrementUsage } = useDailyAnalysisLimit();
+  const { 
+    canAnalyze, 
+    remainingAnalyses, 
+    limit, 
+    loading: limitLoading, 
+    incrementUsage,
+    isPro,
+    resetInfo,
+  } = useDailyAnalysisLimit();
 
   const handleAudioReady = async (audioBlob: Blob, fileName: string) => {
     // Check if user can analyze before proceeding
@@ -140,18 +148,38 @@ const Record = () => {
                 </p>
               </div>
 
-              {/* Daily limit indicator */}
+              {/* Usage limit indicator */}
               {!limitLoading && (
                 <div className="text-center">
                   {canAnalyze ? (
                     <p className="text-sm text-muted-foreground">
-                      {remainingAnalyses} of {dailyLimit} free {dailyLimit === 1 ? 'analysis' : 'analyses'} remaining today
+                      {isPro ? (
+                        <>
+                          {remainingAnalyses} of {limit} analyses remaining this billing period
+                          {resetInfo.daysUntilReset > 0 && (
+                            <span className="text-xs block mt-1">
+                              Resets in {resetInfo.daysUntilReset} {resetInfo.daysUntilReset === 1 ? 'day' : 'days'}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {remainingAnalyses} of {limit} free {limit === 1 ? 'analysis' : 'analyses'} remaining today
+                        </>
+                      )}
                     </p>
                   ) : (
                     <Alert className="max-w-md mx-auto border-amber-500/50 bg-amber-500/10">
                       <Lock className="h-4 w-4 text-amber-500" />
                       <AlertDescription className="text-amber-600 dark:text-amber-400">
-                        You've used your free analysis for today. Come back tomorrow at midnight!
+                        {isPro ? (
+                          <>
+                            You've used all {limit} analyses this billing period. 
+                            Resets in {resetInfo.daysUntilReset} {resetInfo.daysUntilReset === 1 ? 'day' : 'days'}.
+                          </>
+                        ) : (
+                          <>You've used your free analysis for today. Come back tomorrow at midnight!</>
+                        )}
                       </AlertDescription>
                     </Alert>
                   )}

@@ -74,6 +74,36 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_analysis_usage: {
+        Row: {
+          analysis_count: number
+          billing_period_end: string
+          billing_period_start: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_count?: number
+          billing_period_end: string
+          billing_period_start: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_count?: number
+          billing_period_end?: string
+          billing_period_start?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -138,6 +168,7 @@ export type Database = {
           id: string
           is_hidden: boolean
           role: Database["public"]["Enums"]["app_role"]
+          subscription_started_at: string | null
           tier: Database["public"]["Enums"]["subscription_tier_v2"]
           updated_at: string
           user_id: string
@@ -148,6 +179,7 @@ export type Database = {
           id?: string
           is_hidden?: boolean
           role?: Database["public"]["Enums"]["app_role"]
+          subscription_started_at?: string | null
           tier?: Database["public"]["Enums"]["subscription_tier_v2"]
           updated_at?: string
           user_id: string
@@ -158,6 +190,7 @@ export type Database = {
           id?: string
           is_hidden?: boolean
           role?: Database["public"]["Enums"]["app_role"]
+          subscription_started_at?: string | null
           tier?: Database["public"]["Enums"]["subscription_tier_v2"]
           updated_at?: string
           user_id?: string

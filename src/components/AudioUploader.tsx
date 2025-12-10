@@ -193,59 +193,6 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
 
   return (
     <div className="space-y-6">
-      {/* Upload Zone */}
-      <Card
-        variant="glass"
-        className={cn(
-          "relative overflow-hidden transition-all duration-300 cursor-pointer group",
-          dragOver && "border-primary ring-2 ring-primary/20",
-          isProcessing && "pointer-events-none opacity-50"
-        )}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <div className="p-12 text-center">
-          <div className="mb-6 relative">
-            <div className="w-20 h-20 mx-auto rounded-2xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-              <Upload className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
-          </div>
-          <h3 className="text-xl font-medium mb-2">Drop your audio file here</h3>
-          <p className="text-muted-foreground text-sm mb-4">
-            Supports MP3, WAV, M4A, WebM
-          </p>
-          <Button variant="outline" size="sm" disabled={isProcessing}>
-            Browse Files
-          </Button>
-        </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="audio/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleFileSelect(file);
-          }}
-        />
-      </Card>
-
-      {/* Divider */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="bg-background px-4 text-sm text-muted-foreground">or</span>
-        </div>
-      </div>
-
       {/* Record Button */}
       <Card variant="glass" className="p-8">
         <div className="text-center">
@@ -332,6 +279,59 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
             </div>
           )}
         </div>
+      </Card>
+
+      {/* Divider */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-background px-4 text-sm text-muted-foreground">or</span>
+        </div>
+      </div>
+
+      {/* Upload Zone */}
+      <Card
+        variant="glass"
+        className={cn(
+          "relative overflow-hidden transition-all duration-300 cursor-pointer group",
+          dragOver && "border-primary ring-2 ring-primary/20",
+          isProcessing && "pointer-events-none opacity-50"
+        )}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <div className="p-12 text-center">
+          <div className="mb-6 relative">
+            <div className="w-20 h-20 mx-auto rounded-2xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+              <Upload className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+          </div>
+          <h3 className="text-xl font-medium mb-2">Drop your audio file here</h3>
+          <p className="text-muted-foreground text-sm mb-4">
+            Supports MP3, WAV, M4A, WebM
+          </p>
+          <Button variant="outline" size="sm" disabled={isProcessing}>
+            Browse Files
+          </Button>
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="audio/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleFileSelect(file);
+          }}
+        />
       </Card>
     </div>
   );

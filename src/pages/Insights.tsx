@@ -91,7 +91,7 @@ const Insights = () => {
     ? Math.round(reports.reduce((acc, r) => acc + r.analysis_result.confidenceScore, 0) / reports.length)
     : null;
 
-  // Simplify action step to be clear, concise, and actionable
+  // Simplify action step to be clear, concise, and complete (no cut-off text)
   const simplifyActionStep = (step: string): string => {
     let simplified = step;
     
@@ -114,6 +114,8 @@ const Insights = () => {
       /^when you[^,]*,?\s*/i,
       /^before you[^,]*,?\s*/i,
       /^after you[^,]*,?\s*/i,
+      /^actively\s*/i,
+      /^consciously\s*/i,
     ];
     
     for (const phrase of fillerPhrases) {
@@ -126,26 +128,67 @@ const Insights = () => {
     // Remove trailing period
     simplified = simplified.replace(/\.$/, "");
     
-    // Truncate for display
-    if (simplified.length > 50) {
-      // Try to cut at natural break points
-      const breakPoints = [", ", " - ", " or ", " and ", " to ", " by ", " with "];
-      for (const bp of breakPoints) {
-        const idx = simplified.indexOf(bp);
-        if (idx > 15 && idx < 50) {
-          simplified = simplified.substring(0, idx);
-          break;
-        }
-      }
-      // If still too long, truncate at last space before limit
-      if (simplified.length > 50) {
-        const truncated = simplified.substring(0, 47);
-        const lastSpace = truncated.lastIndexOf(" ");
-        simplified = (lastSpace > 20 ? truncated.substring(0, lastSpace) : truncated) + "...";
+    // If under limit, return as-is
+    if (simplified.length <= 50) {
+      return simplified;
+    }
+    
+    // Find the best natural break point that creates a complete phrase
+    const breakPoints = [
+      { pattern: ", ", minIdx: 20 },
+      { pattern: " - ", minIdx: 15 },
+      { pattern: " and ", minIdx: 20 },
+      { pattern: " or ", minIdx: 20 },
+      { pattern: " to ", minIdx: 25 },
+      { pattern: " by ", minIdx: 20 },
+      { pattern: " with ", minIdx: 20 },
+      { pattern: " for ", minIdx: 20 },
+      { pattern: " in ", minIdx: 25 },
+    ];
+    
+    for (const { pattern, minIdx } of breakPoints) {
+      const idx = simplified.indexOf(pattern);
+      if (idx >= minIdx && idx <= 50) {
+        return simplified.substring(0, idx);
       }
     }
     
-    return simplified;
+    // If no good break found, extract the core action verb phrase
+    // Look for common patterns and create a concise version
+    const corePatterns = [
+      /^(Use \w+)/i,
+      /^(Ask \w+)/i,
+      /^(Share \w+)/i,
+      /^(Add \w+)/i,
+      /^(Include \w+)/i,
+      /^(Show \w+)/i,
+      /^(Express \w+)/i,
+      /^(Listen \w+)/i,
+      /^(Speak \w+)/i,
+      /^(Make \w+)/i,
+      /^(\w+ more \w+)/i,
+    ];
+    
+    for (const pattern of corePatterns) {
+      const match = simplified.match(pattern);
+      if (match && match[1].length <= 50) {
+        return match[1];
+      }
+    }
+    
+    // Last resort: take first few words that form a complete thought
+    const words = simplified.split(" ");
+    let result = "";
+    for (const word of words) {
+      const test = result ? `${result} ${word}` : word;
+      if (test.length <= 48) {
+        result = test;
+      } else {
+        break;
+      }
+    }
+    
+    return result || simplified.substring(0, 50);
   };
 
   // Get most common next step from all reports

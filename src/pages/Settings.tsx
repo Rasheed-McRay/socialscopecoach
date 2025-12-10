@@ -94,7 +94,7 @@ const Settings = () => {
           <div className="container py-4">
             <div className="flex items-center justify-between">
               <Link
-                to="/app"
+                to="/record"
                 className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
               >
                 <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
@@ -107,7 +107,7 @@ const Settings = () => {
               </Link>
 
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => navigate("/app")} className="gap-2 md:hidden">
+                <Button variant="ghost" size="sm" onClick={() => navigate("/record")} className="gap-2 md:hidden">
                   <ArrowLeft className="h-4 w-4" />
                   Back
                 </Button>

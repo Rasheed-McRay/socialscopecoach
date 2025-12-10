@@ -99,7 +99,7 @@ const Index = () => {
 
           {/* Daily Scope Prompt */}
           <section className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <div className="rounded-2xl bg-card border border-primary/20 p-5 md:p-6 text-center space-y-1">
+            <div className="rounded-2xl bg-card border border-primary/20 p-5 md:p-6 text-center space-y-1 transition-all duration-200 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(247,165,58,0.1)]">
               <h3 className="text-lg md:text-xl font-serif font-semibold text-foreground">
                 Daily Scope
               </h3>
@@ -111,7 +111,7 @@ const Index = () => {
 
           {/* Recording Section */}
           <section className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 border border-border/50 p-6 md:p-8 space-y-5">
+            <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 border border-primary/20 p-6 md:p-8 space-y-5 transition-all duration-200 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(247,165,58,0.1)]">
               <div className="text-center space-y-3">
                 <div className="w-16 h-16 rounded-full bg-gradient-primary mx-auto flex items-center justify-center glow-primary">
                   <Mic className="w-8 h-8 text-primary-foreground" />

@@ -85,7 +85,7 @@ const ResetPassword = () => {
         description: 'Your password has been successfully reset.',
       });
       
-      navigate('/app');
+      navigate('/record');
     } catch (error) {
       toast({
         title: 'Error',

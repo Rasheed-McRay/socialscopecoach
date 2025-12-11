@@ -336,30 +336,27 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
         {!isPro && <ProSectionOverlay />}
       </div>
 
-      {/* Next Steps */}
-      <div className="relative">
-        <Card className={cn("bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20", !isPro && "opacity-50")}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-accent" />
-              Your Next Steps
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {(isPro ? result.nextSteps : result.nextSteps.slice(0, 1)).map((step, i) => (
-                <div key={i} className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-                    <span className="text-accent font-bold text-sm">{i + 1}</span>
-                  </div>
-                  <p className="text-foreground pt-1">{isPro ? step : "••••••••••••••••"}</p>
+      {/* Next Steps - Available to all users */}
+      <Card className="bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-accent" />
+            Your Next Steps
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {result.nextSteps.map((step, i) => (
+              <div key={i} className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                  <span className="text-accent font-bold text-sm">{i + 1}</span>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-        {!isPro && <ProSectionOverlay />}
-      </div>
+                <p className="text-foreground pt-1">{step}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Transcript Section */}
       {transcript && (

@@ -26,7 +26,18 @@ const VoiceSetup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center px-4 py-8 pb-28 md:pb-8">
+    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-4 relative z-20">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
+            <AudioWaveform className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <h1 className="text-2xl font-serif font-semibold text-foreground">SocialScope</h1>
+        </div>
+        <HeaderNav />
+      </div>
+
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -39,18 +50,8 @@ const VoiceSetup = () => {
         />
       </div>
 
-      <div className="relative z-10 w-full">
-        {/* Header */}
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-            <AudioWaveform className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <h1 className="text-2xl font-serif font-semibold text-foreground">SocialScope</h1>
-          <div className="absolute right-4 top-4">
-            <HeaderNav />
-          </div>
-        </div>
-
+      {/* Main content */}
+      <div className="flex-1 flex items-center justify-center px-4 py-8 pb-28 md:pb-8 relative z-10">
         <VoiceRegistration
           onComplete={handleComplete}
           onSkip={handleSkip}

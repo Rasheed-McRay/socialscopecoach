@@ -53,7 +53,7 @@ const Auth = () => {
         if (data && !data.voice_registered) {
           navigate('/voice-setup');
         } else {
-          navigate('/app');
+          navigate('/record');
         }
       }
     };

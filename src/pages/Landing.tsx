@@ -42,7 +42,7 @@ const Landing = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/app');
+      navigate('/record');
     }
   }, [user, navigate]);
 

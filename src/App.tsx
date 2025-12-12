@@ -80,7 +80,7 @@ const App = () => (
               }
             />
             <Route
-              path="/app"
+              path="/scope"
               element={
                 <ProtectedRoute>
                   <Index />

@@ -3,7 +3,7 @@ import { Telescope, Lightbulb, Mic, NotebookText, Settings } from "lucide-react"
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { icon: Telescope, label: "Scope", path: "/app" },
+  { icon: Telescope, label: "Scope", path: "/scope" },
   { icon: Lightbulb, label: "Insights", path: "/insights" },
   { icon: Mic, label: "Record", path: "/record", isCenter: true },
   { icon: NotebookText, label: "Progress", path: "/progress" },

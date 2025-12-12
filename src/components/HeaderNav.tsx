@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 
 const navItems = [
-  { icon: Telescope, label: "Scope", path: "/app" },
+  { icon: Telescope, label: "Scope", path: "/scope" },
   { icon: Lightbulb, label: "Insights", path: "/insights" },
   { icon: Mic, label: "Record", path: "/record" },
   { icon: NotebookText, label: "Progress", path: "/progress" },

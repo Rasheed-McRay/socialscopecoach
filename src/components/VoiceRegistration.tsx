@@ -71,7 +71,30 @@ export const VoiceRegistration = ({
     setUploadingSample(sampleNumber);
 
     try {
-      // Upload audio to storage
+      // Check for existing sample and delete old file from storage
+      const { data: existingSample } = await supabase
+        .from("voice_samples")
+        .select("audio_url")
+        .eq("user_id", user.id)
+        .eq("sample_number", sampleNumber)
+        .maybeSingle();
+
+      if (existingSample?.audio_url) {
+        // Extract file path from signed URL (format: user-id/sample-N-timestamp.webm)
+        try {
+          const url = new URL(existingSample.audio_url);
+          const pathMatch = url.pathname.match(/voice-samples\/([^?]+)/);
+          if (pathMatch && pathMatch[1]) {
+            const oldFilePath = decodeURIComponent(pathMatch[1]);
+            await supabase.storage.from("voice-samples").remove([oldFilePath]);
+          }
+        } catch (e) {
+          console.error("Failed to delete old voice sample file:", e);
+          // Continue anyway - don't block new upload
+        }
+      }
+
+      // Upload new audio to storage
       const fileName = `${user.id}/sample-${sampleNumber}-${Date.now()}.webm`;
       const { error: uploadError } = await supabase.storage
         .from("voice-samples")
@@ -93,7 +116,7 @@ export const VoiceRegistration = ({
 
       const audioUrl = signedUrlData.signedUrl;
 
-      // Delete existing sample for this number if exists
+      // Delete existing sample record
       await supabase
         .from("voice_samples")
         .delete()

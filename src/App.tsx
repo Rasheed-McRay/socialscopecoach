@@ -9,6 +9,7 @@ import { RoleProvider } from "@/contexts/RoleContext";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
+import Install from "./pages/Install";
 import Index from "./pages/Index";
 import Record from "./pages/Record";
 import Auth from "./pages/Auth";
@@ -35,6 +36,7 @@ const App = () => (
             <RoleProvider>
               <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/install" element={<Install />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />

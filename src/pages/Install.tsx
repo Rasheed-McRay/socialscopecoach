@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { usePwaInstall } from '@/hooks/usePwaInstall';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { Download, Share, PlusSquare, Check, Smartphone, AudioWaveform, ArrowRight } from 'lucide-react';
+import { Download, Check, Smartphone, AudioWaveform, ArrowRight } from 'lucide-react';
+import IOSInstallGuide from '@/components/IOSInstallGuide';
 const Install = () => {
   const navigate = useNavigate();
   const {
@@ -97,43 +98,8 @@ const Install = () => {
               </p>
             </div>}
 
-          {/* iOS Instructions */}
-          {isIOS && !isInstallable && <div className="glass rounded-xl md:rounded-2xl p-4 md:p-6 text-left space-y-4">
-              <h2 className="text-base md:text-lg font-medium text-center">How to Install on iPhone</h2>
-              
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold text-sm">1</span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium flex items-center gap-2">
-                      Tap <Share className="w-4 h-4 text-muted-foreground" /> Share in Safari
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold text-sm">2</span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium flex items-center gap-2">
-                      Tap <PlusSquare className="w-4 h-4 text-muted-foreground" /> Add to Home Screen
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold text-sm">3</span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Tap "Add" to confirm</p>
-                  </div>
-                </div>
-              </div>
-            </div>}
+          {/* iOS Instructions with Animated Guide */}
+          {isIOS && !isInstallable && <IOSInstallGuide />}
 
           {/* Android Instructions (fallback if beforeinstallprompt didn't fire) */}
           {!isIOS && !isInstallable && <div className="glass rounded-xl md:rounded-2xl p-4 md:p-6 text-left space-y-4">

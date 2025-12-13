@@ -63,11 +63,13 @@ serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
+    
+    // Use anon key client for auth verification
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
     
     if (authError || !user) {
       console.log("Invalid authentication:", authError?.message);
@@ -78,6 +80,37 @@ serve(async (req) => {
     }
 
     console.log("Authenticated user:", user.id);
+
+    // Server-side tier validation using service role
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
+    const { data: roleData, error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .select("tier, access_level")
+      .eq("user_id", user.id)
+      .single();
+
+    if (roleError) {
+      console.log("Error fetching user role:", roleError.message);
+      return new Response(
+        JSON.stringify({ error: "Unable to verify subscription" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Only allow premium, developer tiers OR unlimited/standard access levels
+    const allowedTiers = ["premium", "developer"];
+    const allowedAccessLevels = ["unlimited", "standard"];
+    const hasAccess = allowedTiers.includes(roleData?.tier) || allowedAccessLevels.includes(roleData?.access_level);
+    
+    if (!hasAccess) {
+      console.log("User tier not authorized:", roleData?.tier, "access:", roleData?.access_level);
+      return new Response(
+        JSON.stringify({ error: "This feature requires a premium subscription" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("User authorized with tier:", roleData?.tier, "access:", roleData?.access_level);
 
     const formData = await req.formData();
     const audioFile = formData.get("audio") as File;

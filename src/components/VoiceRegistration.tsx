@@ -126,19 +126,36 @@ export const VoiceRegistration = ({
         const isNowComplete = newRequiredCount >= REQUIRED_SAMPLES;
         
         if (wasNotComplete && isNowComplete) {
-          // Update profile to mark voice as registered and grant 5 bonus analyses
+          // Only grant bonus if user hasn't received it before (voice_registered = false)
+          // This prevents abuse by re-recording voice samples
           supabase
             .from("profiles")
-            .update({ 
-              voice_registered: true,
-              voice_bonus_remaining: 5 
-            })
+            .select("voice_registered")
             .eq("user_id", user.id)
-            .then(() => {
-              toast({
-                title: "🎉 Voice profile complete!",
-                description: "You've earned 5 free analyses as a reward!",
-              });
+            .single()
+            .then(({ data: profile }) => {
+              if (profile && !profile.voice_registered) {
+                // First-time completion - grant bonus
+                supabase
+                  .from("profiles")
+                  .update({ 
+                    voice_registered: true,
+                    voice_bonus_remaining: 5 
+                  })
+                  .eq("user_id", user.id)
+                  .then(() => {
+                    toast({
+                      title: "🎉 Voice profile complete!",
+                      description: "You've earned 5 free analyses as a reward!",
+                    });
+                  });
+              } else {
+                // Already registered before - just show completion toast
+                toast({
+                  title: "Voice profile updated",
+                  description: "Your voice samples have been re-recorded.",
+                });
+              }
             });
         }
         

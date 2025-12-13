@@ -1,7 +1,10 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   AudioWaveform, 
   ArrowRight, 
@@ -10,18 +13,106 @@ import {
   TrendingUp, 
   Shield, 
   Sparkles,
-  CheckCircle
+  CheckCircle,
+  Loader2,
+  Mail,
+  Lock
 } from 'lucide-react';
+import { z } from 'zod';
+
+const emailSchema = z.string().email('Please enter a valid email');
+const passwordSchema = z.string()
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[A-Z]/, 'Password must contain an uppercase letter')
+  .regex(/[a-z]/, 'Password must contain a lowercase letter')
+  .regex(/[0-9]/, 'Password must contain a number');
 
 const Landing = () => {
-  const { user } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (user) {
-      navigate('/app');
+      navigate('/record');
     }
   }, [user, navigate]);
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) {
+      toast({ title: 'Invalid email', description: emailResult.error.errors[0].message, variant: 'destructive' });
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const redirectUrl = `${window.location.origin}/reset-password`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+      
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        return;
+      }
+      
+      toast({ title: 'Check your email', description: 'We sent you a password reset link.' });
+      setIsForgotPassword(false);
+    } catch (error) {
+      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const emailResult = emailSchema.safeParse(email);
+    const passwordResult = passwordSchema.safeParse(password);
+    
+    if (!emailResult.success) {
+      toast({ title: 'Invalid email', description: emailResult.error.errors[0].message, variant: 'destructive' });
+      return;
+    }
+    if (!passwordResult.success) {
+      toast({ title: 'Invalid password', description: passwordResult.error.errors[0].message, variant: 'destructive' });
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      if (isLogin) {
+        const { error } = await signIn(email, password, rememberMe);
+        if (error) {
+          toast({ title: 'Sign in failed', description: error.message, variant: 'destructive' });
+          return;
+        }
+      } else {
+        const { error } = await signUp(email, password);
+        if (error) {
+          toast({ title: 'Sign up failed', description: error.message, variant: 'destructive' });
+          return;
+        }
+        toast({ title: 'Welcome!', description: 'Your account has been created.' });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const features = [
     {
@@ -68,10 +159,10 @@ const Landing = () => {
           
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/app')}
+            onClick={() => { setShowAuth(true); setIsLogin(true); }}
             className="text-muted-foreground hover:text-foreground"
           >
-            Download App
+            Sign In
           </Button>
         </div>
       </header>
@@ -94,19 +185,131 @@ const Landing = () => {
             Finally see yourself through others' eyes and unlock the confidence you deserve.
           </p>
 
-          {/* CTA Button */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <Button 
-              variant="gradient" 
-              size="xl"
-              onClick={() => navigate('/app')}
-              className="group"
-            >
-              Download App
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <p className="text-sm text-muted-foreground">Free to start • No credit card</p>
-          </div>
+          {/* Quick Auth Form */}
+          {!showAuth ? (
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <Button 
+                variant="gradient" 
+                size="xl"
+                onClick={() => setShowAuth(true)}
+                className="group"
+              >
+                Analyze Your First Conversation
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <p className="text-sm text-muted-foreground">Free to start • No credit card</p>
+            </div>
+          ) : (
+            <div className="max-w-md mx-auto animate-scale-in">
+              <div className="glass p-8 rounded-2xl shadow-elevated">
+                {isForgotPassword ? (
+                  <>
+                    <h3 className="text-lg font-medium text-center mb-6">Reset Password</h3>
+                    <form onSubmit={handleForgotPassword} className="space-y-4">
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="email"
+                          placeholder="you@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-10 bg-secondary/50"
+                          required
+                        />
+                      </div>
+                      <Button type="submit" variant="gradient" size="lg" className="w-full" disabled={isLoading}>
+                        {isLoading ? (
+                          <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</>
+                        ) : (
+                          'Send Reset Link'
+                        )}
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={() => setIsForgotPassword(false)}
+                        className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Back to Sign In
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex gap-2 mb-6">
+                      <button
+                        onClick={() => setIsLogin(false)}
+                        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          !isLogin ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        Sign Up
+                      </button>
+                      <button
+                        onClick={() => setIsLogin(true)}
+                        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isLogin ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        Sign In
+                      </button>
+                    </div>
+                    
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="email"
+                          placeholder="you@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-10 bg-secondary/50"
+                          required
+                        />
+                      </div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-10 bg-secondary/50"
+                          required
+                        />
+                      </div>
+                      {isLogin && (
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={rememberMe}
+                              onChange={(e) => setRememberMe(e.target.checked)}
+                              className="w-4 h-4 rounded border-border bg-secondary/50 text-primary focus:ring-primary focus:ring-offset-0"
+                            />
+                            <span className="text-sm text-muted-foreground">Remember me</span>
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setIsForgotPassword(true)}
+                            className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            Forgot password?
+                          </button>
+                        </div>
+                      )}
+                      <Button type="submit" variant="gradient" size="lg" className="w-full" disabled={isLoading}>
+                        {isLoading ? (
+                          <><Loader2 className="h-4 w-4 animate-spin" /> Please wait...</>
+                        ) : (
+                          isLogin ? 'Sign In' : 'Create Free Account'
+                        )}
+                      </Button>
+                    </form>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -215,10 +418,10 @@ const Landing = () => {
           <Button 
             variant="gradient" 
             size="xl"
-            onClick={() => navigate('/app')}
+            onClick={() => { setShowAuth(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             className="group"
           >
-            Download App
+            Start Your Free Analysis
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>

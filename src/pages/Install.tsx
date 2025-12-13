@@ -54,8 +54,8 @@ const Install = () => {
       </div>;
   }
   return <div className="min-h-screen bg-background overflow-hidden">
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
+      {/* Background Effects - hidden on mobile for cleaner look */}
+      <div className="fixed inset-0 pointer-events-none hidden md:block">
         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse-slow" />
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[100px] animate-pulse-slow" style={{
         animationDelay: '1.5s'
@@ -63,132 +63,120 @@ const Install = () => {
       </div>
 
       <header className="relative z-20 border-b border-border/30 backdrop-blur-md">
-        <div className="container py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-              <AudioWaveform className="w-5 h-5 text-primary-foreground" />
+        <div className="container py-3 md:py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-primary flex items-center justify-center">
+              <AudioWaveform className="w-4 h-4 md:w-5 md:h-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-serif font-semibold text-foreground">SocialScope</span>
+            <span className="text-lg md:text-xl font-serif font-semibold text-foreground">SocialScope</span>
           </Link>
         </div>
       </header>
 
-      <main className="relative z-10 container py-12 md:py-20">
-        <div className="max-w-lg mx-auto text-center space-y-8">
-          <div className="w-24 h-24 rounded-3xl bg-gradient-primary flex items-center justify-center mx-auto shadow-lg">
-            <Smartphone className="w-12 h-12 text-primary-foreground" />
+      <main className="relative z-10 container py-6 md:py-20 px-4">
+        <div className="max-w-lg mx-auto text-center space-y-5 md:space-y-8">
+          <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-gradient-primary flex items-center justify-center mx-auto shadow-lg">
+            <Smartphone className="w-8 h-8 md:w-12 md:h-12 text-primary-foreground" />
           </div>
 
-          <div className="space-y-3">
-            <h1 className="text-3xl md:text-4xl font-serif">Install SocialScope</h1>
-            <p className="text-lg text-muted-foreground">
-              Add the app to your home screen for the best experience
+          <div className="space-y-2">
+            <h1 className="text-2xl md:text-4xl font-serif">Install SocialScope</h1>
+            <p className="text-sm md:text-lg text-muted-foreground">
+              Add to your home screen for the best experience
             </p>
           </div>
 
           {/* Native Install Button (Chrome/Edge) */}
-          {isInstallable && <div className="space-y-4">
-              <Button variant="gradient" size="xl" onClick={handleInstallClick} className="w-full">
+          {isInstallable && <div className="space-y-3">
+              <Button variant="gradient" size="lg" onClick={handleInstallClick} className="w-full">
                 <Download className="w-5 h-5" />
                 Install Now
               </Button>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs md:text-sm text-muted-foreground">
                 One tap to install — no app store needed
               </p>
             </div>}
 
           {/* iOS Instructions */}
-          {isIOS && !isInstallable && <div className="glass rounded-2xl p-6 text-left space-y-6">
-              <h2 className="text-lg font-medium text-center">How to Install on iPhone</h2>
+          {isIOS && !isInstallable && <div className="glass rounded-xl md:rounded-2xl p-4 md:p-6 text-left space-y-4">
+              <h2 className="text-base md:text-lg font-medium text-center">How to Install on iPhone</h2>
               
-              <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold">1</span>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold text-sm">1</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium">Tap the Share button</p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                      Look for <Share className="w-4 h-4" /> at the bottom of Safari
+                    <p className="text-sm font-medium flex items-center gap-2">
+                      Tap <Share className="w-4 h-4 text-muted-foreground" /> Share in Safari
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold">2</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold text-sm">2</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium">Tap "Add to Home Screen"</p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                      Look for <PlusSquare className="w-4 h-4" /> in the menu
+                    <p className="text-sm font-medium flex items-center gap-2">
+                      Tap <PlusSquare className="w-4 h-4 text-muted-foreground" /> Add to Home Screen
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold">3</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold text-sm">3</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium">Tap "Add" to confirm</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      The app will appear on your home screen
-                    </p>
+                    <p className="text-sm font-medium">Tap "Add" to confirm</p>
                   </div>
                 </div>
               </div>
             </div>}
 
           {/* Android Instructions (fallback if beforeinstallprompt didn't fire) */}
-          {!isIOS && !isInstallable && <div className="glass rounded-2xl p-6 text-left space-y-6">
-              <h2 className="text-lg font-medium text-center">How to Install</h2>
+          {!isIOS && !isInstallable && <div className="glass rounded-xl md:rounded-2xl p-4 md:p-6 text-left space-y-4">
+              <h2 className="text-base md:text-lg font-medium text-center">How to Install</h2>
               
-              <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold">1</span>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold text-sm">1</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium">Open browser menu</p>
-                    <p className="text-sm text-muted-foreground mt-1">Tap the three dots (⋮) in your browser</p>
+                    <p className="text-sm font-medium">Tap ⋮ menu in your browser</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold">2</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold text-sm">2</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium">Tap "Install app" or "Add to Home Screen"</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      This will add the app to your device
-                    </p>
+                    <p className="text-sm font-medium">Tap "Install app" or "Add to Home Screen"</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-primary font-bold">3</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold text-sm">3</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium">Confirm the installation</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      The app will appear on your home screen
-                    </p>
+                    <p className="text-sm font-medium">Confirm the installation</p>
                   </div>
                 </div>
               </div>
             </div>}
 
           {/* Done Button */}
-          <div className="pt-4 space-y-4">
+          <div className="pt-2 md:pt-4 space-y-2 md:space-y-4">
             <Button variant="gradient" size="lg" onClick={handleDone} className="w-full">
               <Check className="w-5 h-5" />
-              Done — Continue to Sign In
+              Continue to Sign In
             </Button>
-            <p className="text-sm text-muted-foreground">
-              Already installed the app? Tap above to continue.
+            <p className="text-xs md:text-sm text-muted-foreground">
+              Already installed? Tap above to continue.
             </p>
           </div>
         </div>

@@ -191,10 +191,10 @@ const Landing = () => {
               <Button 
                 variant="gradient" 
                 size="xl"
-                onClick={() => setShowAuth(true)}
+                onClick={() => navigate('/install')}
                 className="group"
               >
-                Analyze Your First Conversation
+                Install App
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <p className="text-sm text-muted-foreground">Free to start • No credit card</p>
@@ -418,10 +418,10 @@ const Landing = () => {
           <Button 
             variant="gradient" 
             size="xl"
-            onClick={() => { setShowAuth(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            onClick={() => navigate('/install')}
             className="group"
           >
-            Start Your Free Analysis
+            Install App
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>

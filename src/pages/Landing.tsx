@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePwaInstall } from '@/hooks/usePwaInstall';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -37,14 +38,26 @@ const Landing = () => {
   const [showAuth, setShowAuth] = useState(false);
   
   const { signIn, signUp, user } = useAuth();
+  const { isInstalled } = usePwaInstall();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
+    // If in PWA mode, auto-redirect based on auth state
+    if (isInstalled) {
+      if (user) {
+        navigate('/record');
+      } else {
+        navigate('/auth');
+      }
+      return;
+    }
+    
+    // Browser mode: redirect logged-in users to /record
     if (user) {
       navigate('/record');
     }
-  }, [user, navigate]);
+  }, [user, isInstalled, navigate]);
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();

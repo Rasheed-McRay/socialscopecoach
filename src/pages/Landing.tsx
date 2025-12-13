@@ -71,7 +71,7 @@ const Landing = () => {
             onClick={() => navigate('/app')}
             className="text-muted-foreground hover:text-foreground"
           >
-            Open App
+            Download App
           </Button>
         </div>
       </header>
@@ -102,7 +102,7 @@ const Landing = () => {
               onClick={() => navigate('/app')}
               className="group"
             >
-              Open App
+              Download App
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             <p className="text-sm text-muted-foreground">Free to start • No credit card</p>
@@ -218,7 +218,7 @@ const Landing = () => {
             onClick={() => navigate('/app')}
             className="group"
           >
-            Open App
+            Download App
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>

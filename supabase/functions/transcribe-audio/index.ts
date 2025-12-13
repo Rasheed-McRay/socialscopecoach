@@ -7,21 +7,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const TRANSCRIPTION_PROMPT = `You are an expert conversation transcriber. Transcribe this audio recording with RICH CONTEXTUAL DETAIL.
+const BASE_TRANSCRIPTION_PROMPT = `You are an expert conversation transcriber. Transcribe this audio recording with RICH CONTEXTUAL DETAIL.
 
 TRANSCRIPTION REQUIREMENTS:
 
-1. SPEAKER IDENTIFICATION
-- Label speakers as "Speaker A:", "Speaker B:", etc.
-- Be consistent with speaker labels throughout
-
-2. EMOTIONAL & TONAL MARKERS (include in brackets)
+1. EMOTIONAL & TONAL MARKERS (include in brackets)
 - Confidence indicators: [speaking confidently], [hesitant], [uncertain], [assertive]
 - Emotional states: [laughs], [nervous laughter], [sighs], [excited], [frustrated], [warm tone]
 - Energy levels: [high energy], [low energy], [enthusiastic], [monotone], [trailing off]
 - Pacing: [speaking quickly], [speaking slowly], [measured pace], [rushing]
 
-3. CONVERSATIONAL DYNAMICS (include in brackets)
+2. CONVERSATIONAL DYNAMICS (include in brackets)
 - [pause - X seconds] for notable pauses
 - [long pause] for extended silences
 - [interruption] when someone cuts in
@@ -29,14 +25,39 @@ TRANSCRIPTION REQUIREMENTS:
 - [voice rising] or [voice dropping] for pitch changes
 - [emphasis on "word"] for stressed words
 
-4. APPROXIMATE TIMESTAMPS
+3. APPROXIMATE TIMESTAMPS
 - Include timestamps every 30-60 seconds: [0:00], [0:30], [1:00], etc.
 
-5. COMPLETENESS
+4. COMPLETENESS
 - Transcribe EVERYTHING including filler words (um, uh, like, you know)
 - Include false starts and self-corrections
-- Note any background sounds that affect the conversation
+- Note any background sounds that affect the conversation`;
 
+const SPEAKER_ID_WITH_VOICE = `
+1. SPEAKER IDENTIFICATION (CRITICAL)
+- Reference voice samples of the user have been provided
+- CAREFULLY compare each speaker's voice in the conversation against these reference samples
+- Label the speaker who matches the reference voice samples as "You:"
+- Label other speakers as "Other Person:" (or "Other Person 1:", "Other Person 2:" if multiple)
+- Be consistent with speaker labels throughout
+- If uncertain about a match, still make your best judgment based on voice characteristics`;
+
+const SPEAKER_ID_WITHOUT_VOICE = `
+1. SPEAKER IDENTIFICATION
+- Label speakers as "Speaker A:", "Speaker B:", etc.
+- Be consistent with speaker labels throughout`;
+
+const EXAMPLE_WITH_VOICE = `
+Example format:
+[0:00] You: [confident, warm tone] Hey! So I wanted to talk to you about, um, the project.
+[0:05] Other Person: [enthusiastic] Oh yeah! [speaking quickly] I've been thinking about that actually—
+[0:08] You: [interruption] —sorry, go ahead.
+[0:10] Other Person: [laughs] No, you first.
+[pause - 2 seconds]
+
+Provide a complete and detailed transcription.`;
+
+const EXAMPLE_WITHOUT_VOICE = `
 Example format:
 [0:00] Speaker A: [confident, warm tone] Hey! So I wanted to talk to you about, um, the project.
 [0:05] Speaker B: [enthusiastic] Oh yeah! [speaking quickly] I've been thinking about that actually—
@@ -112,6 +133,66 @@ serve(async (req) => {
 
     console.log("User authorized with tier:", roleData?.tier, "access:", roleData?.access_level);
 
+    // Fetch user's voice samples for speaker identification
+    const { data: voiceSamples, error: voiceSamplesError } = await supabaseAdmin
+      .from("voice_samples")
+      .select("audio_url, sample_number")
+      .eq("user_id", user.id)
+      .order("sample_number", { ascending: true });
+
+    if (voiceSamplesError) {
+      console.log("Error fetching voice samples:", voiceSamplesError.message);
+    }
+
+    const hasVoiceSamples = voiceSamples && voiceSamples.length > 0;
+    console.log("Voice samples found:", hasVoiceSamples ? voiceSamples.length : 0);
+
+    // Fetch voice sample audio data if available
+    const voiceSampleAudioData: Array<{ data: string; format: string }> = [];
+    
+    if (hasVoiceSamples) {
+      for (const sample of voiceSamples) {
+        try {
+          // Extract file path from signed URL
+          const url = new URL(sample.audio_url);
+          const pathMatch = url.pathname.match(/voice-samples\/([^?]+)/);
+          
+          if (pathMatch && pathMatch[1]) {
+            const filePath = decodeURIComponent(pathMatch[1]);
+            
+            // Download the voice sample from storage
+            const { data: fileData, error: downloadError } = await supabaseAdmin
+              .storage
+              .from("voice-samples")
+              .download(filePath);
+            
+            if (downloadError) {
+              console.log(`Error downloading voice sample ${sample.sample_number}:`, downloadError.message);
+              continue;
+            }
+            
+            // Convert to base64
+            const arrayBuffer = await fileData.arrayBuffer();
+            const base64Audio = btoa(
+              new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
+            );
+            
+            voiceSampleAudioData.push({
+              data: base64Audio,
+              format: "wav", // webm files, but Gemini handles them
+            });
+            
+            console.log(`Loaded voice sample ${sample.sample_number}, size: ${arrayBuffer.byteLength} bytes`);
+          }
+        } catch (e) {
+          console.error(`Failed to process voice sample ${sample.sample_number}:`, e);
+        }
+      }
+    }
+
+    const hasVoiceData = voiceSampleAudioData.length > 0;
+    console.log("Voice sample audio data loaded:", hasVoiceData ? voiceSampleAudioData.length : 0);
+
     const formData = await req.formData();
     const audioFile = formData.get("audio") as File;
 
@@ -152,6 +233,51 @@ serve(async (req) => {
 
     console.log("Transcribing audio with mime type:", mimeType);
 
+    // Build the transcription prompt based on voice sample availability
+    const speakerIdSection = hasVoiceData ? SPEAKER_ID_WITH_VOICE : SPEAKER_ID_WITHOUT_VOICE;
+    const exampleSection = hasVoiceData ? EXAMPLE_WITH_VOICE : EXAMPLE_WITHOUT_VOICE;
+    const transcriptionPrompt = `${BASE_TRANSCRIPTION_PROMPT}\n${speakerIdSection}\n${exampleSection}`;
+
+    // Build the message content
+    const messageContent: any[] = [];
+
+    // Add voice samples first if available (as reference)
+    if (hasVoiceData) {
+      messageContent.push({
+        type: "text",
+        text: `Here are ${voiceSampleAudioData.length} voice reference samples of the user. Use these to identify which speaker in the conversation is the user:`,
+      });
+
+      for (let i = 0; i < voiceSampleAudioData.length; i++) {
+        messageContent.push({
+          type: "input_audio",
+          input_audio: {
+            data: voiceSampleAudioData[i].data,
+            format: voiceSampleAudioData[i].format,
+          },
+        });
+      }
+
+      messageContent.push({
+        type: "text",
+        text: `\n\nNow transcribe the following conversation recording. Remember to label the speaker matching the reference voice samples as "You:" and others as "Other Person:"\n\n${transcriptionPrompt}`,
+      });
+    } else {
+      messageContent.push({
+        type: "text",
+        text: transcriptionPrompt,
+      });
+    }
+
+    // Add the main audio to transcribe
+    messageContent.push({
+      type: "input_audio",
+      input_audio: {
+        data: base64Audio,
+        format: mimeType.includes("wav") ? "wav" : mimeType.includes("mp3") || mimeType.includes("mpeg") ? "mp3" : "wav",
+      },
+    });
+
     // Use Gemini for transcription (it handles audio natively)
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -164,19 +290,7 @@ serve(async (req) => {
         messages: [
           {
             role: "user",
-            content: [
-              {
-                type: "text",
-                text: TRANSCRIPTION_PROMPT,
-              },
-              {
-                type: "input_audio",
-                input_audio: {
-                  data: base64Audio,
-                  format: mimeType.includes("wav") ? "wav" : mimeType.includes("mp3") || mimeType.includes("mpeg") ? "mp3" : "wav",
-                },
-              },
-            ],
+            content: messageContent,
           },
         ],
       }),
@@ -235,7 +349,7 @@ serve(async (req) => {
       );
     }
 
-    console.log("Transcription completed, length:", transcript.length);
+    console.log("Transcription completed, length:", transcript.length, "with voice matching:", hasVoiceData);
 
     return new Response(JSON.stringify({ transcript }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

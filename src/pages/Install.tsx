@@ -3,20 +3,18 @@ import { useNavigate, Link } from 'react-router-dom';
 import { usePwaInstall } from '@/hooks/usePwaInstall';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  Download, 
-  Share, 
-  PlusSquare, 
-  Check, 
-  Smartphone,
-  AudioWaveform,
-  ArrowRight
-} from 'lucide-react';
-
+import { Download, Share, PlusSquare, Check, Smartphone, AudioWaveform, ArrowRight } from 'lucide-react';
 const Install = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { isInstalled, isInstallable, isIOS, promptInstall } = usePwaInstall();
+  const {
+    user
+  } = useAuth();
+  const {
+    isInstalled,
+    isInstallable,
+    isIOS,
+    promptInstall
+  } = usePwaInstall();
 
   // Auto-redirect if already installed and logged in
   useEffect(() => {
@@ -24,7 +22,6 @@ const Install = () => {
       navigate('/record');
     }
   }, [isInstalled, user, navigate]);
-
   const handleInstallClick = async () => {
     if (isInstallable) {
       const success = await promptInstall();
@@ -34,15 +31,13 @@ const Install = () => {
       }
     }
   };
-
   const handleDone = () => {
     navigate('/auth');
   };
 
   // Already installed - redirect to auth
   if (isInstalled) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+    return <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="max-w-md w-full text-center space-y-6">
           <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
             <Check className="w-10 h-10 text-primary" />
@@ -56,16 +51,15 @@ const Install = () => {
             <ArrowRight className="w-5 h-5" />
           </Button>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background overflow-hidden">
+  return <div className="min-h-screen bg-background overflow-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse-slow" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[100px] animate-pulse-slow" style={{
+        animationDelay: '1.5s'
+      }} />
       </div>
 
       <header className="relative z-20 border-b border-border/30 backdrop-blur-md">
@@ -93,26 +87,18 @@ const Install = () => {
           </div>
 
           {/* Native Install Button (Chrome/Edge) */}
-          {isInstallable && (
-            <div className="space-y-4">
-              <Button 
-                variant="gradient" 
-                size="xl" 
-                onClick={handleInstallClick}
-                className="w-full"
-              >
+          {isInstallable && <div className="space-y-4">
+              <Button variant="gradient" size="xl" onClick={handleInstallClick} className="w-full">
                 <Download className="w-5 h-5" />
                 Install Now
               </Button>
               <p className="text-sm text-muted-foreground">
                 One tap to install — no app store needed
               </p>
-            </div>
-          )}
+            </div>}
 
           {/* iOS Instructions */}
-          {isIOS && !isInstallable && (
-            <div className="glass rounded-2xl p-6 text-left space-y-6">
+          {isIOS && !isInstallable && <div className="glass rounded-2xl p-6 text-left space-y-6">
               <h2 className="text-lg font-medium text-center">How to Install on iPhone</h2>
               
               <div className="space-y-4">
@@ -152,12 +138,10 @@ const Install = () => {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* Android Instructions (fallback if beforeinstallprompt didn't fire) */}
-          {!isIOS && !isInstallable && (
-            <div className="glass rounded-2xl p-6 text-left space-y-6">
+          {!isIOS && !isInstallable && <div className="glass rounded-2xl p-6 text-left space-y-6">
               <h2 className="text-lg font-medium text-center">How to Install</h2>
               
               <div className="space-y-4">
@@ -167,9 +151,7 @@ const Install = () => {
                   </div>
                   <div className="flex-1">
                     <p className="font-medium">Open browser menu</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Tap the three dots (⋮) in Chrome
-                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">Tap the three dots (⋮) in your browser</p>
                   </div>
                 </div>
 
@@ -197,17 +179,11 @@ const Install = () => {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* Done Button */}
           <div className="pt-4 space-y-4">
-            <Button 
-              variant="gradient" 
-              size="lg" 
-              onClick={handleDone}
-              className="w-full"
-            >
+            <Button variant="gradient" size="lg" onClick={handleDone} className="w-full">
               <Check className="w-5 h-5" />
               Done — Continue to Sign In
             </Button>
@@ -217,8 +193,6 @@ const Install = () => {
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Install;

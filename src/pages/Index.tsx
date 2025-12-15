@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AudioWaveform, Mic, CheckCircle2 } from "lucide-react";
+import { AudioWaveform, Mic, CheckCircle2, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
@@ -10,6 +10,7 @@ import { ProFeatureGate } from "@/components/ProFeatureGate";
 import { supabase } from "@/integrations/supabase/client";
 import { transcribeAudio } from "@/lib/api";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 // Daily scope prompts
 const DAILY_PROMPTS = [
@@ -51,6 +52,7 @@ const Index = () => {
   const [todayCompletion, setTodayCompletion] = useState<DailyScopeCompletion | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [loadingCompletion, setLoadingCompletion] = useState(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     fetchProfile();
@@ -101,12 +103,22 @@ const Index = () => {
     return "";
   };
 
+  const handleCancel = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsProcessing(false);
+    toast.info("Analysis cancelled");
+  }, []);
+
   const handleRecordingComplete = async (audioBlob: Blob, fileName: string) => {
     if (!user) {
       toast.error("You must be logged in");
       return;
     }
 
+    abortControllerRef.current = new AbortController();
     setIsProcessing(true);
     const dailyPrompt = getDailyPrompt();
 
@@ -114,6 +126,11 @@ const Index = () => {
       // Step 1: Transcribe
       toast.info("Transcribing your response...");
       const transcript = await transcribeAudio(audioBlob);
+
+      // Check if cancelled
+      if (abortControllerRef.current?.signal.aborted) {
+        return;
+      }
 
       if (!transcript || transcript.trim().length === 0) {
         throw new Error("Could not transcribe audio");
@@ -127,6 +144,11 @@ const Index = () => {
           body: { transcript, prompt: dailyPrompt },
         }
       );
+
+      // Check if cancelled
+      if (abortControllerRef.current?.signal.aborted) {
+        return;
+      }
 
       if (analysisError) throw analysisError;
       if (analysisData.error) throw new Error(analysisData.error);
@@ -147,6 +169,10 @@ const Index = () => {
       await checkTodayCompletion();
       toast.success("Daily Scope completed!");
     } catch (error: any) {
+      // Don't show error if cancelled
+      if (abortControllerRef.current?.signal.aborted) {
+        return;
+      }
       console.error("Error processing daily scope:", error);
       toast.error(error.message || "Failed to process recording");
     } finally {
@@ -233,9 +259,18 @@ const Index = () => {
                   </div>
 
                   {isProcessing ? (
-                    <div className="text-center py-8">
-                      <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+                    <div className="text-center py-8 space-y-4">
+                      <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
                       <p className="text-muted-foreground">Processing your response...</p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleCancel}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Cancel
+                      </Button>
                     </div>
                   ) : (
                     <HomeRecorder onRecordingComplete={handleRecordingComplete} />

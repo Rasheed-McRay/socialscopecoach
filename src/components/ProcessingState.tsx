@@ -1,10 +1,12 @@
-import { Loader2, AudioWaveform, Brain, FileText } from "lucide-react";
+import { Loader2, AudioWaveform, Brain, FileText, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 
 interface ProcessingStateProps {
   stage: "uploading" | "transcribing" | "analyzing";
   progress: number;
+  onCancel?: () => void;
 }
 
 const stages = {
@@ -25,7 +27,7 @@ const stages = {
   },
 };
 
-export function ProcessingState({ stage, progress }: ProcessingStateProps) {
+export function ProcessingState({ stage, progress, onCancel }: ProcessingStateProps) {
   const currentStage = stages[stage];
   const Icon = currentStage.icon;
 
@@ -57,6 +59,19 @@ export function ProcessingState({ stage, progress }: ProcessingStateProps) {
           <Loader2 className="w-4 h-4 animate-spin" />
           <span className="text-sm">This may take a minute...</span>
         </div>
+
+        {/* Cancel Button */}
+        {onCancel && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onCancel}
+            className="text-muted-foreground hover:text-destructive"
+          >
+            <X className="w-4 h-4 mr-2" />
+            Cancel Analysis
+          </Button>
+        )}
       </div>
     </Card>
   );

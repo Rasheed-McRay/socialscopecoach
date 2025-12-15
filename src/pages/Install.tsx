@@ -135,16 +135,6 @@ const Install = () => {
               </div>
             </div>}
 
-          {/* Done Button */}
-          <div className="pt-2 md:pt-4 space-y-2 md:space-y-4">
-            <Button variant="gradient" size="lg" onClick={handleDone} className="w-full">
-              <Check className="w-5 h-5" />
-              Continue to Sign In
-            </Button>
-            <p className="text-xs md:text-sm text-muted-foreground">
-              Already installed? Tap above to continue.
-            </p>
-          </div>
         </div>
       </main>
     </div>;

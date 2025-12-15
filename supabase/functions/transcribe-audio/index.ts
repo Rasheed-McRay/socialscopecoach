@@ -118,18 +118,9 @@ serve(async (req) => {
       );
     }
 
-    // Only allow premium, developer tiers OR unlimited/standard access levels
-    const allowedTiers = ["premium", "developer"];
-    const allowedAccessLevels = ["unlimited", "standard"];
-    const hasAccess = allowedTiers.includes(roleData?.tier) || allowedAccessLevels.includes(roleData?.access_level);
-    
-    if (!hasAccess) {
-      console.log("User tier not authorized:", roleData?.tier, "access:", roleData?.access_level);
-      return new Response(
-        JSON.stringify({ error: "This feature requires a premium subscription" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // All authenticated users can access transcription (usage limits are enforced client-side)
+    // The client-side useDailyAnalysisLimit hook handles rate limiting for free vs premium users
+    console.log("User authorized with tier:", roleData?.tier, "access:", roleData?.access_level);
 
     console.log("User authorized with tier:", roleData?.tier, "access:", roleData?.access_level);
 

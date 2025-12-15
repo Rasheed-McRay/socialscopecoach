@@ -21,12 +21,10 @@ export function ProFeatureGate({
   const { isPro, loading } = useSubscription();
   const navigate = useNavigate();
 
+  // Don't block while loading - assume user has access to avoid flash of locked content
+  // If they don't have access, it will show after load completes
   if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-      </div>
-    );
+    return <>{children}</>;
   }
 
   if (isPro) {

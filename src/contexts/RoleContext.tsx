@@ -49,12 +49,13 @@ interface RoleProviderProps {
 }
 
 export const RoleProvider = ({ children }: RoleProviderProps) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [role, setRole] = useState<AppRole>('user');
   const [tier, setTier] = useState<UserTier>('free');
   const [accessLevel, setAccessLevel] = useState<AccessLevel>('restricted');
   const [isHidden, setIsHidden] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const [impersonation, setImpersonation] = useState<ImpersonationState>({
     active: false,
     tier: 'free',
@@ -69,6 +70,11 @@ export const RoleProvider = ({ children }: RoleProviderProps) => {
       setIsHidden(false);
       setLoading(false);
       return;
+    }
+
+    // Only set loading true if we haven't fetched yet
+    if (!hasFetched) {
+      setLoading(true);
     }
 
     try {
@@ -86,8 +92,8 @@ export const RoleProvider = ({ children }: RoleProviderProps) => {
         setAccessLevel(data.access_level as AccessLevel);
         setIsHidden(data.is_hidden);
       } else {
-        // No role entry exists, create one
-        const { error: insertError } = await supabase
+        // No role entry exists, create one (non-blocking)
+        supabase
           .from('user_roles')
           .insert({
             user_id: user.id,
@@ -95,22 +101,23 @@ export const RoleProvider = ({ children }: RoleProviderProps) => {
             tier: 'free',
             access_level: 'restricted',
             is_hidden: false,
-          });
-
-        if (insertError) {
-          console.error('Error creating user role:', insertError);
-        }
+          })
+          .then(() => {});
       }
     } catch (err) {
       console.error('Error in fetchRole:', err);
     } finally {
       setLoading(false);
+      setHasFetched(true);
     }
   };
 
   useEffect(() => {
+    // Don't fetch while auth is still loading
+    if (authLoading) return;
+    
     fetchRole();
-  }, [user]);
+  }, [user, authLoading]);
 
   const startImpersonation = (impTier: UserTier, impAccessLevel: AccessLevel) => {
     if (role !== 'owner') return; // Only owner can impersonate

@@ -21,13 +21,23 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         return;
       }
 
+      // Check cache first
+      const cached = sessionStorage.getItem(`voice_registered_${user.id}`);
+      if (cached !== null) {
+        setVoiceRegistered(cached === 'true');
+        setVoiceChecked(true);
+        return;
+      }
+
       const { data: profile } = await supabase
         .from('profiles')
         .select('voice_registered')
         .eq('user_id', user.id)
         .single();
 
-      setVoiceRegistered(profile?.voice_registered ?? false);
+      const isRegistered = profile?.voice_registered ?? false;
+      setVoiceRegistered(isRegistered);
+      sessionStorage.setItem(`voice_registered_${user.id}`, String(isRegistered));
       setVoiceChecked(true);
     };
 
@@ -38,7 +48,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     }
   }, [user, loading]);
 
-  if (loading || !voiceChecked) {
+  // Show loading only during initial auth check, not voice check
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -50,9 +61,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <Navigate to="/auth" replace />;
   }
 
+  // Don't block on voice check - show children while checking
   // Redirect to voice setup if not registered and not already on voice-setup or settings page
   const exemptPaths = ['/voice-setup', '/settings'];
-  if (voiceRegistered === false && !exemptPaths.includes(location.pathname)) {
+  if (voiceChecked && voiceRegistered === false && !exemptPaths.includes(location.pathname)) {
     return <Navigate to="/voice-setup" replace />;
   }
 

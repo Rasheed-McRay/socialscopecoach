@@ -26,15 +26,21 @@ interface SubscriptionProviderProps {
 }
 
 export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [tier, setTier] = useState<SubscriptionTier>('basic');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const fetchSubscription = async () => {
     if (!user) {
       setTier('basic');
       setLoading(false);
       return;
+    }
+
+    // Only set loading true if we haven't fetched yet
+    if (!hasFetched) {
+      setLoading(true);
     }
 
     try {
@@ -45,15 +51,13 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
         .single();
 
       if (error) {
-        // If no subscription exists, create one with basic tier
+        // If no subscription exists, create one with basic tier (non-blocking)
         if (error.code === 'PGRST116') {
-          const { error: insertError } = await supabase
+          supabase
             .from('user_subscriptions')
-            .insert({ user_id: user.id, tier: 'basic' });
-          
-          if (!insertError) {
-            setTier('basic');
-          }
+            .insert({ user_id: user.id, tier: 'basic' })
+            .then(() => {});
+          setTier('basic');
         }
       } else if (data) {
         setTier(data.tier as SubscriptionTier);
@@ -62,12 +66,16 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
       console.error('Error fetching subscription:', err);
     } finally {
       setLoading(false);
+      setHasFetched(true);
     }
   };
 
   useEffect(() => {
+    // Don't fetch while auth is still loading
+    if (authLoading) return;
+    
     fetchSubscription();
-  }, [user]);
+  }, [user, authLoading]);
 
   const value: SubscriptionContextType = {
     tier,

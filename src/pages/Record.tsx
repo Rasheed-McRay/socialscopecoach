@@ -9,7 +9,7 @@ import { transcribeAudio, analyzeConversation } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
-import { useDailyAnalysisLimit } from "@/hooks/useDailyAnalysisLimit";
+import { useDailyAnalysisLimit, CreditType } from "@/hooks/useDailyAnalysisLimit";
 import { Button } from "@/components/ui/button";
 
 
@@ -27,6 +27,7 @@ const Record = () => {
   const { user } = useAuth();
   const abortControllerRef = useRef<AbortController | null>(null);
   const usageIncrementedRef = useRef(false);
+  const creditUsedRef = useRef<CreditType>('none');
   const { 
     canAnalyze, 
     remainingAnalyses, 
@@ -48,8 +49,9 @@ const Record = () => {
 
     // Restore usage if it was incremented
     if (usageIncrementedRef.current) {
-      await decrementUsage();
+      await decrementUsage(creditUsedRef.current);
       usageIncrementedRef.current = false;
+      creditUsedRef.current = 'none';
     }
 
     toast({
@@ -70,15 +72,17 @@ const Record = () => {
 
     // Reset refs
     usageIncrementedRef.current = false;
+    creditUsedRef.current = 'none';
     abortControllerRef.current = new AbortController();
 
     // Increment usage before starting (to prevent race conditions)
-    const usageSuccess = await incrementUsage();
-    if (!usageSuccess) {
+    const usageResult = await incrementUsage();
+    if (!usageResult.success) {
       setAppState("limit-reached");
       return;
     }
     usageIncrementedRef.current = true;
+    creditUsedRef.current = usageResult.creditUsed;
 
     setAppState("processing");
     setProcessingStage("uploading");
@@ -118,6 +122,7 @@ const Record = () => {
       setAnalysisResult(result);
       setAppState("complete");
       usageIncrementedRef.current = false; // Clear since analysis completed successfully
+      creditUsedRef.current = 'none';
       
       toast({
         title: "Analysis Complete!",
@@ -133,8 +138,9 @@ const Record = () => {
       
       // Restore usage on error
       if (usageIncrementedRef.current) {
-        await decrementUsage();
+        await decrementUsage(creditUsedRef.current);
         usageIncrementedRef.current = false;
+        creditUsedRef.current = 'none';
       }
       
       toast({
@@ -153,6 +159,7 @@ const Record = () => {
     setTranscript(null);
     abortControllerRef.current = null;
     usageIncrementedRef.current = false;
+    creditUsedRef.current = 'none';
   };
 
   const isProcessing = appState === "processing";

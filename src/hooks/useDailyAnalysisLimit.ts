@@ -228,6 +228,130 @@ export const useDailyAnalysisLimit = () => {
     }
   }, [user, isPro, contextsLoading, fetchSubscriptionDate]);
 
+  // Decrement usage (for cancelled analyses)
+  const decrementUsage = useCallback(async (): Promise<boolean> => {
+    if (!user) return false;
+
+    // Users with unlimited access don't need to track usage
+    if (hasUnlimitedAccess) return true;
+
+    try {
+      const todayDate = getTodayLocalDate();
+
+      // First check if voice bonus was used (we decremented it)
+      // We need to restore what was used - check current state
+      // The increment used voice bonus first, so check if we should restore it
+      
+      // For simplicity, we'll restore the most recently used type
+      // In practice, increment uses: voice bonus -> daily bonus -> monthly
+      // So decrement should restore in reverse order based on current state
+
+      if (isPro) {
+        // Pro user: check if monthly was used (daily bonus would have been used first)
+        if (dailyBonusUsed && monthlyCount > 0) {
+          // Restore monthly count
+          const subDate = subscriptionStartedAt || (await fetchSubscriptionDate());
+          const period = getCurrentBillingPeriod(subDate);
+
+          const { data: existing } = await supabase
+            .from('monthly_analysis_usage')
+            .select('id, analysis_count')
+            .eq('user_id', user.id)
+            .eq('billing_period_start', period.start)
+            .maybeSingle();
+
+          if (existing && existing.analysis_count > 0) {
+            const { error } = await supabase
+              .from('monthly_analysis_usage')
+              .update({ analysis_count: existing.analysis_count - 1 })
+              .eq('id', existing.id);
+
+            if (error) {
+              console.error('Error decrementing monthly usage:', error);
+              return false;
+            }
+
+            setMonthlyCount(existing.analysis_count - 1);
+            return true;
+          }
+        } else if (dailyBonusUsed) {
+          // Restore daily bonus
+          const { data: existing } = await supabase
+            .from('daily_analysis_usage')
+            .select('id, analysis_count')
+            .eq('user_id', user.id)
+            .eq('usage_date', todayDate)
+            .maybeSingle();
+
+          if (existing && existing.analysis_count > 0) {
+            const { error } = await supabase
+              .from('daily_analysis_usage')
+              .update({ analysis_count: existing.analysis_count - 1 })
+              .eq('id', existing.id);
+
+            if (error) {
+              console.error('Error decrementing daily usage:', error);
+              return false;
+            }
+
+            setDailyBonusUsed(false);
+            return true;
+          }
+        }
+      } else {
+        // Free user: restore daily usage
+        if (dailyBonusUsed) {
+          const { data: existing } = await supabase
+            .from('daily_analysis_usage')
+            .select('id, analysis_count')
+            .eq('user_id', user.id)
+            .eq('usage_date', todayDate)
+            .maybeSingle();
+
+          if (existing && existing.analysis_count > 0) {
+            const { error } = await supabase
+              .from('daily_analysis_usage')
+              .update({ analysis_count: existing.analysis_count - 1 })
+              .eq('id', existing.id);
+
+            if (error) {
+              console.error('Error decrementing daily usage:', error);
+              return false;
+            }
+
+            setDailyBonusUsed(false);
+            return true;
+          }
+        }
+      }
+
+      // If nothing was decremented, try restoring voice bonus
+      // This handles the case where voice bonus was used
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('voice_bonus_remaining')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (profileData) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ voice_bonus_remaining: profileData.voice_bonus_remaining + 1 })
+          .eq('user_id', user.id);
+
+        if (!error) {
+          setVoiceBonusRemaining(prev => prev + 1);
+          return true;
+        }
+      }
+
+      return true;
+    } catch (err) {
+      console.error('Error decrementing usage:', err);
+      return false;
+    }
+  }, [user, isPro, hasUnlimitedAccess, dailyBonusUsed, monthlyCount, subscriptionStartedAt, fetchSubscriptionDate]);
+
   // Increment the usage count
   const incrementUsage = useCallback(async (): Promise<boolean> => {
     if (!user) return false;
@@ -453,6 +577,7 @@ export const useDailyAnalysisLimit = () => {
     monthlyLimit: PRO_MONTHLY_LIMIT,
     loading,
     incrementUsage,
+    decrementUsage,
     refetch: fetchUsage,
     isPro,
     hasUnlimitedAccess,

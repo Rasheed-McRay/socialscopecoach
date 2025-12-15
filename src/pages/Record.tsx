@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AudioWaveform, Lock, Crown } from "lucide-react";
 import { AudioUploader } from "@/components/AudioUploader";
@@ -25,16 +25,41 @@ const Record = () => {
   const [transcript, setTranscript] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const usageIncrementedRef = useRef(false);
   const { 
     canAnalyze, 
     remainingAnalyses, 
     limit, 
     loading: limitLoading, 
     incrementUsage,
+    decrementUsage,
     isPro,
     resetInfo,
     voiceBonusRemaining,
   } = useDailyAnalysisLimit();
+
+  const handleCancel = useCallback(async () => {
+    // Abort any in-progress requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+    // Restore usage if it was incremented
+    if (usageIncrementedRef.current) {
+      await decrementUsage();
+      usageIncrementedRef.current = false;
+    }
+
+    toast({
+      title: "Analysis Cancelled",
+      description: "Your analysis credit has been restored.",
+    });
+
+    setAppState("idle");
+    setProgress(0);
+  }, [decrementUsage, toast]);
 
   const handleAudioReady = async (audioBlob: Blob, fileName: string) => {
     // Check if user can analyze before proceeding
@@ -43,12 +68,17 @@ const Record = () => {
       return;
     }
 
+    // Reset refs
+    usageIncrementedRef.current = false;
+    abortControllerRef.current = new AbortController();
+
     // Increment usage before starting (to prevent race conditions)
     const usageSuccess = await incrementUsage();
     if (!usageSuccess) {
       setAppState("limit-reached");
       return;
     }
+    usageIncrementedRef.current = true;
 
     setAppState("processing");
     setProcessingStage("uploading");
@@ -63,6 +93,12 @@ const Record = () => {
       setProgress(30);
       
       const transcriptResult = await transcribeAudio(audioBlob);
+      
+      // Check if cancelled
+      if (abortControllerRef.current?.signal.aborted) {
+        return;
+      }
+      
       setTranscript(transcriptResult);
       setProgress(60);
 
@@ -71,17 +107,36 @@ const Record = () => {
       setProgress(70);
       
       const result = await analyzeConversation(transcriptResult);
+      
+      // Check if cancelled
+      if (abortControllerRef.current?.signal.aborted) {
+        return;
+      }
+      
       setProgress(100);
 
       setAnalysisResult(result);
       setAppState("complete");
+      usageIncrementedRef.current = false; // Clear since analysis completed successfully
       
       toast({
         title: "Analysis Complete!",
         description: "Your conversation has been analyzed successfully.",
       });
     } catch (error) {
+      // Don't show error if cancelled
+      if (abortControllerRef.current?.signal.aborted) {
+        return;
+      }
+      
       console.error("Processing error:", error);
+      
+      // Restore usage on error
+      if (usageIncrementedRef.current) {
+        await decrementUsage();
+        usageIncrementedRef.current = false;
+      }
+      
       toast({
         title: "Processing Error",
         description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
@@ -96,6 +151,8 @@ const Record = () => {
     setProgress(0);
     setAnalysisResult(null);
     setTranscript(null);
+    abortControllerRef.current = null;
+    usageIncrementedRef.current = false;
   };
 
   const isProcessing = appState === "processing";
@@ -235,7 +292,7 @@ const Record = () => {
           )}
 
           {appState === "processing" && (
-            <ProcessingState stage={processingStage} progress={progress} />
+            <ProcessingState stage={processingStage} progress={progress} onCancel={handleCancel} />
           )}
 
           {appState === "limit-reached" && (

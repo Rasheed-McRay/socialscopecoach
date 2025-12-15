@@ -7,6 +7,8 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 const FREE_DAILY_LIMIT = 1;
 const PRO_MONTHLY_LIMIT = 30;
 
+export type CreditType = 'voice_bonus' | 'daily_bonus' | 'monthly' | 'none';
+
 /**
  * Get today's date in the user's local timezone as YYYY-MM-DD
  */
@@ -228,121 +230,86 @@ export const useDailyAnalysisLimit = () => {
     }
   }, [user, isPro, contextsLoading, fetchSubscriptionDate]);
 
+
   // Decrement usage (for cancelled analyses)
-  const decrementUsage = useCallback(async (): Promise<boolean> => {
+  const decrementUsage = useCallback(async (creditUsed?: CreditType): Promise<boolean> => {
     if (!user) return false;
 
     // Users with unlimited access don't need to track usage
     if (hasUnlimitedAccess) return true;
 
+    // If no credit type specified, nothing to restore
+    if (!creditUsed || creditUsed === 'none') return true;
+
     try {
       const todayDate = getTodayLocalDate();
 
-      // First check if voice bonus was used (we decremented it)
-      // We need to restore what was used - check current state
-      // The increment used voice bonus first, so check if we should restore it
-      
-      // For simplicity, we'll restore the most recently used type
-      // In practice, increment uses: voice bonus -> daily bonus -> monthly
-      // So decrement should restore in reverse order based on current state
+      if (creditUsed === 'voice_bonus') {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('voice_bonus_remaining')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-      if (isPro) {
-        // Pro user: check if monthly was used (daily bonus would have been used first)
-        if (dailyBonusUsed && monthlyCount > 0) {
-          // Restore monthly count
-          const subDate = subscriptionStartedAt || (await fetchSubscriptionDate());
-          const period = getCurrentBillingPeriod(subDate);
+        if (profileData) {
+          const { error } = await supabase
+            .from('profiles')
+            .update({ voice_bonus_remaining: profileData.voice_bonus_remaining + 1 })
+            .eq('user_id', user.id);
 
-          const { data: existing } = await supabase
+          if (!error) {
+            setVoiceBonusRemaining(prev => prev + 1);
+            return true;
+          }
+        }
+        return false;
+      }
+
+      if (creditUsed === 'daily_bonus') {
+        const { data: existing } = await supabase
+          .from('daily_analysis_usage')
+          .select('id, analysis_count')
+          .eq('user_id', user.id)
+          .eq('usage_date', todayDate)
+          .maybeSingle();
+
+        if (existing && existing.analysis_count > 0) {
+          const { error } = await supabase
+            .from('daily_analysis_usage')
+            .update({ analysis_count: existing.analysis_count - 1 })
+            .eq('id', existing.id);
+
+          if (!error) {
+            setDailyBonusUsed(false);
+            return true;
+          }
+        }
+        return false;
+      }
+
+      if (creditUsed === 'monthly') {
+        const subDate = subscriptionStartedAt || (await fetchSubscriptionDate());
+        const period = getCurrentBillingPeriod(subDate);
+
+        const { data: existing } = await supabase
+          .from('monthly_analysis_usage')
+          .select('id, analysis_count')
+          .eq('user_id', user.id)
+          .eq('billing_period_start', period.start)
+          .maybeSingle();
+
+        if (existing && existing.analysis_count > 0) {
+          const { error } = await supabase
             .from('monthly_analysis_usage')
-            .select('id, analysis_count')
-            .eq('user_id', user.id)
-            .eq('billing_period_start', period.start)
-            .maybeSingle();
+            .update({ analysis_count: existing.analysis_count - 1 })
+            .eq('id', existing.id);
 
-          if (existing && existing.analysis_count > 0) {
-            const { error } = await supabase
-              .from('monthly_analysis_usage')
-              .update({ analysis_count: existing.analysis_count - 1 })
-              .eq('id', existing.id);
-
-            if (error) {
-              console.error('Error decrementing monthly usage:', error);
-              return false;
-            }
-
+          if (!error) {
             setMonthlyCount(existing.analysis_count - 1);
             return true;
           }
-        } else if (dailyBonusUsed) {
-          // Restore daily bonus
-          const { data: existing } = await supabase
-            .from('daily_analysis_usage')
-            .select('id, analysis_count')
-            .eq('user_id', user.id)
-            .eq('usage_date', todayDate)
-            .maybeSingle();
-
-          if (existing && existing.analysis_count > 0) {
-            const { error } = await supabase
-              .from('daily_analysis_usage')
-              .update({ analysis_count: existing.analysis_count - 1 })
-              .eq('id', existing.id);
-
-            if (error) {
-              console.error('Error decrementing daily usage:', error);
-              return false;
-            }
-
-            setDailyBonusUsed(false);
-            return true;
-          }
         }
-      } else {
-        // Free user: restore daily usage
-        if (dailyBonusUsed) {
-          const { data: existing } = await supabase
-            .from('daily_analysis_usage')
-            .select('id, analysis_count')
-            .eq('user_id', user.id)
-            .eq('usage_date', todayDate)
-            .maybeSingle();
-
-          if (existing && existing.analysis_count > 0) {
-            const { error } = await supabase
-              .from('daily_analysis_usage')
-              .update({ analysis_count: existing.analysis_count - 1 })
-              .eq('id', existing.id);
-
-            if (error) {
-              console.error('Error decrementing daily usage:', error);
-              return false;
-            }
-
-            setDailyBonusUsed(false);
-            return true;
-          }
-        }
-      }
-
-      // If nothing was decremented, try restoring voice bonus
-      // This handles the case where voice bonus was used
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('voice_bonus_remaining')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (profileData) {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ voice_bonus_remaining: profileData.voice_bonus_remaining + 1 })
-          .eq('user_id', user.id);
-
-        if (!error) {
-          setVoiceBonusRemaining(prev => prev + 1);
-          return true;
-        }
+        return false;
       }
 
       return true;
@@ -350,14 +317,14 @@ export const useDailyAnalysisLimit = () => {
       console.error('Error decrementing usage:', err);
       return false;
     }
-  }, [user, isPro, hasUnlimitedAccess, dailyBonusUsed, monthlyCount, subscriptionStartedAt, fetchSubscriptionDate]);
+  }, [user, hasUnlimitedAccess, subscriptionStartedAt, fetchSubscriptionDate]);
 
-  // Increment the usage count
-  const incrementUsage = useCallback(async (): Promise<boolean> => {
-    if (!user) return false;
+  // Increment the usage count - returns the type of credit used
+  const incrementUsage = useCallback(async (): Promise<{ success: boolean; creditUsed: CreditType }> => {
+    if (!user) return { success: false, creditUsed: 'none' };
 
     // Users with unlimited access don't need to track usage
-    if (hasUnlimitedAccess) return true;
+    if (hasUnlimitedAccess) return { success: true, creditUsed: 'none' };
 
     try {
       const todayDate = getTodayLocalDate();
@@ -371,11 +338,11 @@ export const useDailyAnalysisLimit = () => {
 
         if (error) {
           console.error('Error decrementing voice bonus:', error);
-          return false;
+          return { success: false, creditUsed: 'none' };
         }
 
         setVoiceBonusRemaining(prev => prev - 1);
-        return true;
+        return { success: true, creditUsed: 'voice_bonus' };
       }
 
       if (isPro) {
@@ -397,7 +364,7 @@ export const useDailyAnalysisLimit = () => {
 
             if (error) {
               console.error('Error updating daily usage:', error);
-              return false;
+              return { success: false, creditUsed: 'none' };
             }
           } else {
             const { error } = await supabase
@@ -410,17 +377,17 @@ export const useDailyAnalysisLimit = () => {
 
             if (error) {
               console.error('Error inserting daily usage:', error);
-              return false;
+              return { success: false, creditUsed: 'none' };
             }
           }
 
           setDailyBonusUsed(true);
-          return true;
+          return { success: true, creditUsed: 'daily_bonus' };
         }
 
         // Daily bonus used, use monthly allocation
         if (monthlyRemaining <= 0) {
-          return false;
+          return { success: false, creditUsed: 'none' };
         }
 
         const subDate = subscriptionStartedAt || (await fetchSubscriptionDate());
@@ -441,7 +408,7 @@ export const useDailyAnalysisLimit = () => {
 
           if (error) {
             console.error('Error updating monthly usage:', error);
-            return false;
+            return { success: false, creditUsed: 'none' };
           }
 
           setMonthlyCount(existing.analysis_count + 1);
@@ -457,15 +424,33 @@ export const useDailyAnalysisLimit = () => {
 
           if (error) {
             console.error('Error inserting monthly usage:', error);
-            return false;
+            return { success: false, creditUsed: 'none' };
           }
 
           setMonthlyCount(1);
         }
+
+        // Track analysis activity (non-blocking)
+        const userId = user.id;
+        (async () => {
+          try {
+            await supabase
+              .from('user_activity')
+              .insert({
+                user_id: userId,
+                activity_type: 'analysis',
+                metadata: { tier: 'pro' },
+              });
+          } catch (err) {
+            console.error('Failed to track analysis:', err);
+          }
+        })();
+
+        return { success: true, creditUsed: 'monthly' };
       } else {
         // Free user: track daily usage only
         if (dailyBonusUsed) {
-          return false;
+          return { success: false, creditUsed: 'none' };
         }
 
         const { data: existing } = await supabase
@@ -477,7 +462,7 @@ export const useDailyAnalysisLimit = () => {
 
         if (existing) {
           if (existing.analysis_count >= FREE_DAILY_LIMIT) {
-            return false;
+            return { success: false, creditUsed: 'none' };
           }
 
           const { error } = await supabase
@@ -487,7 +472,7 @@ export const useDailyAnalysisLimit = () => {
 
           if (error) {
             console.error('Error updating daily usage:', error);
-            return false;
+            return { success: false, creditUsed: 'none' };
           }
         } else {
           const { error } = await supabase
@@ -500,34 +485,33 @@ export const useDailyAnalysisLimit = () => {
 
           if (error) {
             console.error('Error inserting daily usage:', error);
-            return false;
+            return { success: false, creditUsed: 'none' };
           }
         }
 
         setDailyBonusUsed(true);
+
+        // Track analysis activity (non-blocking)
+        const userId = user.id;
+        (async () => {
+          try {
+            await supabase
+              .from('user_activity')
+              .insert({
+                user_id: userId,
+                activity_type: 'analysis',
+                metadata: { tier: 'free' },
+              });
+          } catch (err) {
+            console.error('Failed to track analysis:', err);
+          }
+        })();
+
+        return { success: true, creditUsed: 'daily_bonus' };
       }
-
-      // Track analysis activity (non-blocking)
-      const userId = user.id;
-      const userTier = isPro ? 'pro' : 'free';
-      (async () => {
-        try {
-          await supabase
-            .from('user_activity')
-            .insert({
-              user_id: userId,
-              activity_type: 'analysis',
-              metadata: { tier: userTier },
-            });
-        } catch (err) {
-          console.error('Failed to track analysis:', err);
-        }
-      })();
-
-      return true;
     } catch (err) {
       console.error('Error incrementing usage:', err);
-      return false;
+      return { success: false, creditUsed: 'none' };
     }
   }, [user, isPro, hasUnlimitedAccess, dailyBonusUsed, monthlyRemaining, voiceBonusRemaining, subscriptionStartedAt, fetchSubscriptionDate]);
 

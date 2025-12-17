@@ -195,16 +195,25 @@ serve(async (req) => {
       );
     }
 
-    // Only allow premium, developer tiers OR unlimited/standard access levels
-    const allowedTiers = ["premium", "developer"];
-    const allowedAccessLevels = ["unlimited", "standard"];
-    const hasAccess = allowedTiers.includes(roleData?.tier) || allowedAccessLevels.includes(roleData?.access_level);
-    
+    // Access control
+    // Conversation analysis is available to all authenticated users in the app.
+    // (Plan/tier controls are handled elsewhere.)
+    const allowedTiers = ["free", "premium", "developer"];
+    const allowedAccessLevels = ["restricted", "standard", "unlimited"];
+    const hasAccess =
+      allowedTiers.includes(roleData?.tier) &&
+      allowedAccessLevels.includes(roleData?.access_level);
+
     if (!hasAccess) {
-      console.log("User tier not authorized:", roleData?.tier, "access:", roleData?.access_level);
+      console.log(
+        "User not authorized:",
+        roleData?.tier,
+        "access:",
+        roleData?.access_level,
+      );
       return new Response(
-        JSON.stringify({ error: "This feature requires a premium subscription" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Not authorized to use analysis" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 

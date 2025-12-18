@@ -68,9 +68,9 @@ export const FocusExamplesDialog = ({ open, onOpenChange, focusArea }: FocusExam
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
-          {/* Focus Area */}
-          <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
-            <p className="text-sm font-medium text-primary">{focusArea}</p>
+          {/* Focus Area - full text display */}
+          <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+            <p className="text-sm md:text-base font-medium text-primary leading-relaxed">{focusArea}</p>
           </div>
 
           {/* Examples Section */}

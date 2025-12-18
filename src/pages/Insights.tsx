@@ -183,8 +183,8 @@ const Insights = () => {
     return simplified.length <= 60 ? simplified : simplified.substring(0, 55) + "...";
   };
 
-  // Get most common next step from all reports
-  const getMostCommonNextStep = (): string | null => {
+  // Get most common next step from all reports - returns both full and simplified versions
+  const getMainFocus = (): { full: string; preview: string } | null => {
     if (reports.length === 0) return null;
     
     // Collect first next step from each report
@@ -199,11 +199,14 @@ const Insights = () => {
 
     if (allSteps.length === 0) return null;
 
-    // Return simplified version of the most recent step
-    return simplifyActionStep(allSteps[0]);
+    const fullText = allSteps[0];
+    return {
+      full: fullText,
+      preview: simplifyActionStep(fullText),
+    };
   };
 
-  const mainFocus = getMostCommonNextStep();
+  const mainFocus = getMainFocus();
 
   if (selectedReport) {
     return (
@@ -332,7 +335,7 @@ const Insights = () => {
                         </div>
                         <div className="text-center">
                           <h3 className="text-xs md:text-base font-semibold text-foreground">Main Focus</h3>
-                          <p className="text-[10px] md:text-sm text-primary leading-tight">{mainFocus}</p>
+                          <p className="text-[10px] md:text-sm text-primary leading-tight">{mainFocus.preview}</p>
                         </div>
                       </div>
                     </InsightCard>
@@ -406,7 +409,7 @@ const Insights = () => {
         <FocusExamplesDialog
           open={focusDialogOpen}
           onOpenChange={setFocusDialogOpen}
-          focusArea={mainFocus}
+          focusArea={mainFocus.full}
         />
       )}
     </div>

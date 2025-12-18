@@ -11,6 +11,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
 import { useDailyAnalysisLimit, CreditType } from "@/hooks/useDailyAnalysisLimit";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 
 type AppState = "idle" | "processing" | "complete" | "limit-reached";
@@ -65,6 +66,19 @@ const Record = () => {
   }, [decrementUsage, toast]);
 
   const handleAudioReady = async (audioBlob: Blob, fileName: string) => {
+    // Validate session is still valid before proceeding
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      toast({
+        title: "Session Expired",
+        description: "Your session has expired. Please log in again.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
     // Check if user can analyze before proceeding
     if (!canAnalyze) {
       setAppState("limit-reached");

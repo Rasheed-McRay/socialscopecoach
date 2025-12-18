@@ -134,61 +134,53 @@ const Insights = () => {
     }
     
     // Find the best natural break point that creates a complete phrase
+    // Only break at these points if they result in a meaningful phrase (at least 3 words)
     const breakPoints = [
-      { pattern: ", ", minIdx: 20 },
-      { pattern: " - ", minIdx: 15 },
-      { pattern: " and ", minIdx: 20 },
-      { pattern: " or ", minIdx: 20 },
-      { pattern: " to ", minIdx: 25 },
-      { pattern: " by ", minIdx: 20 },
-      { pattern: " with ", minIdx: 20 },
-      { pattern: " for ", minIdx: 20 },
-      { pattern: " in ", minIdx: 25 },
+      { pattern: ", ", minIdx: 20, maxIdx: 50 },
+      { pattern: " - ", minIdx: 15, maxIdx: 50 },
+      { pattern: " and ", minIdx: 20, maxIdx: 50 },
+      { pattern: " or ", minIdx: 20, maxIdx: 50 },
     ];
     
-    for (const { pattern, minIdx } of breakPoints) {
+    for (const { pattern, minIdx, maxIdx } of breakPoints) {
       const idx = simplified.indexOf(pattern);
-      if (idx >= minIdx && idx <= 50) {
-        return simplified.substring(0, idx);
+      if (idx >= minIdx && idx <= maxIdx) {
+        const truncated = simplified.substring(0, idx);
+        // Ensure the truncated version has at least 3 words
+        if (truncated.split(" ").filter(w => w.length > 0).length >= 3) {
+          return truncated;
+        }
       }
     }
     
-    // If no good break found, extract the core action verb phrase
-    // Look for common patterns and create a concise version
-    const corePatterns = [
-      /^(Use \w+)/i,
-      /^(Ask \w+)/i,
-      /^(Share \w+)/i,
-      /^(Add \w+)/i,
-      /^(Include \w+)/i,
-      /^(Show \w+)/i,
-      /^(Express \w+)/i,
-      /^(Listen \w+)/i,
-      /^(Speak \w+)/i,
-      /^(Make \w+)/i,
-      /^(\w+ more \w+)/i,
-    ];
-    
-    for (const pattern of corePatterns) {
-      const match = simplified.match(pattern);
-      if (match && match[1].length <= 50) {
-        return match[1];
-      }
-    }
-    
-    // Last resort: take first few words that form a complete thought
+    // Find natural sentence ending within limit
     const words = simplified.split(" ");
     let result = "";
+    let wordCount = 0;
+    
     for (const word of words) {
       const test = result ? `${result} ${word}` : word;
       if (test.length <= 48) {
         result = test;
+        wordCount++;
       } else {
         break;
       }
     }
     
-    return result || simplified.substring(0, 50);
+    // Only return if we have at least 3 words (to avoid "Make a" type outputs)
+    if (wordCount >= 3) {
+      return result;
+    }
+    
+    // If we couldn't get 3 words within limit, return the first sentence or full text
+    const firstSentence = simplified.match(/^[^.!?]+[.!?]/);
+    if (firstSentence && firstSentence[0].length <= 60) {
+      return firstSentence[0].replace(/[.!?]$/, "");
+    }
+    
+    // Last resort: return more characters to ensure completeness
+    return simplified.length <= 60 ? simplified : simplified.substring(0, 55) + "...";
   };
 
   // Get most common next step from all reports

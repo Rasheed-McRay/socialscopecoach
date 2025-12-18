@@ -14,9 +14,16 @@ const navItems = [
 interface BottomNavProps {
   isRecording?: boolean;
   isAnalyzing?: boolean;
+  hasUnsavedAnalysis?: boolean;
+  onUnsavedNavigate?: (path: string) => void;
 }
 
-export function BottomNav({ isRecording = false, isAnalyzing = false }: BottomNavProps) {
+export function BottomNav({ 
+  isRecording = false, 
+  isAnalyzing = false,
+  hasUnsavedAnalysis = false,
+  onUnsavedNavigate,
+}: BottomNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -36,6 +43,11 @@ export function BottomNav({ isRecording = false, isAnalyzing = false }: BottomNa
       toast.warning("Analysis in progress", {
         description: "Please wait for the analysis to finish or cancel it first.",
       });
+      return;
+    }
+    if (hasUnsavedAnalysis && onUnsavedNavigate) {
+      e.preventDefault();
+      onUnsavedNavigate(path);
       return;
     }
     navigate(path);

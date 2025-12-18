@@ -188,7 +188,7 @@ const Record = () => {
                 </div>
               </Link>
               
-              <HeaderNav isRecording={isRecording || isProcessing} />
+              <HeaderNav isRecording={isRecording} />
             </div>
           </div>
         </header>
@@ -347,7 +347,7 @@ const Record = () => {
       </div>
 
       {/* Bottom Navigation - Mobile Only */}
-      <BottomNav isRecording={isRecording || isProcessing} />
+      <BottomNav isRecording={isRecording} />
     </div>
   );
 };

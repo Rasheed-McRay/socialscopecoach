@@ -22,8 +22,8 @@ export function BottomNav({ isRecording = false }: BottomNavProps) {
   const handleNavClick = (e: React.MouseEvent, path: string) => {
     if (isRecording && path !== location.pathname) {
       e.preventDefault();
-      toast.warning("Recording or analysis in progress", {
-        description: "Please cancel or finish your recording/analysis before navigating away.",
+      toast.warning("Recording in progress", {
+        description: "Please stop or finish your recording before navigating away.",
       });
       return;
     }

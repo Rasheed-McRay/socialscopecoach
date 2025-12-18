@@ -16,8 +16,31 @@ interface FocusExamples {
   whyItHelps: string;
 }
 
-// Cache storage for focus examples
-const focusCache = new Map<string, FocusExamples>();
+const CACHE_KEY = "focus_examples_cache";
+
+// Get cached examples from localStorage
+const getCachedExamples = (focusArea: string): FocusExamples | null => {
+  try {
+    const cache = localStorage.getItem(CACHE_KEY);
+    if (!cache) return null;
+    const parsed = JSON.parse(cache) as Record<string, FocusExamples>;
+    return parsed[focusArea] || null;
+  } catch {
+    return null;
+  }
+};
+
+// Save examples to localStorage cache
+const setCachedExamples = (focusArea: string, data: FocusExamples) => {
+  try {
+    const cache = localStorage.getItem(CACHE_KEY);
+    const parsed = cache ? JSON.parse(cache) : {};
+    parsed[focusArea] = data;
+    localStorage.setItem(CACHE_KEY, JSON.stringify(parsed));
+  } catch {
+    // Ignore storage errors
+  }
+};
 
 export const FocusExamplesDialog = ({ open, onOpenChange, focusArea }: FocusExamplesDialogProps) => {
   const [loading, setLoading] = useState(false);
@@ -25,8 +48,8 @@ export const FocusExamplesDialog = ({ open, onOpenChange, focusArea }: FocusExam
 
   useEffect(() => {
     if (open && focusArea) {
-      // Check cache first
-      const cached = focusCache.get(focusArea);
+      // Check localStorage cache first
+      const cached = getCachedExamples(focusArea);
       if (cached) {
         setData(cached);
         return;
@@ -46,8 +69,8 @@ export const FocusExamplesDialog = ({ open, onOpenChange, focusArea }: FocusExam
 
       if (error) throw error;
 
-      // Cache the result
-      focusCache.set(focusArea, result);
+      // Cache the result in localStorage
+      setCachedExamples(focusArea, result);
       setData(result);
     } catch (error) {
       console.error("Error generating examples:", error);

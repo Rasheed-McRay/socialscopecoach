@@ -1,6 +1,7 @@
-import { Link, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Telescope, Lightbulb, Mic, NotebookText, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const navItems = [
   { icon: Telescope, label: "Scope", path: "/scope" },
@@ -10,8 +11,24 @@ const navItems = [
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
-export function BottomNav() {
+interface BottomNavProps {
+  isRecording?: boolean;
+}
+
+export function BottomNav({ isRecording = false }: BottomNavProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleNavClick = (e: React.MouseEvent, path: string) => {
+    if (isRecording && path !== location.pathname) {
+      e.preventDefault();
+      toast.warning("Recording in progress", {
+        description: "Please stop or finish your recording before navigating away.",
+      });
+      return;
+    }
+    navigate(path);
+  };
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom md:hidden">
@@ -24,22 +41,22 @@ export function BottomNav() {
 
               if (item.isCenter) {
                 return (
-                  <Link
+                  <button
                     key={item.label}
-                    to={item.path}
+                    onClick={(e) => handleNavClick(e, item.path)}
                     className="relative -mt-5"
                   >
                     <div className="w-14 h-14 rounded-full bg-gradient-primary flex items-center justify-center glow-primary shadow-elevated transition-transform hover:scale-105 active:scale-95">
                       <Icon className="w-6 h-6 text-primary-foreground" />
                     </div>
-                  </Link>
+                  </button>
                 );
               }
 
               return (
-                <Link
+                <button
                   key={item.label}
-                  to={item.path}
+                  onClick={(e) => handleNavClick(e, item.path)}
                   className={cn(
                     "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all",
                     isActive 
@@ -57,7 +74,7 @@ export function BottomNav() {
                     )} />
                   </div>
                   <span className="text-[9px] font-medium">{item.label}</span>
-                </Link>
+                </button>
               );
             })}
           </div>

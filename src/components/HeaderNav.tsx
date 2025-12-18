@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Telescope, Lightbulb, Mic, NotebookText, Settings, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
+import { toast } from "sonner";
 
 const navItems = [
   { icon: Telescope, label: "Scope", path: "/scope" },
@@ -18,8 +19,24 @@ const navItems = [
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
-export function HeaderNav() {
+interface HeaderNavProps {
+  isRecording?: boolean;
+}
+
+export function HeaderNav({ isRecording = false }: HeaderNavProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleNavClick = (e: React.MouseEvent, path: string) => {
+    if (isRecording && path !== location.pathname) {
+      e.preventDefault();
+      toast.warning("Recording in progress", {
+        description: "Please stop or finish your recording before navigating away.",
+      });
+      return;
+    }
+    navigate(path);
+  };
 
   return (
     <div className="hidden md:flex items-center gap-3">
@@ -36,17 +53,16 @@ export function HeaderNav() {
             const Icon = item.icon;
 
             return (
-              <DropdownMenuItem key={item.label} asChild>
-                <Link
-                  to={item.path}
-                  className={cn(
-                    "flex items-center gap-3 w-full cursor-pointer",
-                    isActive && "text-primary font-medium"
-                  )}
-                >
-                  <Icon className={cn("w-4 h-4", isActive && "text-primary")} />
-                  <span>{item.label}</span>
-                </Link>
+              <DropdownMenuItem 
+                key={item.label} 
+                onClick={(e) => handleNavClick(e, item.path)}
+                className={cn(
+                  "flex items-center gap-3 w-full cursor-pointer",
+                  isActive && "text-primary font-medium"
+                )}
+              >
+                <Icon className={cn("w-4 h-4", isActive && "text-primary")} />
+                <span>{item.label}</span>
               </DropdownMenuItem>
             );
           })}

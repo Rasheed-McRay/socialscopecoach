@@ -13,17 +13,28 @@ const navItems = [
 
 interface BottomNavProps {
   isRecording?: boolean;
+  isAnalyzing?: boolean;
 }
 
-export function BottomNav({ isRecording = false }: BottomNavProps) {
+export function BottomNav({ isRecording = false, isAnalyzing = false }: BottomNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleNavClick = (e: React.MouseEvent, path: string) => {
-    if (isRecording && path !== location.pathname) {
+    if (path === location.pathname) {
+      return;
+    }
+    if (isRecording) {
       e.preventDefault();
       toast.warning("Recording in progress", {
         description: "Please stop or finish your recording before navigating away.",
+      });
+      return;
+    }
+    if (isAnalyzing) {
+      e.preventDefault();
+      toast.warning("Analysis in progress", {
+        description: "Please wait for the analysis to finish or cancel it first.",
       });
       return;
     }

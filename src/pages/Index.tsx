@@ -315,7 +315,7 @@ const Index = () => {
                   </div>
                 </Link>
 
-                <HeaderNav isAnalyzing={isProcessing} />
+                <HeaderNav isAnalyzing={isProcessing} isRecording={false} />
               </div>
             </div>
             <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />

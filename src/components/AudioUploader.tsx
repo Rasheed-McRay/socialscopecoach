@@ -12,9 +12,10 @@ const WARNING_TIME = 540; // 9 minutes - warn 1 minute before limit
 interface AudioUploaderProps {
   onAudioReady: (audioBlob: Blob, fileName: string) => void;
   isProcessing: boolean;
+  onRecordingStateChange?: (isRecording: boolean) => void;
 }
 
-export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps) {
+export function AudioUploader({ onAudioReady, isProcessing, onRecordingStateChange }: AudioUploaderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [hasWarned, setHasWarned] = useState(false);
@@ -93,6 +94,7 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
 
       mediaRecorder.start();
       setIsRecording(true);
+      onRecordingStateChange?.(true);
       setRecordingTime(0);
       setHasWarned(false);
 
@@ -134,6 +136,7 @@ export function AudioUploader({ onAudioReady, isProcessing }: AudioUploaderProps
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      onRecordingStateChange?.(false);
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }

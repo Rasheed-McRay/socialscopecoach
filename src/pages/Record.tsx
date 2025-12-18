@@ -23,6 +23,7 @@ const Record = () => {
   const [progress, setProgress] = useState(0);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [transcript, setTranscript] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -187,7 +188,7 @@ const Record = () => {
                 </div>
               </Link>
               
-              <HeaderNav />
+              <HeaderNav isRecording={isRecording} />
             </div>
           </div>
         </header>
@@ -286,6 +287,7 @@ const Record = () => {
                   <AudioUploader
                     onAudioReady={handleAudioReady}
                     isProcessing={isProcessing}
+                    onRecordingStateChange={setIsRecording}
                   />
 
                   <div className="text-center space-y-2">
@@ -345,7 +347,7 @@ const Record = () => {
       </div>
 
       {/* Bottom Navigation - Mobile Only */}
-      <BottomNav />
+      <BottomNav isRecording={isRecording} />
     </div>
   );
 };

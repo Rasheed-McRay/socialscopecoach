@@ -82,13 +82,26 @@ const formatDate = (date: Date): string => {
 
 /**
  * Calculate days until billing period reset
+ * The reset happens the day AFTER periodEnd, so we count days until (periodEnd + 1 day)
  */
 const getDaysUntilReset = (periodEnd: string): number => {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
-  const end = new Date(periodEnd);
-  const diffTime = end.getTime() - now.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 because it resets day after end
+  
+  // Parse the period end date and set to start of day in local timezone
+  const [year, month, day] = periodEnd.split('-').map(Number);
+  const end = new Date(year, month - 1, day);
+  end.setHours(0, 0, 0, 0);
+  
+  // The reset happens the day after the period ends
+  const resetDate = new Date(end);
+  resetDate.setDate(resetDate.getDate() + 1);
+  
+  const diffTime = resetDate.getTime() - now.getTime();
+  const daysUntil = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  // Minimum 1 day (if reset is today or in the past, show 1)
+  return Math.max(1, daysUntil);
 };
 
 export const useDailyAnalysisLimit = () => {

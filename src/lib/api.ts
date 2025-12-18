@@ -25,6 +25,12 @@ export async function transcribeAudio(audioBlob: Blob): Promise<string> {
 
   if (!response.ok) {
     const error = await response.json();
+    
+    // Handle authentication errors specifically
+    if (response.status === 401 || response.status === 403) {
+      throw new Error("Your session has expired. Please log in again.");
+    }
+    
     throw new Error(error.error || "Transcription failed");
   }
 

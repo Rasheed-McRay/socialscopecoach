@@ -22,9 +22,11 @@ const navItems = [
 interface HeaderNavProps {
   isRecording?: boolean;
   isAnalyzing?: boolean;
+  hasUnsavedAnalysis?: boolean;
+  onLeaveUnsaved?: (path: string) => void;
 }
 
-export function HeaderNav({ isRecording = false, isAnalyzing = false }: HeaderNavProps) {
+export function HeaderNav({ isRecording = false, isAnalyzing = false, hasUnsavedAnalysis = false, onLeaveUnsaved }: HeaderNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -44,6 +46,11 @@ export function HeaderNav({ isRecording = false, isAnalyzing = false }: HeaderNa
       toast.warning("Analysis in progress", {
         description: "Please wait for the analysis to finish or cancel it first.",
       });
+      return;
+    }
+    if (hasUnsavedAnalysis && onLeaveUnsaved) {
+      e.preventDefault();
+      onLeaveUnsaved(path);
       return;
     }
     navigate(path);

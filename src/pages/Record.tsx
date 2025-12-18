@@ -11,6 +11,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
 import { useDailyAnalysisLimit, CreditType } from "@/hooks/useDailyAnalysisLimit";
 import { Button } from "@/components/ui/button";
+import { UnsavedAnalysisDialog } from "@/components/UnsavedAnalysisDialog";
 
 
 type AppState = "idle" | "processing" | "complete" | "limit-reached";
@@ -24,6 +25,8 @@ const Record = () => {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [transcript, setTranscript] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const [pendingNavigationPath, setPendingNavigationPath] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -164,6 +167,26 @@ const Record = () => {
   };
 
   const isProcessing = appState === "processing";
+  const hasUnsavedAnalysis = appState === "complete";
+
+  const handleLeaveUnsaved = (path: string) => {
+    setPendingNavigationPath(path);
+    setShowUnsavedDialog(true);
+  };
+
+  const handleStay = () => {
+    setShowUnsavedDialog(false);
+    setPendingNavigationPath(null);
+  };
+
+  const handleLeaveConfirmed = () => {
+    setShowUnsavedDialog(false);
+    handleReset();
+    if (pendingNavigationPath) {
+      navigate(pendingNavigationPath);
+    }
+    setPendingNavigationPath(null);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -188,7 +211,11 @@ const Record = () => {
                 </div>
               </Link>
               
-              <HeaderNav isRecording={isRecording} />
+              <HeaderNav 
+                isRecording={isRecording} 
+                hasUnsavedAnalysis={hasUnsavedAnalysis}
+                onLeaveUnsaved={handleLeaveUnsaved}
+              />
             </div>
           </div>
         </header>
@@ -347,7 +374,18 @@ const Record = () => {
       </div>
 
       {/* Bottom Navigation - Mobile Only */}
-      <BottomNav isRecording={isRecording} />
+      <BottomNav 
+        isRecording={isRecording} 
+        hasUnsavedAnalysis={hasUnsavedAnalysis}
+        onLeaveUnsaved={handleLeaveUnsaved}
+      />
+
+      {/* Unsaved Analysis Warning Dialog */}
+      <UnsavedAnalysisDialog 
+        open={showUnsavedDialog}
+        onStay={handleStay}
+        onLeave={handleLeaveConfirmed}
+      />
     </div>
   );
 };

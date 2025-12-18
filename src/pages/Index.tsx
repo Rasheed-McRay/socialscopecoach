@@ -315,7 +315,7 @@ const Index = () => {
                   </div>
                 </Link>
 
-                <HeaderNav />
+                <HeaderNav isAnalyzing={isProcessing} />
               </div>
             </div>
             <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
@@ -384,7 +384,7 @@ const Index = () => {
         </div>
 
         {/* Bottom Navigation - Mobile Only */}
-        <BottomNav />
+        <BottomNav isAnalyzing={isProcessing} />
       </div>
     </ProFeatureGate>
   );

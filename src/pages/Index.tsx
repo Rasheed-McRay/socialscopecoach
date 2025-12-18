@@ -117,17 +117,25 @@ const DAILY_PROMPTS = [
   "What does home mean to you, beyond just a physical place?",
 ];
 
+// Use UTC date to ensure all users get the same prompt on the same day
 const getDailyPrompt = () => {
-  const today = new Date();
-  const dayOfYear = Math.floor(
-    (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
-  );
+  const now = new Date();
+  const utcYear = now.getUTCFullYear();
+  const utcMonth = now.getUTCMonth();
+  const utcDate = now.getUTCDate();
+  
+  // Calculate day of year in UTC
+  const startOfYear = Date.UTC(utcYear, 0, 0);
+  const currentDay = Date.UTC(utcYear, utcMonth, utcDate);
+  const dayOfYear = Math.floor((currentDay - startOfYear) / 86400000);
+  
   return DAILY_PROMPTS[dayOfYear % DAILY_PROMPTS.length];
 };
 
+// Use UTC date string for consistency across timezones
 const getTodayDateString = () => {
-  const today = new Date();
-  return today.toISOString().split("T")[0];
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
 };
 
 interface DailyScopeCompletion {

@@ -69,7 +69,17 @@ serve(async (req) => {
       if (subscription.current_period_end) {
         subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       }
-      logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
+      
+      // Get subscription start date from Stripe
+      const subscriptionStartDate = subscription.current_period_start 
+        ? new Date(subscription.current_period_start * 1000).toISOString()
+        : new Date().toISOString();
+      
+      logStep("Active subscription found", { 
+        subscriptionId: subscription.id, 
+        startDate: subscriptionStartDate,
+        endDate: subscriptionEnd 
+      });
 
       // Update user_subscriptions table to pro
       const { error: updateSubError } = await supabaseClient
@@ -86,12 +96,13 @@ serve(async (req) => {
         logStep("Updated user_subscriptions to pro");
       }
 
-      // Also update user_roles table tier to sync
+      // Also update user_roles table tier and subscription_started_at to sync
       const { error: updateRoleError } = await supabaseClient
         .from('user_roles')
         .update({ 
           tier: 'premium',
           access_level: 'standard',
+          subscription_started_at: subscriptionStartDate,
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id);
@@ -99,7 +110,7 @@ serve(async (req) => {
       if (updateRoleError) {
         logStep("Error updating user_roles", { error: updateRoleError.message });
       } else {
-        logStep("Updated user_roles to premium tier");
+        logStep("Updated user_roles to premium tier with subscription start date");
       }
     } else {
       logStep("No active subscription found");

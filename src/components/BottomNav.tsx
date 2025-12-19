@@ -55,7 +55,9 @@ export function BottomNav({
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom md:hidden">
-      <div className="mx-2 mb-2">
+      {/* Solid background to cover any content showing through gaps */}
+      <div className="absolute inset-0 bg-background" />
+      <div className="relative mx-2 mb-2">
         <div className="bg-card/95 backdrop-blur-xl border border-border/30 rounded-2xl shadow-elevated">
           <div className="flex items-center justify-around py-1.5">
             {navItems.map((item) => {

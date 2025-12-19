@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { RoleProvider } from "@/contexts/RoleContext";
+import { PageTransition } from "@/components/PageTransition";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
@@ -34,72 +35,74 @@ const App = () => (
         <AuthProvider>
           <SubscriptionProvider>
             <RoleProvider>
-              <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/install" element={<Install />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route
-              path="/checkout-success"
-              element={
-                <ProtectedRoute>
-                  <CheckoutSuccess />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/voice-setup"
-              element={
-                <ProtectedRoute>
-                  <VoiceSetup />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/insights"
-              element={
-                <ProtectedRoute>
-                  <Insights />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/progress"
-              element={
-                <ProtectedRoute>
-                  <Progress />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/scope"
-              element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/record"
-              element={
-                <ProtectedRoute>
-                  <Record />
-                </ProtectedRoute>
-              }
-            />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-              </Routes>
+              <PageTransition>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/install" element={<Install />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route
+                    path="/checkout-success"
+                    element={
+                      <ProtectedRoute>
+                        <CheckoutSuccess />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/voice-setup"
+                    element={
+                      <ProtectedRoute>
+                        <VoiceSetup />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings"
+                    element={
+                      <ProtectedRoute>
+                        <Settings />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/insights"
+                    element={
+                      <ProtectedRoute>
+                        <Insights />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/progress"
+                    element={
+                      <ProtectedRoute>
+                        <Progress />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/scope"
+                    element={
+                      <ProtectedRoute>
+                        <Index />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/record"
+                    element={
+                      <ProtectedRoute>
+                        <Record />
+                      </ProtectedRoute>
+                    }
+                  />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </PageTransition>
             </RoleProvider>
           </SubscriptionProvider>
         </AuthProvider>

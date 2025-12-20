@@ -5,6 +5,7 @@ import { Flame, Crown, Sparkles, Lock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { getFlameStyles } from '@/lib/streakUtils';
 
 const STREAK_REQUIRED = 3;
 
@@ -95,10 +96,19 @@ export function StreakDisplay({ triggerCheck, onCheckComplete }: StreakDisplayPr
 
   return (
     <div className="space-y-2 px-3 py-3 bg-gradient-to-r from-orange-500/5 to-amber-500/5 rounded-lg border border-orange-500/10">
-      <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
-            <Flame className={`w-5 h-5 ${currentStreak > 0 ? 'text-orange-500' : 'text-muted-foreground'}`} />
+            {(() => {
+              const flameStyles = getFlameStyles(currentStreak);
+              return (
+                <Flame 
+                  className={flameStyles.className}
+                  size={flameStyles.size}
+                  style={flameStyles.style}
+                />
+              );
+            })()}
             <span className="font-bold text-lg">{currentStreak}</span>
           </div>
           <span className="text-sm text-muted-foreground">

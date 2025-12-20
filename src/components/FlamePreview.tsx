@@ -5,7 +5,7 @@ const flameLevels = [
   { days: 1, label: "1-2 days", description: "Getting started" },
   { days: 3, label: "3-6 days", description: "Building momentum" },
   { days: 7, label: "7-13 days", description: "Week Warrior 🏅" },
-  { days: 14, label: "14-29 days", description: "Fortnight Fighter ⭐" },
+  { days: 14, label: "14-29 days", description: "Two-Week Titan ⭐" },
   { days: 30, label: "30+ days", description: "Monthly Master 👑" },
 ];
 
@@ -39,7 +39,7 @@ function getFlameStyles(days: number) {
       className: "text-orange-500",
       size: 32,
       style: { 
-        animation: "flame-bounce 0.6s ease-in-out infinite",
+        animation: "flame-bounce 1s ease-in-out infinite",
         filter: "drop-shadow(0 0 8px rgba(249, 115, 22, 0.7))"
       } as React.CSSProperties,
     };
@@ -49,7 +49,7 @@ function getFlameStyles(days: number) {
       className: "text-amber-400",
       size: 36,
       style: { 
-        animation: "flame-intense 0.4s ease-in-out infinite",
+        animation: "flame-intense 1s ease-in-out infinite",
         filter: "drop-shadow(0 0 12px rgba(251, 191, 36, 0.8))"
       } as React.CSSProperties,
     };
@@ -59,7 +59,7 @@ function getFlameStyles(days: number) {
     className: "text-violet-400",
     size: 40,
     style: { 
-      animation: "flame-legendary 0.5s ease-in-out infinite",
+      animation: "flame-legendary 1s ease-in-out infinite",
       filter: "drop-shadow(0 0 16px rgba(167, 139, 250, 0.9))"
     } as React.CSSProperties,
   };

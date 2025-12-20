@@ -135,18 +135,8 @@ serve(async (req) => {
         .eq('user_id', user.id)
         .single();
 
-      // Check if user has an active promo trial
-      const { data: profileData } = await supabaseClient
-        .from('profiles')
-        .select('promo_trial_expires_at')
-        .eq('user_id', user.id)
-        .single();
-
-      const hasActivePromoTrial = profileData?.promo_trial_expires_at && 
-        new Date(profileData.promo_trial_expires_at) > new Date();
-
-      // Don't downgrade developers, owners, or users with active promo trials
-      if (roleData && roleData.tier !== 'developer' && roleData.role !== 'owner' && !hasActivePromoTrial) {
+      // Don't downgrade developers or owners
+      if (roleData && roleData.tier !== 'developer' && roleData.role !== 'owner') {
         const { error: updateRoleError } = await supabaseClient
           .from('user_roles')
           .update({ 
@@ -161,8 +151,6 @@ serve(async (req) => {
         } else {
           logStep("Updated user_roles to free tier");
         }
-      } else if (hasActivePromoTrial) {
-        logStep("User has active promo trial, not downgrading");
       }
     }
 

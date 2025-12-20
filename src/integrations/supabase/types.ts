@@ -110,8 +110,6 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
-          promo_trial_claimed: boolean
-          promo_trial_expires_at: string | null
           updated_at: string
           user_id: string
           voice_bonus_remaining: number
@@ -122,8 +120,6 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
-          promo_trial_claimed?: boolean
-          promo_trial_expires_at?: string | null
           updated_at?: string
           user_id: string
           voice_bonus_remaining?: number
@@ -134,8 +130,6 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
-          promo_trial_claimed?: boolean
-          promo_trial_expires_at?: string | null
           updated_at?: string
           user_id?: string
           voice_bonus_remaining?: number

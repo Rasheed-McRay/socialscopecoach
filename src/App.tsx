@@ -23,7 +23,6 @@ import Progress from "./pages/Progress";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
-import { FlamePreview } from "./components/FlamePreview";
 
 const queryClient = new QueryClient();
 
@@ -100,7 +99,6 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="/flame-preview" element={<FlamePreview />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

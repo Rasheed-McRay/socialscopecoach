@@ -8,9 +8,7 @@ import { HeaderNav } from "@/components/HeaderNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { ProFeatureGate } from "@/components/ProFeatureGate";
-import { StreakBadges } from "@/components/StreakBadges";
-import { useAnalysisStreak } from "@/hooks/useAnalysisStreak";
-import { getFlameStyles } from "@/lib/streakUtils";
+
 interface AnalysisResult {
   socialScore?: number;
   confidenceScore?: number;
@@ -30,7 +28,6 @@ const Progress = () => {
   const { user } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { currentStreak } = useAnalysisStreak();
 
   useEffect(() => {
     if (user) {
@@ -212,19 +209,10 @@ const Progress = () => {
               <Card className="glass">
                 <CardContent className="pt-6 text-center">
                   <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center mx-auto mb-3">
-                    {(() => {
-                      const flameStyles = getFlameStyles(currentStreak);
-                      return (
-                        <Flame 
-                          className={flameStyles.className}
-                          size={Math.min(flameStyles.size, 24)}
-                          style={flameStyles.style}
-                        />
-                      );
-                    })()}
+                    <Flame className="w-6 h-6 text-orange-500" />
                   </div>
-                  <p className="text-sm text-muted-foreground">Current Streak</p>
-                  <p className="text-3xl font-bold text-foreground">{currentStreak}</p>
+                  <p className="text-sm text-muted-foreground">Longest Streak</p>
+                  <p className="text-3xl font-bold text-foreground">{streak}</p>
                   <p className="text-sm text-muted-foreground">Days</p>
                 </CardContent>
               </Card>
@@ -263,11 +251,6 @@ const Progress = () => {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Streak Milestones */}
-            <div className="animate-fade-in" style={{ animationDelay: "0.35s" }}>
-              <StreakBadges currentStreak={currentStreak} />
-            </div>
 
             {/* Biggest Strength */}
             <Card className="glass animate-fade-in" style={{ animationDelay: "0.4s" }}>

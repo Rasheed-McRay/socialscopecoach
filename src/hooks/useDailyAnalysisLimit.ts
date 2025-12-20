@@ -107,7 +107,7 @@ const getDaysUntilReset = (periodEnd: string): number => {
 export const useDailyAnalysisLimit = () => {
   const { user } = useAuth();
   const { effectiveTier, effectiveHasFullAccess, impersonation, loading: roleLoading } = useRole();
-  const { isPro: isProFromSubscription, loading: subscriptionLoading } = useSubscription();
+  const { isPro: isProFromSubscription, loading: subscriptionLoading, isPromoTrialActive } = useSubscription();
   const [monthlyCount, setMonthlyCount] = useState(0);
   const [dailyBonusUsed, setDailyBonusUsed] = useState(false);
   const [usageLoading, setUsageLoading] = useState(true);
@@ -119,8 +119,8 @@ export const useDailyAnalysisLimit = () => {
   // Wait for both contexts to finish loading before determining isPro
   const contextsLoading = roleLoading || subscriptionLoading;
   
-  // Check both user_roles (effectiveTier) AND user_subscriptions (isProFromSubscription)
-  const isPro = effectiveTier === 'premium' || effectiveTier === 'developer' || isProFromSubscription;
+  // Check both user_roles (effectiveTier) AND user_subscriptions (isProFromSubscription) AND promo trial
+  const isPro = effectiveTier === 'premium' || effectiveTier === 'developer' || isProFromSubscription || isPromoTrialActive;
   const hasUnlimitedAccess = effectiveHasFullAccess && !impersonation.active;
   
   // Overall loading state - contexts must load first, then usage data

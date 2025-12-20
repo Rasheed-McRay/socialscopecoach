@@ -108,6 +108,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          current_streak: number
           display_name: string | null
           id: string
           promo_trial_claimed: boolean
@@ -120,6 +121,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          current_streak?: number
           display_name?: string | null
           id?: string
           promo_trial_claimed?: boolean
@@ -132,6 +134,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          current_streak?: number
           display_name?: string | null
           id?: string
           promo_trial_claimed?: boolean

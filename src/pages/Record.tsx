@@ -13,7 +13,7 @@ import { useDailyAnalysisLimit, CreditType } from "@/hooks/useDailyAnalysisLimit
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { UnsavedAnalysisDialog } from "@/components/UnsavedAnalysisDialog";
-
+import { StreakProgressCard } from "@/components/StreakProgressCard";
 
 type AppState = "idle" | "processing" | "complete" | "limit-reached";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
@@ -359,6 +359,13 @@ const Record = () => {
                       🔒 Privacy-first: Your audio is processed and immediately discarded
                     </p>
                   </div>
+
+                  {/* Streak Progress for Basic Users */}
+                  {!isPro && (
+                    <div className="max-w-md mx-auto">
+                      <StreakProgressCard />
+                    </div>
+                  )}
                 </>
               )}
             </div>

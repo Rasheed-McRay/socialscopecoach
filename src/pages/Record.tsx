@@ -33,6 +33,7 @@ const Record = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const usageIncrementedRef = useRef(false);
   const creditUsedRef = useRef<CreditType>('none');
+  const restorationInProgressRef = useRef(false);
   const { 
     canAnalyze, 
     remainingAnalyses, 
@@ -46,23 +47,37 @@ const Record = () => {
   } = useDailyAnalysisLimit();
 
   const handleCancel = useCallback(async () => {
+    // Prevent double-restoration
+    if (restorationInProgressRef.current) return;
+    
     // Abort any in-progress requests
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
     }
 
-    // Restore usage if it was incremented
+    // Restore usage if it was incremented (with lock to prevent race conditions)
     if (usageIncrementedRef.current) {
-      await decrementUsage(creditUsedRef.current);
+      restorationInProgressRef.current = true;
+      const creditToRestore = creditUsedRef.current;
+      
+      // Clear refs FIRST to prevent error handler overlap
       usageIncrementedRef.current = false;
       creditUsedRef.current = 'none';
-    }
+      
+      await decrementUsage(creditToRestore);
+      restorationInProgressRef.current = false;
 
-    toast({
-      title: "Analysis Cancelled",
-      description: "Your analysis credit has been restored.",
-    });
+      toast({
+        title: "Analysis Cancelled",
+        description: "Your analysis credit has been restored.",
+      });
+    } else {
+      toast({
+        title: "Analysis Cancelled",
+        description: "Processing stopped.",
+      });
+    }
 
     setAppState("idle");
     setProgress(0);
@@ -154,11 +169,17 @@ const Record = () => {
       
       console.error("Processing error:", error);
       
-      // Restore usage on error
-      if (usageIncrementedRef.current) {
-        await decrementUsage(creditUsedRef.current);
+      // Restore usage on error (with lock to prevent race conditions)
+      if (usageIncrementedRef.current && !restorationInProgressRef.current) {
+        restorationInProgressRef.current = true;
+        const creditToRestore = creditUsedRef.current;
+        
+        // Clear refs FIRST to prevent double restoration
         usageIncrementedRef.current = false;
         creditUsedRef.current = 'none';
+        
+        await decrementUsage(creditToRestore);
+        restorationInProgressRef.current = false;
       }
       
       toast({
@@ -178,6 +199,7 @@ const Record = () => {
     abortControllerRef.current = null;
     usageIncrementedRef.current = false;
     creditUsedRef.current = 'none';
+    restorationInProgressRef.current = false;
   };
 
   const handleUnsavedNavigate = (path: string) => {

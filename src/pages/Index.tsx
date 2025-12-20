@@ -7,6 +7,7 @@ import { HeaderNav } from "@/components/HeaderNav";
 import { HomeRecorder } from "@/components/HomeRecorder";
 import { DailyScopeAnalysis } from "@/components/DailyScopeAnalysis";
 import { ProFeatureGate } from "@/components/ProFeatureGate";
+import { StreakDisplay } from "@/components/StreakDisplay";
 import { supabase } from "@/integrations/supabase/client";
 import { transcribeAudio } from "@/lib/api";
 import { toast } from "sonner";
@@ -155,6 +156,7 @@ const Index = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [loadingCompletion, setLoadingCompletion] = useState(true);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [checkStreakAfterCompletion, setCheckStreakAfterCompletion] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -270,6 +272,9 @@ const Index = () => {
       // Refresh to show completed state
       await checkTodayCompletion();
       toast.success("Daily Scope completed!");
+      
+      // Trigger streak check for promo trial
+      setCheckStreakAfterCompletion(true);
     } catch (error: any) {
       // Don't show error if cancelled
       if (abortControllerRef.current?.signal.aborted) {
@@ -328,6 +333,14 @@ const Index = () => {
               <h2 className="md:text-2xl font-serif text-foreground text-2xl">
                 Welcome back{getGreetingName() ? `, ${getGreetingName()}` : ""}
               </h2>
+            </section>
+
+            {/* Streak Display */}
+            <section className="animate-fade-in" style={{ animationDelay: "0.05s" }}>
+              <StreakDisplay 
+                triggerCheck={checkStreakAfterCompletion}
+                onCheckComplete={() => setCheckStreakAfterCompletion(false)}
+              />
             </section>
 
             {/* Daily Scope Prompt */}

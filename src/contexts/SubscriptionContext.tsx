@@ -7,6 +7,8 @@ type SubscriptionTier = 'basic' | 'pro';
 interface SubscriptionContextType {
   tier: SubscriptionTier;
   isPro: boolean;
+  isPromoTrialActive: boolean;
+  promoTrialExpiresAt: string | null;
   loading: boolean;
   refreshSubscription: () => Promise<void>;
 }
@@ -28,12 +30,14 @@ interface SubscriptionProviderProps {
 export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) => {
   const { user, loading: authLoading } = useAuth();
   const [tier, setTier] = useState<SubscriptionTier>('basic');
+  const [promoTrialExpiresAt, setPromoTrialExpiresAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
 
   const fetchSubscription = async () => {
     if (!user) {
       setTier('basic');
+      setPromoTrialExpiresAt(null);
       setLoading(false);
       return;
     }
@@ -44,23 +48,37 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
     }
 
     try {
-      const { data, error } = await supabase
+      // Fetch subscription tier
+      const { data: subData, error: subError } = await supabase
         .from('user_subscriptions')
         .select('tier')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) {
-        // If no subscription exists, create one with basic tier (non-blocking)
-        if (error.code === 'PGRST116') {
-          supabase
-            .from('user_subscriptions')
-            .insert({ user_id: user.id, tier: 'basic' })
-            .then(() => {});
-          setTier('basic');
-        }
-      } else if (data) {
-        setTier(data.tier as SubscriptionTier);
+      if (subError) {
+        console.error('Error fetching subscription:', subError);
+      } else if (subData) {
+        setTier(subData.tier as SubscriptionTier);
+      } else {
+        // No subscription exists, create one with basic tier (non-blocking)
+        supabase
+          .from('user_subscriptions')
+          .insert({ user_id: user.id, tier: 'basic' })
+          .then(() => {});
+        setTier('basic');
+      }
+
+      // Fetch promo trial status from profiles
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('promo_trial_expires_at')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('Error fetching profile promo status:', profileError);
+      } else if (profileData) {
+        setPromoTrialExpiresAt(profileData.promo_trial_expires_at);
       }
     } catch (err) {
       console.error('Error fetching subscription:', err);
@@ -77,9 +95,19 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
     fetchSubscription();
   }, [user, authLoading]);
 
+  // Check if promo trial is currently active
+  const isPromoTrialActive = Boolean(
+    promoTrialExpiresAt && new Date(promoTrialExpiresAt) > new Date()
+  );
+
+  // isPro is true if paid subscriber OR has active promo trial
+  const isPro = tier === 'pro' || isPromoTrialActive;
+
   const value: SubscriptionContextType = {
     tier,
-    isPro: tier === 'pro',
+    isPro,
+    isPromoTrialActive,
+    promoTrialExpiresAt,
     loading,
     refreshSubscription: fetchSubscription,
   };

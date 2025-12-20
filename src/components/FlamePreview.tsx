@@ -5,7 +5,7 @@ const flameLevels = [
   { days: 1, label: "1-2 days", description: "Getting started" },
   { days: 3, label: "3-6 days", description: "Building momentum" },
   { days: 7, label: "7-13 days", description: "Week Warrior 🏅" },
-  { days: 14, label: "14-29 days", description: "Fortnight Fighter ⭐" },
+  { days: 14, label: "14-29 days", description: "Two Week Titan ⭐" },
   { days: 30, label: "30+ days", description: "Monthly Master 👑" },
 ];
 
@@ -36,30 +36,30 @@ function getFlameStyles(days: number) {
   }
   if (days <= 13) {
     return {
-      className: "text-orange-500",
+      className: "text-orange-500 animate-pulse",
       size: 32,
       style: { 
-        animation: "flame-bounce 0.6s ease-in-out infinite",
+        animationDuration: "1s",
         filter: "drop-shadow(0 0 8px rgba(249, 115, 22, 0.7))"
       } as React.CSSProperties,
     };
   }
   if (days <= 29) {
     return {
-      className: "text-amber-400",
+      className: "text-amber-400 animate-pulse",
       size: 36,
       style: { 
-        animation: "flame-intense 0.4s ease-in-out infinite",
+        animationDuration: "1s",
         filter: "drop-shadow(0 0 12px rgba(251, 191, 36, 0.8))"
       } as React.CSSProperties,
     };
   }
   // 30+ days - legendary
   return {
-    className: "text-violet-400",
+    className: "text-violet-400 animate-pulse",
     size: 40,
     style: { 
-      animation: "flame-legendary 0.5s ease-in-out infinite",
+      animationDuration: "1s",
       filter: "drop-shadow(0 0 16px rgba(167, 139, 250, 0.9))"
     } as React.CSSProperties,
   };
@@ -68,24 +68,6 @@ function getFlameStyles(days: number) {
 export function FlamePreview() {
   return (
     <div className="p-6 space-y-6">
-      <style>{`
-        @keyframes flame-bounce {
-          0%, 100% { transform: scale(1) translateY(0); }
-          50% { transform: scale(1.1) translateY(-2px); }
-        }
-        @keyframes flame-intense {
-          0%, 100% { transform: scale(1) translateY(0) rotate(-2deg); }
-          25% { transform: scale(1.15) translateY(-3px) rotate(2deg); }
-          50% { transform: scale(1.1) translateY(-1px) rotate(-1deg); }
-          75% { transform: scale(1.2) translateY(-4px) rotate(1deg); }
-        }
-        @keyframes flame-legendary {
-          0%, 100% { transform: scale(1) translateY(0); filter: hue-rotate(0deg); }
-          25% { transform: scale(1.15) translateY(-3px); filter: hue-rotate(10deg); }
-          50% { transform: scale(1.1) translateY(-2px); filter: hue-rotate(-10deg); }
-          75% { transform: scale(1.2) translateY(-4px); filter: hue-rotate(5deg); }
-        }
-      `}</style>
       
       <h2 className="text-xl font-bold text-foreground">Flame Animation Preview</h2>
       <p className="text-sm text-muted-foreground">Preview of flame effects at each streak level</p>

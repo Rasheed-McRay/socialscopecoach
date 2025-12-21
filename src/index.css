@@ -8,6 +8,24 @@
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* Smooth scrolling for native app feel */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fixed header utility */
+.fixed-header {
+  @apply fixed top-0 left-0 right-0 z-40;
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Scrollable content area */
+.scrollable-content {
+  @apply overflow-y-auto;
+  -webkit-overflow-scrolling: touch;
+}
 @tailwind components;
 @tailwind utilities;
 

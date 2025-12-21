@@ -215,9 +215,9 @@ const Record = () => {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10">
-        {/* Header */}
-        <header className="border-b border-border/50 backdrop-blur-sm">
+      <div className="relative z-10 min-h-screen flex flex-col">
+        {/* Fixed Header */}
+        <header className="fixed-header bg-background/95 backdrop-blur-lg border-b border-border/50">
           <div className="container py-4">
             <div className="flex items-center justify-between">
               <Link to="/record" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
@@ -235,8 +235,11 @@ const Record = () => {
           </div>
         </header>
 
-        {/* Main Content */}
-        <main className="container py-12 md:py-16 pb-32">
+        {/* Spacer for fixed header */}
+        <div className="h-[72px] safe-area-top flex-shrink-0" />
+
+        {/* Main Content - scrollable area */}
+        <main className="container py-8 md:py-12 pb-32 flex-1">
           {appState === "idle" && <div className="max-w-2xl mx-auto space-y-8 animate-fade-in">
               <div className="text-center space-y-4">
                 <h1 className="text-4xl md:text-5xl font-serif text-foreground">

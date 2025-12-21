@@ -32,10 +32,10 @@ export function PageTransition({ children }: PageTransitionProps) {
   return (
     <div
       className={cn(
-        "transition-all duration-300 ease-in-out",
+        "transition-opacity duration-300 ease-in-out",
         isVisible 
-          ? "opacity-100 translate-y-0 scale-100" 
-          : "opacity-0 translate-y-3 scale-[0.99]"
+          ? "opacity-100" 
+          : "opacity-0"
       )}
     >
       {displayChildren}

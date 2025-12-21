@@ -7,7 +7,6 @@ import { AnalysisReport, AnalysisResult } from "@/components/AnalysisReport";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
 import { InsightCard } from "@/components/InsightCard";
 import { ScoreDial } from "@/components/ScoreDial";
@@ -246,8 +245,6 @@ const Insights = () => {
             </div>
           </main>
         </div>
-
-        <BottomNav />
       </div>
     );
   }
@@ -403,9 +400,6 @@ const Insights = () => {
           )}
         </main>
       </div>
-
-      {/* Bottom Navigation */}
-      <BottomNav />
 
       {/* Focus Examples Dialog */}
       {mainFocus && (

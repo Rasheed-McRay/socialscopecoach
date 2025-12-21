@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { AudioWaveform, Flame, Trophy, Star, TrendingUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
@@ -271,9 +270,6 @@ const Progress = () => {
             </Card>
           </main>
         </div>
-
-        {/* Bottom Navigation */}
-        <BottomNav />
       </div>
     </ProFeatureGate>
   );

@@ -10,7 +10,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useRole } from "@/contexts/RoleContext";
 import { supabase } from "@/integrations/supabase/client";
-import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
 import { AdminPanel } from "@/components/AdminPanel";
 import { toast } from "sonner";
@@ -400,9 +399,6 @@ const Settings = () => {
           )}
         </main>
       </div>
-
-      {/* Bottom Navigation - Mobile Only */}
-      <BottomNav />
     </div>
   );
 };

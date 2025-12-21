@@ -7,7 +7,6 @@ import { AnalysisReport, AnalysisResult } from "@/components/AnalysisReport";
 import { useToast } from "@/hooks/use-toast";
 import { transcribeAudio, analyzeConversation } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
-import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
 import { useDailyAnalysisLimit, CreditType } from "@/hooks/useDailyAnalysisLimit";
 import { Button } from "@/components/ui/button";
@@ -350,9 +349,6 @@ const Record = () => {
             </div>}
         </main>
       </div>
-
-      {/* Bottom Navigation - Mobile Only */}
-      <BottomNav isRecording={isRecording} isAnalyzing={isProcessing} hasUnsavedAnalysis={hasUnsavedAnalysis} onUnsavedNavigate={handleUnsavedNavigate} />
 
       {/* Unsaved Analysis Warning Dialog */}
       <UnsavedAnalysisDialog open={showUnsavedDialog} onOpenChange={setShowUnsavedDialog} onStay={handleStayOnPage} onLeave={handleLeaveAnyway} />

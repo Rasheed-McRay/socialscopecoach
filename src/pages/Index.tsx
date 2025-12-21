@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AudioWaveform, Mic, CheckCircle2, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
 import { HomeRecorder } from "@/components/HomeRecorder";
 import { DailyScopeAnalysis } from "@/components/DailyScopeAnalysis";
@@ -385,9 +384,6 @@ const Index = () => {
             </section>
           </main>
         </div>
-
-        {/* Bottom Navigation - Mobile Only */}
-        <BottomNav isAnalyzing={isProcessing} />
       </div>
     </ProFeatureGate>
   );

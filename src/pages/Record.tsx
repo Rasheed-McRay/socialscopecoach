@@ -283,6 +283,11 @@ const Record = () => {
 
               {/* Normal recording state */}
               {!limitLoading && canAnalyze && <>
+                  {/* Streak Progress for Basic Users */}
+                  {!isPro && <div className="max-w-md mx-auto mb-6">
+                      <StreakProgressCard />
+                    </div>}
+
                   <div className="text-center space-y-2">
                     <p className="text-sm text-muted-foreground">
                       {isPro ? <>
@@ -307,11 +312,6 @@ const Record = () => {
                       🔒 Privacy-first: Your audio is processed and immediately discarded
                     </p>
                   </div>
-
-                  {/* Streak Progress for Basic Users */}
-                  {!isPro && <div className="max-w-md mx-auto">
-                      <StreakProgressCard />
-                    </div>}
                 </>}
             </div>}
 

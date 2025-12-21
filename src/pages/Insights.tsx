@@ -260,9 +260,9 @@ const Insights = () => {
         <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 pb-24">
-        {/* Header */}
-        <header className="border-b border-primary/10 backdrop-blur-sm safe-area-top">
+      <div className="relative z-10 min-h-screen flex flex-col">
+        {/* Fixed Header */}
+        <header className="fixed-header bg-background/95 backdrop-blur-lg border-b border-primary/10">
           <div className="px-4 py-3">
             <div className="flex items-center justify-between">
               <Link to="/record" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
@@ -281,8 +281,11 @@ const Insights = () => {
           <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         </header>
 
+        {/* Spacer for fixed header */}
+        <div className="h-[60px] safe-area-top flex-shrink-0" />
+
         {/* Main Content */}
-        <main className="px-4 md:px-8 py-4 md:py-8 space-y-6 md:space-y-10 max-w-4xl mx-auto">
+        <main className="px-4 md:px-8 py-4 md:py-8 pb-28 space-y-6 md:space-y-10 max-w-4xl mx-auto flex-1">
           {reports.length === 0 && !loading ? (
             // Empty state for new users
             <section className="space-y-6 animate-fade-in text-center py-12">

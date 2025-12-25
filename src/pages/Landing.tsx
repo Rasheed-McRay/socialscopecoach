@@ -37,12 +37,15 @@ const Landing = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, loading } = useAuth();
   const { isInstalled } = usePwaInstall();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
+    // Don't redirect until auth state is determined
+    if (loading) return;
+    
     // If in PWA mode, auto-redirect based on auth state
     if (isInstalled) {
       if (user) {
@@ -57,7 +60,12 @@ const Landing = () => {
     if (user) {
       navigate('/record');
     }
-  }, [user, isInstalled, navigate]);
+  }, [user, isInstalled, navigate, loading]);
+
+  // In PWA mode, keep splash screen visible while auth is loading
+  if (isInstalled && loading) {
+    return null;
+  }
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();

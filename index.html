@@ -33,6 +33,60 @@
 </head>
 
   <body>
+    <!-- PWA Splash Screen -->
+    <div id="splash-screen">
+      <div class="splash-content">
+        <img src="/favicon.png" alt="SocialScope" class="splash-logo" />
+        <span class="splash-name">SocialScope</span>
+      </div>
+    </div>
+    <style>
+      #splash-screen {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0f172a;
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.3s ease-out;
+      }
+      @media (display-mode: standalone) {
+        #splash-screen {
+          display: flex;
+        }
+      }
+      .splash-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+      .splash-logo {
+        width: 80px;
+        height: 80px;
+        animation: pulse 2s ease-in-out infinite;
+      }
+      .splash-name {
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 24px;
+        font-weight: 600;
+        color: #f97316;
+        letter-spacing: 0.5px;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(0.95); }
+      }
+      #splash-screen.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

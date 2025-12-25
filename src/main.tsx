@@ -8,8 +8,8 @@ const removeSplashScreen = () => {
   if (splash) {
     setTimeout(() => {
       splash.classList.add("fade-out");
-      setTimeout(() => splash.remove(), 300);
-    }, 400);
+      setTimeout(() => splash.remove(), 600);
+    }, 300);
   }
 };
 

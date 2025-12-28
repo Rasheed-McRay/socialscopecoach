@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Download, Check, Smartphone, AudioWaveform, ArrowRight } from 'lucide-react';
 import IOSInstallGuide from '@/components/IOSInstallGuide';
+import { InAppBrowserWarning } from '@/components/InAppBrowserWarning';
 const Install = () => {
   const navigate = useNavigate();
   const {
@@ -54,7 +55,9 @@ const Install = () => {
         </div>
       </div>;
   }
-  return <div className="min-h-screen bg-background overflow-hidden">
+  return <>
+    <InAppBrowserWarning />
+    <div className="min-h-screen bg-background overflow-hidden">
       {/* Background Effects - hidden on mobile for cleaner look */}
       <div className="fixed inset-0 pointer-events-none hidden md:block">
         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse-slow" />
@@ -137,6 +140,7 @@ const Install = () => {
 
         </div>
       </main>
-    </div>;
+    </div>
+  </>;
 };
 export default Install;

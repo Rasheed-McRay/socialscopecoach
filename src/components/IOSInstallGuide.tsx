@@ -1,27 +1,101 @@
 import { useState, useEffect } from 'react';
-import { Share, PlusSquare, ChevronLeft, ChevronRight, RotateCcw, Bookmark, Copy, Printer, Search } from 'lucide-react';
+import { Share, PlusSquare, ChevronLeft, ChevronRight, RotateCcw, Bookmark, Copy, Printer, Search, AlertCircle, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
-const IOSInstallGuide = () => {
+interface IOSInstallGuideProps {
+  compact?: boolean;
+}
+
+const IOSInstallGuide = ({ compact = false }: IOSInstallGuideProps) => {
   const [activeStep, setActiveStep] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
-  // Auto-cycle through steps
+  // Detect if user is in Safari
+  const isIOSSafari = /Safari/.test(navigator.userAgent) && !/CriOS|FxiOS|OPiOS|mercury/.test(navigator.userAgent);
+
+  // Auto-cycle through steps (unless paused)
   useEffect(() => {
+    if (isPaused) return;
     const interval = setInterval(() => {
       setActiveStep((prev) => (prev + 1) % 3);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isPaused]);
 
   const steps = [
-    { label: 'Tap Share', sublabel: 'in Safari toolbar' },
-    { label: 'Add to Home Screen', sublabel: 'scroll down in menu' },
-    { label: 'Tap Add', sublabel: 'top right corner' },
+    { label: 'Tap Share', sublabel: 'in Safari toolbar', icon: Share },
+    { label: 'Add to Home Screen', sublabel: 'scroll down in menu', icon: PlusSquare },
+    { label: 'Tap Add', sublabel: 'top right corner', icon: null },
   ];
 
+  // Show different content if not in Safari
+  if (!isIOSSafari) {
+    return (
+      <div className="space-y-4">
+        <div className="glass rounded-xl p-5 text-center space-y-4">
+          <div className="w-14 h-14 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto">
+            <AlertCircle className="w-7 h-7 text-amber-500" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">Open in Safari</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              To install this app, you need to open it in Safari browser
+            </p>
+          </div>
+          
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 text-left p-3 rounded-lg bg-muted/50">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-primary font-bold text-sm">1</span>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Copy this page's link</p>
+                <p className="text-xs text-muted-foreground">Tap the button below</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 text-left p-3 rounded-lg bg-muted/50">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-primary font-bold text-sm">2</span>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Open Safari</p>
+                <p className="text-xs text-muted-foreground">Paste the link in Safari's address bar</p>
+              </div>
+            </div>
+          </div>
+
+          <Button
+            variant="gradient"
+            className="w-full"
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.origin + '/install');
+            }}
+          >
+            <ExternalLink className="w-4 h-4" />
+            Copy Link
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
+    <div 
+      className="space-y-4"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setIsPaused(false)}
+    >
+      {/* Text instructions header */}
+      <div className="text-center space-y-1">
+        <h3 className="text-sm font-medium text-foreground">Follow these 3 simple steps</h3>
+        <p className="text-xs text-muted-foreground">Takes less than 10 seconds</p>
+      </div>
+
       {/* iPhone Mockup */}
-      <div className="relative mx-auto w-44 h-[320px] md:w-52 md:h-[380px]">
+      <div className={`relative mx-auto ${compact ? 'w-36 h-[280px]' : 'w-44 h-[320px] md:w-52 md:h-[380px]'}`}>
         {/* Phone frame - titanium style */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#2a2a2c] to-[#1a1a1c] rounded-[2.5rem] p-[3px] shadow-xl">
           {/* Inner bezel */}
@@ -234,12 +308,15 @@ const IOSInstallGuide = () => {
         )}
       </div>
 
-      {/* Step indicators */}
+      {/* Step indicators - clickable */}
       <div className="flex justify-center gap-2">
         {steps.map((step, index) => (
           <button
             key={index}
-            onClick={() => setActiveStep(index)}
+            onClick={() => {
+              setActiveStep(index);
+              setIsPaused(true);
+            }}
             className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-300 ${
               activeStep === index 
                 ? 'bg-[#007aff]/10 border border-[#007aff]/30' 
@@ -254,6 +331,13 @@ const IOSInstallGuide = () => {
             <span className="text-[9px] font-medium text-foreground">{step.label}</span>
           </button>
         ))}
+      </div>
+
+      {/* Pro tip */}
+      <div className="text-center">
+        <p className="text-xs text-muted-foreground">
+          <span className="text-primary font-medium">Pro tip:</span> Tap a step to pause the animation
+        </p>
       </div>
     </div>
   );

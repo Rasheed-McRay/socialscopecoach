@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { InAppBrowserWarning } from '@/components/InAppBrowserWarning';
 import { 
   AudioWaveform, 
   ArrowRight, 
@@ -161,6 +162,8 @@ const Landing = () => {
   ];
 
   return (
+    <>
+    <InAppBrowserWarning />
     <div className="min-h-screen bg-background overflow-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 pointer-events-none">
@@ -468,6 +471,7 @@ const Landing = () => {
       </footer>
       </main>
     </div>
+    </>
   );
 };
 

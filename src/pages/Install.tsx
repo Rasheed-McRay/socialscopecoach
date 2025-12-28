@@ -111,7 +111,7 @@ const Install = () => {
                     <span className="text-primary font-bold text-sm">1</span>
                   </div>
                   <div className="flex-1">
-                    
+                    <p className="text-sm font-medium">Tap ⋮ menu in your browser</p>
                   </div>
                 </div>
 

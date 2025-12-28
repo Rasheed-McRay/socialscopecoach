@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Capacitor } from '@capacitor/core';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -14,21 +13,17 @@ declare global {
 
 export const usePwaInstall = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
 
-  // Check if running in Capacitor native mode
-  const isCapacitorNative = Capacitor.isNativePlatform();
-
-  // Check if already installed (standalone mode or native app)
-  const [isPwaInstalled, setIsPwaInstalled] = useState(false);
-
   useEffect(() => {
+    // Check if already installed (standalone mode)
     const checkInstalled = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
         || (window.navigator as any).standalone === true;
-      setIsPwaInstalled(isStandalone);
+      setIsInstalled(isStandalone);
     };
     
     checkInstalled();
@@ -50,7 +45,7 @@ export const usePwaInstall = () => {
 
     // Listen for app installed
     const handleAppInstalled = () => {
-      setIsPwaInstalled(true);
+      setIsInstalled(true);
       setDeferredPrompt(null);
       setIsInstallable(false);
     };
@@ -77,7 +72,7 @@ export const usePwaInstall = () => {
       const { outcome } = await deferredPrompt.userChoice;
       
       if (outcome === 'accepted') {
-        setIsPwaInstalled(true);
+        setIsInstalled(true);
         setDeferredPrompt(null);
         setIsInstallable(false);
         return true;
@@ -89,15 +84,11 @@ export const usePwaInstall = () => {
     }
   }, [deferredPrompt]);
 
-  // isInstalled is true if either Capacitor native OR PWA standalone
-  const isInstalled = isCapacitorNative || isPwaInstalled;
-
   return {
     isInstalled,
     isInstallable,
     isIOS,
     isAndroid,
-    isCapacitorNative,
     promptInstall,
   };
 };

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { 
-  Sparkles, Briefcase, Users, Heart, Mic, 
+  AudioWaveform, Sparkles, Briefcase, Users, Heart, Mic, 
   Building2, Coffee, HeartHandshake, Network, Presentation,
   Sprout, TrendingUp, Award, HelpCircle,
   Calendar, CalendarClock, CalendarCheck,
@@ -210,7 +210,7 @@ const Onboarding = () => {
       <header className="relative z-10 p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
+            <AudioWaveform className="w-5 h-5 text-primary-foreground" />
           </div>
           <span className="text-xl font-serif font-semibold text-foreground">SocialScope</span>
         </div>

@@ -17,8 +17,13 @@ const FEATURES = [
 
 const Paywall = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [isLoading, setIsLoading] = useState<"trial" | "subscribe" | null>(null);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   const handleCheckout = async (withTrial: boolean) => {
     if (!user) return;
@@ -51,12 +56,15 @@ const Paywall = () => {
 
       {/* Header */}
       <header className="relative z-10 p-4 flex items-center justify-center">
-        <div className="flex items-center gap-3">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+        >
           <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
             <AudioWaveform className="w-5 h-5 text-primary-foreground" />
           </div>
           <span className="text-xl font-serif font-semibold text-foreground">SocialScope</span>
-        </div>
+        </button>
       </header>
 
       {/* Main Content */}

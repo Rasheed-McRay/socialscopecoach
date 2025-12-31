@@ -61,7 +61,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     } else if (!loading) {
       setProfileChecked(true);
     }
-  }, [user, loading]);
+  }, [user, loading, location.pathname]);
 
   // Show loading only during initial auth check
   if (loading) {
@@ -76,20 +76,25 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Don't block on profile check - show children while checking
-  // But redirect appropriately once we know the status
+  // Read cache directly on every render for immediate reactivity
+  const cachedOnboarding = sessionStorage.getItem(`onboarding_completed_${user.id}`);
+  const cachedVoice = sessionStorage.getItem(`voice_registered_${user.id}`);
+  
+  const effectiveStatus: ProfileStatus = {
+    onboarding_completed: cachedOnboarding === 'true' || (profileStatus?.onboarding_completed ?? false),
+    voice_registered: cachedVoice === 'true' || (profileStatus?.voice_registered ?? false),
+  };
+
   const exemptPaths = ['/onboarding', '/voice-setup', '/settings'];
   
-  if (profileChecked && profileStatus) {
-    // Check onboarding first
-    if (!profileStatus.onboarding_completed && location.pathname !== '/onboarding') {
-      return <Navigate to="/onboarding" replace />;
-    }
-    
-    // Then check voice registration (but only if onboarding is complete)
-    if (profileStatus.onboarding_completed && !profileStatus.voice_registered && !exemptPaths.includes(location.pathname)) {
-      return <Navigate to="/voice-setup" replace />;
-    }
+  // Check onboarding first
+  if (!effectiveStatus.onboarding_completed && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
+  
+  // Then check voice registration (but only if onboarding is complete)
+  if (effectiveStatus.onboarding_completed && !effectiveStatus.voice_registered && !exemptPaths.includes(location.pathname)) {
+    return <Navigate to="/voice-setup" replace />;
   }
 
   return <>{children}</>;

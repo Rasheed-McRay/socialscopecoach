@@ -201,9 +201,17 @@ export const VoiceRegistration = ({
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     const requiredSamplesCount = samples.filter(s => s.sample_number <= REQUIRED_SAMPLES).length;
     if (requiredSamplesCount >= REQUIRED_SAMPLES && onComplete) {
+      // Ensure voice_registered is set in DB and cache before navigating
+      if (user) {
+        await supabase
+          .from("profiles")
+          .update({ voice_registered: true })
+          .eq("user_id", user.id);
+        sessionStorage.setItem(`voice_registered_${user.id}`, 'true');
+      }
       onComplete();
     }
   };

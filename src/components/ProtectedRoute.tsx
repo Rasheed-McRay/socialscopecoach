@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useRole } from '@/contexts/RoleContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 
@@ -17,6 +18,7 @@ interface ProfileStatus {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
   const { isPro, loading: subscriptionLoading } = useSubscription();
+  const { isOwner, isDeveloper, loading: roleLoading } = useRole();
   const location = useLocation();
   const [profileChecked, setProfileChecked] = useState(false);
   const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(null);
@@ -66,7 +68,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }, [user, loading, location.pathname]);
 
   // Show loading during auth check OR while fetching profile status
-  if (loading || !profileChecked || subscriptionLoading) {
+  if (loading || !profileChecked || subscriptionLoading || roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -103,10 +105,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   // Check subscription (but only after onboarding and voice setup are complete)
+  // Owners and developers bypass the paywall
   if (
     effectiveStatus.onboarding_completed && 
     effectiveStatus.voice_registered && 
     !isPro && 
+    !isOwner &&
+    !isDeveloper &&
     !noSubscriptionPaths.includes(location.pathname)
   ) {
     return <Navigate to="/paywall" replace />;

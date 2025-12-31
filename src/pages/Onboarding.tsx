@@ -214,7 +214,7 @@ const Onboarding = () => {
           </div>
           <span className="text-xl font-serif font-semibold text-foreground">SocialScope</span>
         </div>
-        <div className="text-muted-foreground text-sm">
+        <div className="text-muted-foreground text-xs sm:text-sm hidden sm:block">
           Let's personalize your experience
         </div>
       </header>

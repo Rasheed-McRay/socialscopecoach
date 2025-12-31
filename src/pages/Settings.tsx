@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard } from "lucide-react";
+import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard, Settings2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +13,36 @@ import { supabase } from "@/integrations/supabase/client";
 import { HeaderNav } from "@/components/HeaderNav";
 import { AdminPanel } from "@/components/AdminPanel";
 import { toast } from "sonner";
+
+const GOAL_LABELS: Record<string, string> = {
+  confidence: "Become more confident",
+  professional: "Improve professionally",
+  social: "Better social skills",
+  anxiety: "Reduce social anxiety",
+  listening: "Become a better listener",
+};
+
+const CONTEXT_LABELS: Record<string, string> = {
+  work: "Work & Meetings",
+  social: "Casual Conversations",
+  dating: "Dating & Romance",
+  networking: "Networking Events",
+  public_speaking: "Public Speaking",
+};
+
+const SKILL_LABELS: Record<string, string> = {
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+  unsure: "Not sure",
+};
+
+const FREQUENCY_LABELS: Record<string, string> = {
+  daily: "Daily",
+  weekly: "Few times a week",
+  occasional: "When I have conversations",
+};
+
 const Settings = () => {
   const { user, signOut } = useAuth();
   const { tier, isPro, refreshSubscription } = useSubscription();
@@ -26,6 +56,13 @@ const Settings = () => {
   const [isSavingName, setIsSavingName] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isManagingSubscription, setIsManagingSubscription] = useState(false);
+  const [preferences, setPreferences] = useState<{
+    primary_goal: string | null;
+    improvement_context: string | null;
+    skill_level: string | null;
+    practice_frequency: string | null;
+  } | null>(null);
+  const [isResettingOnboarding, setIsResettingOnboarding] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -66,13 +103,19 @@ const Settings = () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("voice_registered, display_name")
+        .select("voice_registered, display_name, primary_goal, improvement_context, skill_level, practice_frequency")
         .eq("user_id", user.id)
         .single();
 
       if (error) throw error;
       setVoiceRegistered(data?.voice_registered || false);
       setDisplayName(data?.display_name || "");
+      setPreferences({
+        primary_goal: data?.primary_goal || null,
+        improvement_context: data?.improvement_context || null,
+        skill_level: data?.skill_level || null,
+        practice_frequency: data?.practice_frequency || null,
+      });
     } catch (error) {
       console.error("Error fetching profile:", error);
     } finally {
@@ -103,6 +146,38 @@ const Settings = () => {
   const handleVoiceComplete = () => {
     setShowVoiceSetup(false);
     setVoiceRegistered(true);
+  };
+
+  const handleRedoOnboarding = async () => {
+    if (!user) return;
+    
+    setIsResettingOnboarding(true);
+    try {
+      // Reset onboarding status in database
+      const { error } = await supabase
+        .from("profiles")
+        .update({ 
+          onboarding_completed: false,
+          primary_goal: null,
+          improvement_context: null,
+          skill_level: null,
+          practice_frequency: null,
+        })
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      // Clear session cache
+      sessionStorage.setItem(`onboarding_completed_${user.id}`, 'false');
+      
+      // Navigate to onboarding
+      navigate("/onboarding");
+    } catch (error) {
+      console.error("Error resetting onboarding:", error);
+      toast.error("Failed to reset preferences");
+    } finally {
+      setIsResettingOnboarding(false);
+    }
   };
 
   const handleUpgradeToPro = async () => {
@@ -350,6 +425,65 @@ const Settings = () => {
                       </Button>
                     </>
                   )}
+                </CardContent>
+              </Card>
+
+              {/* Preferences Section */}
+              <Card className="glass">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings2 className="w-5 h-5" />
+                    Preferences
+                  </CardTitle>
+                  <CardDescription>Your personalization settings from onboarding</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {preferences?.primary_goal || preferences?.improvement_context || preferences?.skill_level || preferences?.practice_frequency ? (
+                    <>
+                      <div className="grid gap-3">
+                        {preferences.primary_goal && (
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Goal</span>
+                            <span className="font-medium">{GOAL_LABELS[preferences.primary_goal] || preferences.primary_goal}</span>
+                          </div>
+                        )}
+                        {preferences.improvement_context && (
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Focus Area</span>
+                            <span className="font-medium">{CONTEXT_LABELS[preferences.improvement_context] || preferences.improvement_context}</span>
+                          </div>
+                        )}
+                        {preferences.skill_level && (
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Skill Level</span>
+                            <span className="font-medium">{SKILL_LABELS[preferences.skill_level] || preferences.skill_level}</span>
+                          </div>
+                        )}
+                        {preferences.practice_frequency && (
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Practice Frequency</span>
+                            <span className="font-medium">{FREQUENCY_LABELS[preferences.practice_frequency] || preferences.practice_frequency}</span>
+                          </div>
+                        )}
+                      </div>
+                      <Separator />
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No preferences set yet.</p>
+                  )}
+                  <Button
+                    variant="outline"
+                    onClick={handleRedoOnboarding}
+                    disabled={isResettingOnboarding}
+                    className="w-full gap-2"
+                  >
+                    {isResettingOnboarding ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <RotateCcw className="w-4 h-4" />
+                    )}
+                    Redo Onboarding
+                  </Button>
                 </CardContent>
               </Card>
 

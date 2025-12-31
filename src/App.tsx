@@ -15,6 +15,7 @@ import Install from "./pages/Install";
 import Index from "./pages/Index";
 import Record from "./pages/Record";
 import Auth from "./pages/Auth";
+import Onboarding from "./pages/Onboarding";
 import VoiceSetup from "./pages/VoiceSetup";
 import Settings from "./pages/Settings";
 import ResetPassword from "./pages/ResetPassword";
@@ -50,6 +51,14 @@ const App = () => (
                       element={
                         <ProtectedRoute>
                           <CheckoutSuccess />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/onboarding"
+                      element={
+                        <ProtectedRoute>
+                          <Onboarding />
                         </ProtectedRoute>
                       }
                     />

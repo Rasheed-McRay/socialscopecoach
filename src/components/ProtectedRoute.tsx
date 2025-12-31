@@ -8,47 +8,62 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
+interface ProfileStatus {
+  onboarding_completed: boolean;
+  voice_registered: boolean;
+}
+
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const [voiceChecked, setVoiceChecked] = useState(false);
-  const [voiceRegistered, setVoiceRegistered] = useState<boolean | null>(null);
+  const [profileChecked, setProfileChecked] = useState(false);
+  const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(null);
 
   useEffect(() => {
-    const checkVoiceRegistration = async () => {
+    const checkProfileStatus = async () => {
       if (!user) {
-        setVoiceChecked(true);
+        setProfileChecked(true);
         return;
       }
 
       // Check cache first
-      const cached = sessionStorage.getItem(`voice_registered_${user.id}`);
-      if (cached !== null) {
-        setVoiceRegistered(cached === 'true');
-        setVoiceChecked(true);
+      const cachedOnboarding = sessionStorage.getItem(`onboarding_completed_${user.id}`);
+      const cachedVoice = sessionStorage.getItem(`voice_registered_${user.id}`);
+      
+      if (cachedOnboarding !== null && cachedVoice !== null) {
+        setProfileStatus({
+          onboarding_completed: cachedOnboarding === 'true',
+          voice_registered: cachedVoice === 'true',
+        });
+        setProfileChecked(true);
         return;
       }
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('voice_registered')
+        .select('onboarding_completed, voice_registered')
         .eq('user_id', user.id)
         .single();
 
-      const isRegistered = profile?.voice_registered ?? false;
-      setVoiceRegistered(isRegistered);
-      sessionStorage.setItem(`voice_registered_${user.id}`, String(isRegistered));
-      setVoiceChecked(true);
+      const status = {
+        onboarding_completed: profile?.onboarding_completed ?? false,
+        voice_registered: profile?.voice_registered ?? false,
+      };
+      
+      setProfileStatus(status);
+      sessionStorage.setItem(`onboarding_completed_${user.id}`, String(status.onboarding_completed));
+      sessionStorage.setItem(`voice_registered_${user.id}`, String(status.voice_registered));
+      setProfileChecked(true);
     };
 
     if (user && !loading) {
-      checkVoiceRegistration();
+      checkProfileStatus();
     } else if (!loading) {
-      setVoiceChecked(true);
+      setProfileChecked(true);
     }
   }, [user, loading]);
 
-  // Show loading only during initial auth check, not voice check
+  // Show loading only during initial auth check
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -61,11 +76,20 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Don't block on voice check - show children while checking
-  // Redirect to voice setup if not registered and not already on voice-setup or settings page
-  const exemptPaths = ['/voice-setup', '/settings'];
-  if (voiceChecked && voiceRegistered === false && !exemptPaths.includes(location.pathname)) {
-    return <Navigate to="/voice-setup" replace />;
+  // Don't block on profile check - show children while checking
+  // But redirect appropriately once we know the status
+  const exemptPaths = ['/onboarding', '/voice-setup', '/settings'];
+  
+  if (profileChecked && profileStatus) {
+    // Check onboarding first
+    if (!profileStatus.onboarding_completed && location.pathname !== '/onboarding') {
+      return <Navigate to="/onboarding" replace />;
+    }
+    
+    // Then check voice registration (but only if onboarding is complete)
+    if (profileStatus.onboarding_completed && !profileStatus.voice_registered && !exemptPaths.includes(location.pathname)) {
+      return <Navigate to="/voice-setup" replace />;
+    }
   }
 
   return <>{children}</>;

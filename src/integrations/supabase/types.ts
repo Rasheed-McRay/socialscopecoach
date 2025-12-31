@@ -111,8 +111,13 @@ export type Database = {
           current_streak: number
           display_name: string | null
           id: string
+          improvement_context: string | null
+          onboarding_completed: boolean
+          practice_frequency: string | null
+          primary_goal: string | null
           promo_trial_claimed: boolean
           promo_trial_expires_at: string | null
+          skill_level: string | null
           updated_at: string
           user_id: string
           voice_bonus_remaining: number
@@ -124,8 +129,13 @@ export type Database = {
           current_streak?: number
           display_name?: string | null
           id?: string
+          improvement_context?: string | null
+          onboarding_completed?: boolean
+          practice_frequency?: string | null
+          primary_goal?: string | null
           promo_trial_claimed?: boolean
           promo_trial_expires_at?: string | null
+          skill_level?: string | null
           updated_at?: string
           user_id: string
           voice_bonus_remaining?: number
@@ -137,8 +147,13 @@ export type Database = {
           current_streak?: number
           display_name?: string | null
           id?: string
+          improvement_context?: string | null
+          onboarding_completed?: boolean
+          practice_frequency?: string | null
+          primary_goal?: string | null
           promo_trial_claimed?: boolean
           promo_trial_expires_at?: string | null
+          skill_level?: string | null
           updated_at?: string
           user_id?: string
           voice_bonus_remaining?: number

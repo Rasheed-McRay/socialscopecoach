@@ -74,26 +74,6 @@ const Onboarding = () => {
     }
   };
 
-  const handleSkip = async () => {
-    setSaving(true);
-    try {
-      await supabase
-        .from("profiles")
-        .update({ onboarding_completed: true })
-        .eq("user_id", user?.id);
-      
-      sessionStorage.setItem(`onboarding_completed_${user?.id}`, 'true');
-      navigate("/voice-setup", { replace: true });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to skip onboarding. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleComplete = async () => {
     setSaving(true);
@@ -234,15 +214,9 @@ const Onboarding = () => {
           </div>
           <span className="font-semibold text-foreground">SocialScope</span>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleSkip}
-          disabled={saving}
-          className="text-muted-foreground"
-        >
-          Skip
-        </Button>
+        <div className="text-muted-foreground text-sm">
+          Let's personalize your experience
+        </div>
       </header>
 
       {/* Progress indicator */}

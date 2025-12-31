@@ -17,17 +17,6 @@ const VoiceSetup = () => {
     navigate("/record");
   };
 
-  const handleSkip = async () => {
-    // Mark as skipped so user isn't redirected back
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({ voice_registered: true })
-        .eq("user_id", user.id);
-      sessionStorage.setItem(`voice_registered_${user.id}`, 'true');
-    }
-    navigate("/record");
-  };
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
@@ -58,8 +47,7 @@ const VoiceSetup = () => {
       <div className="flex-1 flex items-center justify-center px-4 py-8 pb-28 md:pb-8 relative z-10">
         <VoiceRegistration
           onComplete={handleComplete}
-          onSkip={handleSkip}
-          showSkip={true}
+          showSkip={false}
           isOnboarding={true}
         />
       </div>

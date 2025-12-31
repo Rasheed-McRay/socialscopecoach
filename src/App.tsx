@@ -17,6 +17,7 @@ import Record from "./pages/Record";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import VoiceSetup from "./pages/VoiceSetup";
+import Paywall from "./pages/Paywall";
 import Settings from "./pages/Settings";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -67,6 +68,14 @@ const App = () => (
                       element={
                         <ProtectedRoute>
                           <VoiceSetup />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/paywall"
+                      element={
+                        <ProtectedRoute>
+                          <Paywall />
                         </ProtectedRoute>
                       }
                     />

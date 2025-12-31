@@ -55,17 +55,30 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Check for active OR trialing subscriptions
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      status: "active",
-      limit: 1,
+      limit: 10,
     });
 
-    const hasActiveSub = subscriptions.data.length > 0;
+    // Filter for active or trialing subscriptions
+    const activeSubscriptions = subscriptions.data.filter(
+      (sub: Stripe.Subscription) => sub.status === 'active' || sub.status === 'trialing'
+    );
+
+    const hasActiveSub = activeSubscriptions.length > 0;
     let subscriptionEnd = null;
+    let isTrialing = false;
+    let trialEnd = null;
 
     if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
+      const subscription = activeSubscriptions[0];
+      isTrialing = subscription.status === 'trialing';
+      
+      if (subscription.trial_end) {
+        trialEnd = new Date(subscription.trial_end * 1000).toISOString();
+      }
+      
       if (subscription.current_period_end) {
         subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       }
@@ -77,6 +90,9 @@ serve(async (req) => {
       
       logStep("Active subscription found", { 
         subscriptionId: subscription.id, 
+        status: subscription.status,
+        isTrialing,
+        trialEnd,
         startDate: subscriptionStartDate,
         endDate: subscriptionEnd 
       });
@@ -181,7 +197,9 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       tier: hasActiveSub ? "pro" : "basic",
-      subscription_end: subscriptionEnd
+      subscription_end: subscriptionEnd,
+      is_trialing: isTrialing,
+      trial_end: trialEnd,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

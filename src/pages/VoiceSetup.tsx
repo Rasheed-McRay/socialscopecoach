@@ -14,7 +14,8 @@ const VoiceSetup = () => {
     if (user) {
       sessionStorage.setItem(`voice_registered_${user.id}`, 'true');
     }
-    navigate("/record");
+    // Navigate to paywall after voice setup - ProtectedRoute will redirect to /record if already subscribed
+    navigate("/paywall");
   };
 
 

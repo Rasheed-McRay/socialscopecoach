@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 
@@ -15,6 +16,7 @@ interface ProfileStatus {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
+  const { isPro, loading: subscriptionLoading } = useSubscription();
   const location = useLocation();
   const [profileChecked, setProfileChecked] = useState(false);
   const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(null);
@@ -64,7 +66,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }, [user, loading, location.pathname]);
 
   // Show loading during auth check OR while fetching profile status
-  if (loading || !profileChecked) {
+  if (loading || !profileChecked || subscriptionLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -85,7 +87,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     voice_registered: cachedVoice === 'true' || (profileStatus?.voice_registered ?? false),
   };
 
-  const exemptPaths = ['/onboarding', '/voice-setup', '/settings'];
+  // Paths that don't require subscription
+  const noSubscriptionPaths = ['/onboarding', '/voice-setup', '/paywall', '/checkout-success', '/settings'];
+  // Paths that don't require voice registration
+  const exemptPaths = ['/onboarding', '/voice-setup', '/paywall', '/checkout-success', '/settings'];
   
   // Check onboarding first
   if (!effectiveStatus.onboarding_completed && location.pathname !== '/onboarding') {
@@ -95,6 +100,16 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   // Then check voice registration (but only if onboarding is complete)
   if (effectiveStatus.onboarding_completed && !effectiveStatus.voice_registered && !exemptPaths.includes(location.pathname)) {
     return <Navigate to="/voice-setup" replace />;
+  }
+
+  // Check subscription (but only after onboarding and voice setup are complete)
+  if (
+    effectiveStatus.onboarding_completed && 
+    effectiveStatus.voice_registered && 
+    !isPro && 
+    !noSubscriptionPaths.includes(location.pathname)
+  ) {
+    return <Navigate to="/paywall" replace />;
   }
 
   return <>{children}</>;

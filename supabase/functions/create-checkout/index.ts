@@ -26,6 +26,16 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
+    // Parse request body for trial option
+    let withTrial = false;
+    try {
+      const body = await req.json();
+      withTrial = body?.withTrial === true;
+    } catch {
+      // No body or invalid JSON, default to no trial
+    }
+    logStep("Trial option", { withTrial });
+
     const authHeader = req.headers.get("Authorization")!;
     const token = authHeader.replace("Bearer ", "");
     const { data } = await supabaseClient.auth.getUser(token);
@@ -46,10 +56,22 @@ serve(async (req) => {
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
       logStep("Found existing customer", { customerId });
+      
+      // Check if customer has had a trial before
+      const subscriptions = await stripe.subscriptions.list({
+        customer: customerId,
+        limit: 100,
+      });
+      
+      const hasHadTrial = subscriptions.data.some((sub: Stripe.Subscription) => sub.trial_start !== null);
+      if (hasHadTrial && withTrial) {
+        logStep("Customer already had a trial, disabling trial");
+        withTrial = false;
+      }
     }
 
     // Create checkout session for Pro subscription
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
@@ -60,10 +82,20 @@ serve(async (req) => {
       ],
       mode: "subscription",
       success_url: `${req.headers.get("origin")}/checkout-success`,
-      cancel_url: `${req.headers.get("origin")}/settings?checkout=canceled`,
-    });
+      cancel_url: `${req.headers.get("origin")}/paywall`,
+    };
 
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    // Add trial period if requested
+    if (withTrial) {
+      sessionParams.subscription_data = {
+        trial_period_days: 7,
+      };
+      logStep("Adding 7-day trial to subscription");
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
+
+    logStep("Checkout session created", { sessionId: session.id, url: session.url, withTrial });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

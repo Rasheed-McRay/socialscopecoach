@@ -63,8 +63,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     }
   }, [user, loading, location.pathname]);
 
-  // Show loading only during initial auth check
-  if (loading) {
+  // Show loading during auth check OR while fetching profile status
+  if (loading || !profileChecked) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

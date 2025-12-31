@@ -208,11 +208,11 @@ const Onboarding = () => {
 
       {/* Header */}
       <header className="relative z-10 p-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-            <Sparkles className="h-4 w-4 text-primary-foreground" />
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
+            <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-semibold text-foreground">SocialScope</span>
+          <span className="text-xl font-serif font-semibold text-foreground">SocialScope</span>
         </div>
         <div className="text-muted-foreground text-sm">
           Let's personalize your experience

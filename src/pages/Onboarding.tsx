@@ -82,7 +82,7 @@ const Onboarding = () => {
         .update({ onboarding_completed: true })
         .eq("user_id", user?.id);
       
-      sessionStorage.removeItem(`onboarding_completed_${user?.id}`);
+      sessionStorage.setItem(`onboarding_completed_${user?.id}`, 'true');
       navigate("/voice-setup", { replace: true });
     } catch (error) {
       toast({
@@ -108,7 +108,7 @@ const Onboarding = () => {
 
       if (error) throw error;
 
-      sessionStorage.removeItem(`onboarding_completed_${user?.id}`);
+      sessionStorage.setItem(`onboarding_completed_${user?.id}`, 'true');
       navigate("/voice-setup", { replace: true });
     } catch (error) {
       toast({

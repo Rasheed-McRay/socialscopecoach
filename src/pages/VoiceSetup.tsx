@@ -11,6 +11,9 @@ const VoiceSetup = () => {
   const { user } = useAuth();
 
   const handleComplete = () => {
+    if (user) {
+      sessionStorage.setItem(`voice_registered_${user.id}`, 'true');
+    }
     navigate("/record");
   };
 
@@ -21,6 +24,7 @@ const VoiceSetup = () => {
         .from("profiles")
         .update({ voice_registered: true })
         .eq("user_id", user.id);
+      sessionStorage.setItem(`voice_registered_${user.id}`, 'true');
     }
     navigate("/record");
   };

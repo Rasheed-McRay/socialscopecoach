@@ -149,8 +149,7 @@ export const VoiceRegistration = ({
         const isNowComplete = newRequiredCount >= REQUIRED_SAMPLES;
         
         if (wasNotComplete && isNowComplete) {
-          // Only grant bonus if user hasn't received it before (voice_registered = false)
-          // This prevents abuse by re-recording voice samples
+          // Mark voice as registered
           supabase
             .from("profiles")
             .select("voice_registered")
@@ -158,22 +157,17 @@ export const VoiceRegistration = ({
             .single()
             .then(({ data: profile }) => {
               if (profile && !profile.voice_registered) {
-                // First-time completion - grant bonus
                 supabase
                   .from("profiles")
-                  .update({ 
-                    voice_registered: true,
-                    voice_bonus_remaining: 5 
-                  })
+                  .update({ voice_registered: true })
                   .eq("user_id", user.id)
                   .then(() => {
                     toast({
-                      title: "🎉 Voice profile complete!",
-                      description: "You've earned 5 free analyses as a reward!",
+                      title: "Voice profile complete!",
+                      description: "Your voice samples have been saved.",
                     });
                   });
               } else {
-                // Already registered before - just show completion toast
                 toast({
                   title: "Voice profile updated",
                   description: "Your voice samples have been re-recorded.",
@@ -241,10 +235,6 @@ export const VoiceRegistration = ({
           Record {REQUIRED_SAMPLES} voice samples so we can identify your voice in conversations
           and provide personalized analysis.
         </CardDescription>
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-          <span className="text-lg">🎁</span>
-          Complete all {REQUIRED_SAMPLES} samples to unlock 5 free analyses!
-        </div>
       </CardHeader>
 
       <CardContent className="space-y-6">

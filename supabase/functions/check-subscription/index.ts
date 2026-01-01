@@ -131,30 +131,6 @@ serve(async (req) => {
     } else {
       logStep("No active subscription found");
       
-      // Check if user has an active promo trial before downgrading
-      const { data: profileData } = await supabaseClient
-        .from('profiles')
-        .select('promo_trial_expires_at')
-        .eq('user_id', user.id)
-        .single();
-
-      const hasActivePromoTrial = profileData?.promo_trial_expires_at && 
-        new Date(profileData.promo_trial_expires_at) > new Date();
-
-      if (hasActivePromoTrial) {
-        logStep("User has active promo trial, not downgrading");
-        // Don't downgrade - user has promo trial
-        return new Response(JSON.stringify({
-          subscribed: false,
-          tier: "pro",
-          promo_trial: true,
-          promo_trial_expires: profileData.promo_trial_expires_at,
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        });
-      }
-      
       // Update user_subscriptions table to basic
       const { error: updateSubError } = await supabaseClient
         .from('user_subscriptions')

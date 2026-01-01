@@ -12,7 +12,7 @@ import { useDailyAnalysisLimit, CreditType } from "@/hooks/useDailyAnalysisLimit
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { UnsavedAnalysisDialog } from "@/components/UnsavedAnalysisDialog";
-import { StreakProgressCard } from "@/components/StreakProgressCard";
+
 type AppState = "idle" | "processing" | "complete" | "limit-reached";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
 const Record = () => {
@@ -43,8 +43,7 @@ const Record = () => {
     incrementUsage,
     decrementUsage,
     isPro,
-    resetInfo,
-    voiceBonusRemaining
+    resetInfo
   } = useDailyAnalysisLimit();
   const handleCancel = useCallback(async () => {
     // Prevent double-restoration
@@ -285,10 +284,6 @@ const Record = () => {
 
               {/* Normal recording state */}
               {!limitLoading && canAnalyze && <>
-                  {/* Streak Progress for Basic Users */}
-                  {!isPro && <div className="max-w-md mx-auto mb-6">
-                      <StreakProgressCard />
-                    </div>}
 
                   <div className="text-center space-y-2">
                     <p className="text-sm text-muted-foreground">
@@ -301,10 +296,6 @@ const Record = () => {
                           {remainingAnalyses} of {limit} free {limit === 1 ? 'analysis' : 'analyses'} remaining today
                         </>}
                     </p>
-                    {voiceBonusRemaining > 0 && <p className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                        <span>🎁</span>
-                        {voiceBonusRemaining} voice bonus {voiceBonusRemaining === 1 ? 'analysis' : 'analyses'}
-                      </p>}
                   </div>
 
                   <AudioUploader onAudioReady={handleAudioReady} isProcessing={isProcessing} onRecordingStateChange={setIsRecording} />

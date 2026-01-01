@@ -7,7 +7,7 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 const FREE_DAILY_LIMIT = 1;
 const PRO_MONTHLY_LIMIT = 30;
 
-export type CreditType = 'voice_bonus' | 'daily_bonus' | 'monthly' | 'none';
+export type CreditType = 'daily_bonus' | 'monthly' | 'none';
 
 /**
  * Get today's date in the user's local timezone as YYYY-MM-DD
@@ -107,34 +107,33 @@ const getDaysUntilReset = (periodEnd: string): number => {
 export const useDailyAnalysisLimit = () => {
   const { user } = useAuth();
   const { effectiveTier, effectiveHasFullAccess, impersonation, loading: roleLoading } = useRole();
-  const { isPro: isProFromSubscription, loading: subscriptionLoading, isPromoTrialActive } = useSubscription();
+  const { isPro: isProFromSubscription, loading: subscriptionLoading } = useSubscription();
   const [monthlyCount, setMonthlyCount] = useState(0);
   const [dailyBonusUsed, setDailyBonusUsed] = useState(false);
   const [usageLoading, setUsageLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(getTodayLocalDate());
   const [billingPeriod, setBillingPeriod] = useState<{ start: string; end: string } | null>(null);
   const [subscriptionStartedAt, setSubscriptionStartedAt] = useState<Date | null>(null);
-  const [voiceBonusRemaining, setVoiceBonusRemaining] = useState(0);
 
   // Wait for both contexts to finish loading before determining isPro
   const contextsLoading = roleLoading || subscriptionLoading;
   
-  // Check both user_roles (effectiveTier) AND user_subscriptions (isProFromSubscription) AND promo trial
-  const isPro = effectiveTier === 'premium' || effectiveTier === 'developer' || isProFromSubscription || isPromoTrialActive;
+  // Check both user_roles (effectiveTier) AND user_subscriptions (isProFromSubscription)
+  const isPro = effectiveTier === 'premium' || effectiveTier === 'developer' || isProFromSubscription;
   const hasUnlimitedAccess = effectiveHasFullAccess && !impersonation.active;
   
   // Overall loading state - contexts must load first, then usage data
   const loading = contextsLoading || usageLoading;
   
-  // Pro users: 30 monthly + 1 daily bonus + voice bonus
-  // Free users: 1 daily + voice bonus
+  // Pro users: 30 monthly + 1 daily bonus
+  // Free users: 1 daily
   const monthlyRemaining = isPro ? Math.max(0, PRO_MONTHLY_LIMIT - monthlyCount) : 0;
   const dailyBonusRemaining = isPro && !dailyBonusUsed ? 1 : 0;
   const freeRemaining = !isPro && !dailyBonusUsed ? 1 : 0;
   
   const totalRemaining = isPro 
-    ? monthlyRemaining + dailyBonusRemaining + voiceBonusRemaining
-    : freeRemaining + voiceBonusRemaining;
+    ? monthlyRemaining + dailyBonusRemaining
+    : freeRemaining;
   
   const canAnalyze = hasUnlimitedAccess || totalRemaining > 0;
 
@@ -181,19 +180,6 @@ export const useDailyAnalysisLimit = () => {
       const todayDate = getTodayLocalDate();
       setCurrentDate(todayDate);
 
-      // Fetch voice bonus remaining from profile
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('voice_bonus_remaining')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
-      } else {
-        setVoiceBonusRemaining(profileData?.voice_bonus_remaining ?? 0);
-      }
-
       // Always fetch daily usage (for bonus tracking)
       const { data: dailyData, error: dailyError } = await supabase
         .from('daily_analysis_usage')
@@ -237,7 +223,6 @@ export const useDailyAnalysisLimit = () => {
       console.error('Error fetching usage:', err);
       setMonthlyCount(0);
       setDailyBonusUsed(false);
-      setVoiceBonusRemaining(0);
     } finally {
       setUsageLoading(false);
     }
@@ -256,27 +241,6 @@ export const useDailyAnalysisLimit = () => {
 
     try {
       const todayDate = getTodayLocalDate();
-
-      if (creditUsed === 'voice_bonus') {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('voice_bonus_remaining')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (profileData) {
-          const { error } = await supabase
-            .from('profiles')
-            .update({ voice_bonus_remaining: profileData.voice_bonus_remaining + 1 })
-            .eq('user_id', user.id);
-
-          if (!error) {
-            setVoiceBonusRemaining(prev => prev + 1);
-            return true;
-          }
-        }
-        return false;
-      }
 
       if (creditUsed === 'daily_bonus') {
         const { data: existing } = await supabase
@@ -341,22 +305,6 @@ export const useDailyAnalysisLimit = () => {
 
     try {
       const todayDate = getTodayLocalDate();
-
-      // Use voice bonus first (for both free and pro users)
-      if (voiceBonusRemaining > 0) {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ voice_bonus_remaining: voiceBonusRemaining - 1 })
-          .eq('user_id', user.id);
-
-        if (error) {
-          console.error('Error decrementing voice bonus:', error);
-          return { success: false, creditUsed: 'none' };
-        }
-
-        setVoiceBonusRemaining(prev => prev - 1);
-        return { success: true, creditUsed: 'voice_bonus' };
-      }
 
       if (isPro) {
         // Pro user logic: use daily bonus first, then monthly
@@ -526,7 +474,7 @@ export const useDailyAnalysisLimit = () => {
       console.error('Error incrementing usage:', err);
       return { success: false, creditUsed: 'none' };
     }
-  }, [user, isPro, hasUnlimitedAccess, dailyBonusUsed, monthlyRemaining, voiceBonusRemaining, subscriptionStartedAt, fetchSubscriptionDate]);
+  }, [user, isPro, hasUnlimitedAccess, dailyBonusUsed, monthlyRemaining, subscriptionStartedAt, fetchSubscriptionDate]);
 
   // Fetch usage on mount and when user/tier changes
   useEffect(() => {
@@ -582,7 +530,5 @@ export const useDailyAnalysisLimit = () => {
     // Pro-specific info
     monthlyRemaining,
     dailyBonusAvailable: !dailyBonusUsed,
-    // Voice bonus info
-    voiceBonusRemaining,
   };
 };

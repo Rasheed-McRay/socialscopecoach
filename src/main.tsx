@@ -2,6 +2,19 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
+// Lock screen orientation to portrait on mobile/PWA
+const lockOrientation = async () => {
+  try {
+    const orientation = screen.orientation as ScreenOrientation & { lock?: (orientation: string) => Promise<void> };
+    if (orientation && typeof orientation.lock === 'function') {
+      await orientation.lock('portrait');
+    }
+  } catch (e) {
+    // Orientation lock not supported or not in fullscreen/PWA mode
+  }
+};
+lockOrientation();
+
 // Track when the page started loading
 const pageLoadStart = performance.now();
 

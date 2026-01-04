@@ -221,7 +221,7 @@ const Landing = () => {
                 Install App
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <p className="text-sm text-muted-foreground">Free to start • No credit card</p>
+              <p className="text-sm text-muted-foreground">Free to start</p>
             </div>
           ) : (
             <div className="max-w-md mx-auto animate-scale-in">

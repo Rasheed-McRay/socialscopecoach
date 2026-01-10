@@ -128,7 +128,7 @@ serve(async (req) => {
       );
     }
 
-    // Access control - allow all authenticated users
+    // Access control
     const allowedTiers = ["free", "premium", "developer"];
     const allowedAccessLevels = ["restricted", "standard", "unlimited"];
     const hasAccess =
@@ -149,6 +149,73 @@ serve(async (req) => {
     }
 
     console.log("User authorized with tier:", roleData?.tier, "access:", roleData?.access_level);
+
+    // Server-side usage limit validation
+    const isPro = roleData?.tier === "premium" || roleData?.tier === "developer";
+    const today = new Date().toISOString().split("T")[0];
+    
+    // Check daily usage
+    const { data: dailyUsage } = await supabaseAdmin
+      .from("daily_analysis_usage")
+      .select("analysis_count")
+      .eq("user_id", user.id)
+      .eq("usage_date", today)
+      .maybeSingle();
+
+    const dailyCount = dailyUsage?.analysis_count || 0;
+
+    if (!isPro) {
+      // Free users: 1 analysis per day
+      if (dailyCount >= 1) {
+        console.log("Free user daily limit exceeded:", dailyCount);
+        return new Response(
+          JSON.stringify({ error: "Daily analysis limit reached. Upgrade to Pro for more analyses." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } else {
+      // Pro users: Check monthly usage (30 per billing period) + 1 daily bonus
+      const { data: userRoleData } = await supabaseAdmin
+        .from("user_roles")
+        .select("subscription_started_at")
+        .eq("user_id", user.id)
+        .single();
+
+      if (userRoleData?.subscription_started_at) {
+        const subscriptionStart = new Date(userRoleData.subscription_started_at);
+        const now = new Date();
+        
+        // Calculate current billing period
+        let billingStart = new Date(subscriptionStart);
+        while (billingStart <= now) {
+          const nextMonth = new Date(billingStart);
+          nextMonth.setMonth(nextMonth.getMonth() + 1);
+          if (nextMonth > now) break;
+          billingStart = nextMonth;
+        }
+        const billingStartDate = billingStart.toISOString().split("T")[0];
+
+        const { data: monthlyUsage } = await supabaseAdmin
+          .from("monthly_analysis_usage")
+          .select("analysis_count")
+          .eq("user_id", user.id)
+          .eq("billing_period_start", billingStartDate)
+          .maybeSingle();
+
+        const monthlyCount = monthlyUsage?.analysis_count || 0;
+
+        // Pro users get 30 monthly + 1 daily bonus
+        if (monthlyCount >= 30 && dailyCount >= 1) {
+          console.log("Pro user limits exceeded - monthly:", monthlyCount, "daily:", dailyCount);
+          return new Response(
+            JSON.stringify({ error: "Monthly analysis limit reached. Your quota resets on your next billing cycle." }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+    }
+
+    console.log("Usage check passed - daily:", dailyCount, "isPro:", isPro);
 
     const { transcript, prompt } = await req.json();
     

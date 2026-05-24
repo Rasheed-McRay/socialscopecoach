@@ -313,6 +313,60 @@ Analyze their self-expression and provide personalized feedback with a rating.`
 
     const analysis = JSON.parse(analysisText);
 
+    // Increment usage counters (tamper-proof via service role)
+    try {
+      await supabaseAdmin
+        .from("daily_analysis_usage")
+        .upsert(
+          { user_id: user.id, usage_date: today, analysis_count: dailyCount + 1 },
+          { onConflict: "user_id,usage_date" },
+        );
+
+      if (isPro) {
+        const { data: userRoleData } = await supabaseAdmin
+          .from("user_roles")
+          .select("subscription_started_at")
+          .eq("user_id", user.id)
+          .single();
+        if (userRoleData?.subscription_started_at) {
+          const subscriptionStart = new Date(userRoleData.subscription_started_at);
+          const now = new Date();
+          let billingStart = new Date(subscriptionStart);
+          while (billingStart <= now) {
+            const nextMonth = new Date(billingStart);
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            if (nextMonth > now) break;
+            billingStart = nextMonth;
+          }
+          const billingEnd = new Date(billingStart);
+          billingEnd.setMonth(billingEnd.getMonth() + 1);
+          const billingStartDate = billingStart.toISOString().split("T")[0];
+          const billingEndDate = billingEnd.toISOString().split("T")[0];
+
+          const { data: monthlyUsage } = await supabaseAdmin
+            .from("monthly_analysis_usage")
+            .select("analysis_count")
+            .eq("user_id", user.id)
+            .eq("billing_period_start", billingStartDate)
+            .maybeSingle();
+
+          await supabaseAdmin
+            .from("monthly_analysis_usage")
+            .upsert(
+              {
+                user_id: user.id,
+                billing_period_start: billingStartDate,
+                billing_period_end: billingEndDate,
+                analysis_count: (monthlyUsage?.analysis_count || 0) + 1,
+              },
+              { onConflict: "user_id,billing_period_start" },
+            );
+        }
+      }
+    } catch (incErr) {
+      console.error("Failed to increment usage counter:", incErr);
+    }
+
     return new Response(JSON.stringify(analysis), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -29,6 +29,21 @@ Open `android/app/src/main/AndroidManifest.xml` and add these inside
 <!-- INTERNET is included by default by Capacitor -->
 ```
 
+## Generate app icon & splash (replace default Capacitor logo)
+
+Before your first build, replace the default Capacitor icon so the Play
+Store listing and home-screen icon are branded.
+
+1. Create a folder `assets/` in the project root with two PNGs:
+   - `assets/icon.png` — **1024×1024**, opaque, your full logo (no padding)
+   - `assets/splash.png` — **2732×2732**, logo centered on your brand background
+2. Install the generator (one-time): `npm i -D @capacitor/assets`
+3. Run: `npx capacitor-assets generate --android`
+
+This writes every required density (mdpi → xxxhdpi) into
+`android/app/src/main/res/`. Re-run any time you change the source PNGs.
+
+
 ## Build & open in Android Studio
 
 Every time you pull new changes from Lovable:

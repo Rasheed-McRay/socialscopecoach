@@ -280,11 +280,10 @@ serve(async (req) => {
       throw new Error("AI service not configured");
     }
 
-    // Convert audio to base64 for the AI model
+    // Convert audio to base64 for the AI model (chunked, fast)
     const arrayBuffer = await audioFile.arrayBuffer();
-    const base64Audio = btoa(
-      new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
-    );
+    const base64Audio = arrayBufferToBase64(arrayBuffer);
+
 
     // Determine the MIME type
     let mimeType = audioFile.type || "audio/webm";

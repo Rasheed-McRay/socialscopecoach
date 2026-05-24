@@ -70,6 +70,17 @@ serve(async (req) => {
       }
     }
 
+    // Validate origin against an allowlist to prevent open-redirect abuse
+    const ALLOWED_ORIGINS = [
+      "https://socialscopecoach.app",
+      "https://socialscopecoach.lovable.app",
+      "https://id-preview--29c42402-6efd-4d75-bd72-b8324e49a11b.lovable.app",
+    ];
+    const requestOrigin = req.headers.get("origin") ?? "";
+    const siteUrl = ALLOWED_ORIGINS.includes(requestOrigin)
+      ? requestOrigin
+      : (Deno.env.get("SITE_URL") ?? ALLOWED_ORIGINS[0]);
+
     // Create checkout session for Pro subscription
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
@@ -81,8 +92,8 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/checkout-success`,
-      cancel_url: `${req.headers.get("origin")}/paywall`,
+      success_url: `${siteUrl}/checkout-success`,
+      cancel_url: `${siteUrl}/paywall`,
     };
 
     // Add trial period if requested
@@ -104,7 +115,7 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    return new Response(JSON.stringify({ error: "Unable to start checkout. Please try again." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

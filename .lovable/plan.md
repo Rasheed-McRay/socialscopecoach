@@ -1,62 +1,41 @@
-## Goal
+## Ship to Google Play — what happens now
 
-Get your existing app onto the Google Play Store for Android validation. Capacitor 8 + the Android platform are already in `package.json`, so the heavy lifting is configuration, permissions, and a clean build pipeline — not new code.
+Your project is already wired for Capacitor 8 (config, permissions docs, native mic error handling, build scripts, `ANDROID.md`). Nothing more needs to change in the codebase to produce a Play Store build. The remaining work is **local on your machine** + **Play Console setup** — Lovable's sandbox can't compile Android binaries.
 
-## Quick clarification on the build choices
+If you want, I can also do a few small polish passes before you build. Pick any you want and I'll do them in build mode:
 
-- **APK vs Play Store (AAB)**: An APK is a single installable file you send to testers directly. The Play Store requires an **AAB** (Android App Bundle) and a Google Play Console account ($25 one-time). Since you want Play Store, we target AAB and use the **Internal Testing** track first — it goes live in hours, only people you invite can install, and you don't need a full store review to start validating.
-- **Online-only is fine**: The app will be bundled into the APK/AAB (required by Play Store), but it'll still call your live Lovable Cloud backend for AI, auth, recordings, etc. "Bundled" just means the React UI ships inside the app instead of being downloaded from a URL every launch — Play Store rejects apps that are pure WebView wrappers around a remote site.
+### Optional code polish (I'll do if you say yes)
+1. **App icon + splash screen** — right now Android will ship with the default Capacitor logo. I can add a source icon under `assets/` and wire up `@capacitor/assets` so one command generates every required Android icon size + splash.
+2. **Privacy policy link in Settings** — Play Console requires a public privacy URL. You already have `/privacy-policy`; I can make sure it's linked from Settings so reviewers can find it in-app.
+3. **Version bump helper** — add a tiny script that bumps `versionCode`/`versionName` in `android/app/build.gradle` so future Play uploads don't fail with "version already exists".
+4. **Stripe checkout on native** — confirm `create-checkout` opens in the system browser (not the in-app WebView) on Android, so Google Play policy is satisfied and the return URL works.
 
-## What I'll change in the project
+### What you do locally (one-time, ~1–2 hours)
+Full walkthrough is in `ANDROID.md`. Short version:
 
-### 1. Capacitor config (`capacitor.config.ts`)
-Remove the `server.url` hot-reload block so production builds use the bundled `dist/`. Keep a commented-out dev version you can re-enable locally when iterating. Rename `appName` from `socialscope` to `SocialScope Coach` to match your published brand.
+1. Install **Android Studio** + create a **Google Play Console** account ($25).
+2. Export project to GitHub (button top-right in Lovable), `git clone`, `npm install`.
+3. `npx cap add android` — generates the `android/` folder.
+4. Add the 3 permissions to `android/app/src/main/AndroidManifest.xml` (exact diff in `ANDROID.md`): `RECORD_AUDIO`, `MODIFY_AUDIO_SETTINGS`, `WAKE_LOCK`.
+5. `npm run android:build` then `npm run android:open`.
+6. In Android Studio: **Build → Generate Signed Bundle → AAB**. Create a keystore and **back up the `.jks` file forever** — losing it locks you out of updating the app.
+7. Upload the `.aab` to **Play Console → Internal testing → Create release**. Add your email as a tester. Live in ~30 min, no full review needed.
 
-### 2. Android permissions & manifest
-Add a small `AndroidManifest.xml` patch instruction (applied after `npx cap add android` runs locally) for:
-- `RECORD_AUDIO` — required, app records voice
-- `INTERNET` — default, but confirm
-- `MODIFY_AUDIO_SETTINGS` — needed for clean mic capture on some devices
-- `WAKE_LOCK` — your recording flow already uses the Wake Lock API
+### Play Console forms you'll fill in
+- **Privacy policy URL** → `https://socialscopecoach.app/privacy-policy`
+- **Data safety** → declare: email (auth), audio recordings (feature, processed by your backend, not shared for ads), usage data
+- **Permissions justification** → "RECORD_AUDIO required because the core feature records the user's voice to analyze speech"
+- **Content rating questionnaire** → straightforward, ~5 minutes
+- **Target audience + ads** → no ads
 
-### 3. App icon & splash
-Generate proper Android icon set and splash from a single source image so the app doesn't ship with the default Capacitor logo. I'll add an `assets/` source image and document the `@capacitor/assets` generator command.
+### What you should NOT do
+- Don't link to Stripe checkout from inside the app in a way that pushes users to pay outside Play — Google's payments policy is strict on this. Subscriptions sold on your **website** before users install the app are fine; in-app upgrade buttons that open external checkout are a gray area. Worth reading Google's current Payments policy before you ship.
+- Don't lose the keystore `.jks` file.
 
-### 4. Recording UX guard for native
-Detect Capacitor runtime and surface a clearer permission-denied message when Android denies microphone access (currently the web `getUserMedia` error isn't friendly on native).
+---
 
-### 5. Build scripts
-Add `npm run android:build` and `npm run android:open` convenience scripts wrapping `vite build && cap sync android` and `cap open android`.
-
-### 6. README section
-Add a "Ship to Google Play" section with the exact local commands.
-
-## What you'll need to do locally (one-time setup)
-
-Lovable's cloud sandbox can't build native Android — you need a local machine for this part. You'll do this once after I make the changes above:
-
-1. Install **Android Studio** (free, ~5 GB) — provides JDK + Android SDK
-2. Export this project to GitHub via Lovable's GitHub button, `git clone` it locally
-3. `npm install`
-4. `npx cap add android` — generates the `android/` folder
-5. Apply the `AndroidManifest.xml` permissions (I'll provide an exact diff)
-6. `npm run android:build` — bundles web + syncs to native
-7. `npx cap open android` — opens Android Studio
-8. In Android Studio: **Build → Generate Signed Bundle → AAB**, create a keystore (back it up — losing it locks you out of updating the app forever)
-9. Upload the `.aab` to **Play Console → Internal testing → Create release**
-
-## Things to flag before launch
-
-- **Auth**: You're using email/password only — no native OAuth deep-link work needed. If you add Google sign-in later, that needs Capacitor-specific setup.
-- **Stripe checkout**: Opens in the system browser via Capacitor's default behavior, which works, but in-app purchases are not used (Play Store doesn't require IAP for subscriptions sold elsewhere as long as you don't link to external checkout from inside the app — worth reviewing Google's payments policy for your specific case before launch).
-- **Privacy policy URL**: Play Console requires a public privacy policy URL since the app records audio. Your `/privacy-policy` route works once the app is published.
-- **Data safety form**: Play Console will ask what data you collect (audio, email, usage) — straightforward to fill in.
-- **Target SDK**: Capacitor 8 targets a recent Android SDK that Play requires — no action needed.
-
-## Out of scope for this pass
-
-iOS build (you have `@capacitor/ios` installed but didn't ask for it), push notifications, in-app updates, Play Store listing copy/screenshots.
-
-## After plan approval
-
-I'll make the config/script/permissions/README changes in one pass, then you can pull the repo and run the local build steps above. Want me to also draft starter Play Store listing copy (short description, full description, feature graphic prompt) as part of this, or keep that for a separate round?
+**Tell me which option you want:**
+- "Do all the polish first" → I'll do items 1–4 above, then you build locally.
+- "Just icons + privacy link" → I'll do 1 and 2 only.
+- "Skip polish, I'll build now" → Nothing more to change; follow `ANDROID.md`.
+- "Draft Play Store listing copy too" (short description, full description, screenshots prompt) — I can add that.

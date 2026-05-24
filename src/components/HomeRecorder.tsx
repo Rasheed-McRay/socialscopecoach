@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { describeMicError } from "@/lib/nativeRuntime";
 
 const MAX_RECORDING_TIME = 600; // 10 minutes in seconds
 const WARNING_TIME = 540; // 9 minutes - warn 1 minute before limit

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { describeMicError } from "@/lib/nativeRuntime";
 interface VoiceRecorderProps {
   sampleNumber: number;
   isComplete: boolean;

@@ -7,6 +7,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Fast chunked base64 encoder. The naive `Array.reduce(... String.fromCharCode)`
+// approach is O(n^2) and can take 30-60s on multi-MB audio, blowing the edge
+// function timeout before the AI is even called. This processes in 32KB chunks.
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const CHUNK = 0x8000; // 32KB
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    const slice = bytes.subarray(i, Math.min(i + CHUNK, bytes.length));
+    binary += String.fromCharCode.apply(null, slice as unknown as number[]);
+  }
+  return btoa(binary);
+}
+
 const BASE_TRANSCRIPTION_PROMPT = `You are an expert conversation transcriber. Transcribe this audio recording with RICH CONTEXTUAL DETAIL.
 
 TRANSCRIPTION REQUIREMENTS:

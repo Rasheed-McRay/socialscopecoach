@@ -97,16 +97,8 @@ export function HomeRecorder({ onRecordingComplete }: HomeRecorderProps) {
     } catch (error) {
       console.error("Error accessing microphone:", error);
       releaseWakeLock();
-      
-      if (error instanceof Error) {
-        if (error.name === 'NotAllowedError') {
-          toast.error("Microphone access denied", {
-            description: "Please allow microphone access in your browser settings.",
-          });
-        } else {
-          toast.error("Unable to access microphone");
-        }
-      }
+      const { title, description } = describeMicError(error);
+      toast.error(title, { description });
     }
   };
 

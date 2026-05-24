@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard, Settings2, RotateCcw } from "lucide-react";
+import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard, Settings2, RotateCcw, Shield, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -526,6 +526,37 @@ const Settings = () => {
                   >
                     <Mic className="w-4 h-4" />
                     {voiceRegistered ? "Manage Voice Samples" : "Set Up Voice Profile"}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Legal Section */}
+              <Card className="glass">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    Legal
+                  </CardTitle>
+                  <CardDescription>Privacy and terms</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button asChild variant="outline" className="w-full justify-between">
+                    <Link to="/privacy-policy">
+                      <span className="flex items-center gap-2">
+                        <Shield className="w-4 h-4" />
+                        Privacy Policy
+                      </span>
+                      <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full justify-between">
+                    <Link to="/terms-of-service">
+                      <span className="flex items-center gap-2">
+                        <FileText className="w-4 h-4" />
+                        Terms of Service
+                      </span>
+                      <ExternalLink className="w-3 h-3" />
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>

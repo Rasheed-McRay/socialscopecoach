@@ -529,6 +529,37 @@ const Settings = () => {
                   </Button>
                 </CardContent>
               </Card>
+
+              {/* Legal Section */}
+              <Card className="glass">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    Legal
+                  </CardTitle>
+                  <CardDescription>Privacy and terms</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button asChild variant="outline" className="w-full justify-between">
+                    <Link to="/privacy-policy">
+                      <span className="flex items-center gap-2">
+                        <Shield className="w-4 h-4" />
+                        Privacy Policy
+                      </span>
+                      <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full justify-between">
+                    <Link to="/terms-of-service">
+                      <span className="flex items-center gap-2">
+                        <FileText className="w-4 h-4" />
+                        Terms of Service
+                      </span>
+                      <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           )}
         </main>

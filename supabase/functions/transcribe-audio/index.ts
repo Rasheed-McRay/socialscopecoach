@@ -7,6 +7,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Fast chunked base64 encoder. The naive `Array.reduce(... String.fromCharCode)`
+// approach is O(n^2) and can take 30-60s on multi-MB audio, blowing the edge
+// function timeout before the AI is even called. This processes in 32KB chunks.
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const CHUNK = 0x8000; // 32KB
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    const slice = bytes.subarray(i, Math.min(i + CHUNK, bytes.length));
+    binary += String.fromCharCode.apply(null, slice as unknown as number[]);
+  }
+  return btoa(binary);
+}
+
 const BASE_TRANSCRIPTION_PROMPT = `You are an expert conversation transcriber. Transcribe this audio recording with RICH CONTEXTUAL DETAIL.
 
 TRANSCRIPTION REQUIREMENTS:
@@ -205,44 +219,35 @@ serve(async (req) => {
     const voiceSampleAudioData: Array<{ data: string; format: string }> = [];
     
     if (hasVoiceSamples) {
-      for (const sample of voiceSamples) {
-        try {
-          // Extract file path from signed URL
-          const url = new URL(sample.audio_url);
-          const pathMatch = url.pathname.match(/voice-samples\/([^?]+)/);
-          
-          if (pathMatch && pathMatch[1]) {
+      // Download all voice samples in parallel instead of sequentially
+      const results = await Promise.all(
+        voiceSamples.map(async (sample) => {
+          try {
+            const url = new URL(sample.audio_url);
+            const pathMatch = url.pathname.match(/voice-samples\/([^?]+)/);
+            if (!pathMatch || !pathMatch[1]) return null;
             const filePath = decodeURIComponent(pathMatch[1]);
-            
-            // Download the voice sample from storage
+
             const { data: fileData, error: downloadError } = await supabaseAdmin
-              .storage
-              .from("voice-samples")
-              .download(filePath);
-            
-            if (downloadError) {
-              console.log(`Error downloading voice sample ${sample.sample_number}:`, downloadError.message);
-              continue;
+              .storage.from("voice-samples").download(filePath);
+            if (downloadError || !fileData) {
+              console.log(`Error downloading voice sample ${sample.sample_number}:`, downloadError?.message);
+              return null;
             }
-            
-            // Convert to base64
+
             const arrayBuffer = await fileData.arrayBuffer();
-            const base64Audio = btoa(
-              new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
-            );
-            
-            voiceSampleAudioData.push({
-              data: base64Audio,
-              format: "wav", // webm files, but Gemini handles them
-            });
-            
+            const base64Audio = arrayBufferToBase64(arrayBuffer);
             console.log(`Loaded voice sample ${sample.sample_number}, size: ${arrayBuffer.byteLength} bytes`);
+            return { data: base64Audio, format: "wav" };
+          } catch (e) {
+            console.error(`Failed to process voice sample ${sample.sample_number}:`, e);
+            return null;
           }
-        } catch (e) {
-          console.error(`Failed to process voice sample ${sample.sample_number}:`, e);
-        }
-      }
+        })
+      );
+      for (const r of results) if (r) voiceSampleAudioData.push(r);
     }
+
 
     const hasVoiceData = voiceSampleAudioData.length > 0;
     console.log("Voice sample audio data loaded:", hasVoiceData ? voiceSampleAudioData.length : 0);
@@ -275,11 +280,10 @@ serve(async (req) => {
       throw new Error("AI service not configured");
     }
 
-    // Convert audio to base64 for the AI model
+    // Convert audio to base64 for the AI model (chunked, fast)
     const arrayBuffer = await audioFile.arrayBuffer();
-    const base64Audio = btoa(
-      new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
-    );
+    const base64Audio = arrayBufferToBase64(arrayBuffer);
+
 
     // Determine the MIME type
     let mimeType = audioFile.type || "audio/webm";

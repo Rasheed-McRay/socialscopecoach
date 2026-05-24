@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { describeMicError } from "@/lib/nativeRuntime";
 
 const MAX_RECORDING_TIME = 600; // 10 minutes in seconds
 const WARNING_TIME = 540; // 9 minutes - warn 1 minute before limit
@@ -97,16 +98,8 @@ export function HomeRecorder({ onRecordingComplete }: HomeRecorderProps) {
     } catch (error) {
       console.error("Error accessing microphone:", error);
       releaseWakeLock();
-      
-      if (error instanceof Error) {
-        if (error.name === 'NotAllowedError') {
-          toast.error("Microphone access denied", {
-            description: "Please allow microphone access in your browser settings.",
-          });
-        } else {
-          toast.error("Unable to access microphone");
-        }
-      }
+      const { title, description } = describeMicError(error);
+      toast.error(title, { description });
     }
   };
 

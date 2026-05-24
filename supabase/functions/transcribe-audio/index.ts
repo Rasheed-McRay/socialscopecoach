@@ -219,44 +219,35 @@ serve(async (req) => {
     const voiceSampleAudioData: Array<{ data: string; format: string }> = [];
     
     if (hasVoiceSamples) {
-      for (const sample of voiceSamples) {
-        try {
-          // Extract file path from signed URL
-          const url = new URL(sample.audio_url);
-          const pathMatch = url.pathname.match(/voice-samples\/([^?]+)/);
-          
-          if (pathMatch && pathMatch[1]) {
+      // Download all voice samples in parallel instead of sequentially
+      const results = await Promise.all(
+        voiceSamples.map(async (sample) => {
+          try {
+            const url = new URL(sample.audio_url);
+            const pathMatch = url.pathname.match(/voice-samples\/([^?]+)/);
+            if (!pathMatch || !pathMatch[1]) return null;
             const filePath = decodeURIComponent(pathMatch[1]);
-            
-            // Download the voice sample from storage
+
             const { data: fileData, error: downloadError } = await supabaseAdmin
-              .storage
-              .from("voice-samples")
-              .download(filePath);
-            
-            if (downloadError) {
-              console.log(`Error downloading voice sample ${sample.sample_number}:`, downloadError.message);
-              continue;
+              .storage.from("voice-samples").download(filePath);
+            if (downloadError || !fileData) {
+              console.log(`Error downloading voice sample ${sample.sample_number}:`, downloadError?.message);
+              return null;
             }
-            
-            // Convert to base64
+
             const arrayBuffer = await fileData.arrayBuffer();
-            const base64Audio = btoa(
-              new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
-            );
-            
-            voiceSampleAudioData.push({
-              data: base64Audio,
-              format: "wav", // webm files, but Gemini handles them
-            });
-            
+            const base64Audio = arrayBufferToBase64(arrayBuffer);
             console.log(`Loaded voice sample ${sample.sample_number}, size: ${arrayBuffer.byteLength} bytes`);
+            return { data: base64Audio, format: "wav" };
+          } catch (e) {
+            console.error(`Failed to process voice sample ${sample.sample_number}:`, e);
+            return null;
           }
-        } catch (e) {
-          console.error(`Failed to process voice sample ${sample.sample_number}:`, e);
-        }
-      }
+        })
+      );
+      for (const r of results) if (r) voiceSampleAudioData.push(r);
     }
+
 
     const hasVoiceData = voiceSampleAudioData.length > 0;
     console.log("Voice sample audio data loaded:", hasVoiceData ? voiceSampleAudioData.length : 0);

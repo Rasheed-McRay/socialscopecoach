@@ -18,7 +18,8 @@ const FEATURES = [
 const Paywall = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const [isLoading, setIsLoading] = useState<"trial" | "subscribe" | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const handleLogout = async () => {
     await signOut();

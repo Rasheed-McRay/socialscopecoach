@@ -26,7 +26,29 @@ Open `android/app/src/main/AndroidManifest.xml` and add these inside
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 <uses-permission android:name="android.permission.WAKE_LOCK" />
+<!-- Required for the recording foreground service (keeps mic alive in background) -->
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 <!-- INTERNET is included by default by Capacitor -->
+```
+
+> After every `git pull`, run `npm install && npx cap sync android` so the new
+> native plugins (`@capacitor/splash-screen`, `@capacitor/status-bar`,
+> `@capacitor/haptics`, `@capacitor-community/keep-awake`,
+> `@capawesome-team/capacitor-android-foreground-service`) are linked into the
+> Android project.
+
+### iOS note (when you ship the iOS build)
+
+Background recording on iOS requires adding the **Background Modes →
+Audio** capability in Xcode, which writes this into `Info.plist`:
+
+```xml
+<key>UIBackgroundModes</key>
+<array>
+  <string>audio</string>
+</array>
 ```
 
 ## Generate app icon & splash (replace default Capacitor logo)

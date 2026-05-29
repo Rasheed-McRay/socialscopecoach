@@ -308,7 +308,7 @@ const Record = () => {
                 </>}
             </div>}
 
-          {appState === "processing" && <ProcessingState stage={processingStage} progress={progress} onCancel={handleCancel} />}
+          {appState === "processing" && <ProcessingState stage={processingStage} progress={progress} pace="deep" onCancel={handleCancel} />}
 
           {appState === "limit-reached" && <div className="max-w-md mx-auto text-center space-y-6 animate-fade-in py-12">
               <div className="w-20 h-20 mx-auto rounded-full bg-amber-500/20 flex items-center justify-center">

@@ -320,7 +320,7 @@ serve(async (req) => {
 
     console.log("Analyzing transcript of length:", transcript.length);
 
-    // Use gemini-2.5-pro for better nuanced analysis
+    // Use gemini-2.5-flash for ~3-5x faster analyses with similar quality on this prompt
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -328,7 +328,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { 

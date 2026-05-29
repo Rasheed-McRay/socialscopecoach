@@ -12,6 +12,7 @@ import { useDailyAnalysisLimit, CreditType } from "@/hooks/useDailyAnalysisLimit
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { UnsavedAnalysisDialog } from "@/components/UnsavedAnalysisDialog";
+import { hapticSuccess } from "@/lib/haptics";
 
 type AppState = "idle" | "processing" | "complete" | "limit-reached";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
@@ -148,6 +149,7 @@ const Record = () => {
       setAppState("complete");
       usageIncrementedRef.current = false; // Clear since analysis completed successfully
       creditUsedRef.current = 'none';
+      hapticSuccess();
       toast({
         title: "Analysis Complete!",
         description: "Your conversation has been analyzed successfully."

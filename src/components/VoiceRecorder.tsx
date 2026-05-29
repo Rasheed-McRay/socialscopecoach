@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { describeMicError } from "@/lib/nativeRuntime";
+import { hapticTap, hapticSuccess } from "@/lib/haptics";
 interface VoiceRecorderProps {
   sampleNumber: number;
   isComplete: boolean;
@@ -62,6 +63,7 @@ export const VoiceRecorder = ({
       };
 
       mediaRecorder.start();
+      hapticTap();
       setIsRecording(true);
       setRecordingTime(0);
       recordingTimeRef.current = 0;
@@ -87,6 +89,7 @@ export const VoiceRecorder = ({
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
+      hapticSuccess();
       setIsRecording(false);
       if (timerRef.current) {
         clearInterval(timerRef.current);

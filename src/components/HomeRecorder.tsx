@@ -5,6 +5,8 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { describeMicError } from "@/lib/nativeRuntime";
+import { startRecordingSession, stopRecordingSession } from "@/lib/recordingSession";
+import { hapticTap, hapticSuccess, hapticWarn } from "@/lib/haptics";
 
 const MAX_RECORDING_TIME = 600; // 10 minutes in seconds
 const WARNING_TIME = 540; // 9 minutes - warn 1 minute before limit
@@ -20,32 +22,10 @@ export function HomeRecorder({ onRecordingComplete }: HomeRecorderProps) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   const remainingTime = MAX_RECORDING_TIME - recordingTime;
   const isInWarningZone = recordingTime >= WARNING_TIME;
   const progressPercent = (recordingTime / MAX_RECORDING_TIME) * 100;
-
-  const requestWakeLock = async () => {
-    try {
-      if ('wakeLock' in navigator) {
-        wakeLockRef.current = await navigator.wakeLock.request('screen');
-      }
-    } catch (err) {
-      console.log('Wake lock not available:', err);
-    }
-  };
-
-  const releaseWakeLock = async () => {
-    if (wakeLockRef.current) {
-      try {
-        await wakeLockRef.current.release();
-        wakeLockRef.current = null;
-      } catch (err) {
-        console.log('Error releasing wake lock:', err);
-      }
-    }
-  };
 
   useEffect(() => {
     if (recordingTime >= MAX_RECORDING_TIME && isRecording) {
@@ -53,20 +33,21 @@ export function HomeRecorder({ onRecordingComplete }: HomeRecorderProps) {
       stopRecording();
     } else if (recordingTime >= WARNING_TIME && !hasWarned && isRecording) {
       toast.warning("1 minute remaining");
+      hapticWarn();
       setHasWarned(true);
     }
   }, [recordingTime, isRecording, hasWarned]);
 
   useEffect(() => {
     return () => {
-      releaseWakeLock();
+      stopRecordingSession();
     };
   }, []);
 
   const startRecording = async () => {
     try {
-      await requestWakeLock();
-      
+      await startRecordingSession();
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -85,6 +66,7 @@ export function HomeRecorder({ onRecordingComplete }: HomeRecorderProps) {
       };
 
       mediaRecorder.start();
+      hapticTap();
       setIsRecording(true);
       setRecordingTime(0);
       setHasWarned(false);
@@ -97,7 +79,7 @@ export function HomeRecorder({ onRecordingComplete }: HomeRecorderProps) {
       }, 1000);
     } catch (error) {
       console.error("Error accessing microphone:", error);
-      releaseWakeLock();
+      stopRecordingSession();
       const { title, description } = describeMicError(error);
       toast.error(title, { description });
     }
@@ -106,13 +88,15 @@ export function HomeRecorder({ onRecordingComplete }: HomeRecorderProps) {
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
+      hapticSuccess();
       setIsRecording(false);
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
-      releaseWakeLock();
+      stopRecordingSession();
     }
   };
+
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

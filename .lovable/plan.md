@@ -1,41 +1,26 @@
-## Ship to Google Play — what happens now
+# Remove the free trial
 
-Your project is already wired for Capacitor 8 (config, permissions docs, native mic error handling, build scripts, `ANDROID.md`). Nothing more needs to change in the codebase to produce a Play Store build. The remaining work is **local on your machine** + **Play Console setup** — Lovable's sandbox can't compile Android binaries.
+You currently offer a "Start 7-Day Free Trial" button on the Paywall alongside "Subscribe Now". This plan removes the trial entirely so every new user goes straight to a paid subscription.
 
-If you want, I can also do a few small polish passes before you build. Pick any you want and I'll do them in build mode:
+Note: the existing trial is 7 days, not 2 weeks. I'll remove it completely — let me know if you actually meant to shorten it instead.
 
-### Optional code polish (I'll do if you say yes)
-1. **App icon + splash screen** — right now Android will ship with the default Capacitor logo. I can add a source icon under `assets/` and wire up `@capacitor/assets` so one command generates every required Android icon size + splash.
-2. **Privacy policy link in Settings** — Play Console requires a public privacy URL. You already have `/privacy-policy`; I can make sure it's linked from Settings so reviewers can find it in-app.
-3. **Version bump helper** — add a tiny script that bumps `versionCode`/`versionName` in `android/app/build.gradle` so future Play uploads don't fail with "version already exists".
-4. **Stripe checkout on native** — confirm `create-checkout` opens in the system browser (not the in-app WebView) on Android, so Google Play policy is satisfied and the return URL works.
+## Changes
 
-### What you do locally (one-time, ~1–2 hours)
-Full walkthrough is in `ANDROID.md`. Short version:
+1. **`src/pages/Paywall.tsx`**
+   - Remove the "Start 7-Day Free Trial" button and its loading state.
+   - Keep only the "Subscribe Now" CTA as the primary button (restyled with the gold gradient so it stays prominent).
+   - Simplify `handleCheckout` to no longer take a `withTrial` argument.
 
-1. Install **Android Studio** + create a **Google Play Console** account ($25).
-2. Export project to GitHub (button top-right in Lovable), `git clone`, `npm install`.
-3. `npx cap add android` — generates the `android/` folder.
-4. Add the 3 permissions to `android/app/src/main/AndroidManifest.xml` (exact diff in `ANDROID.md`): `RECORD_AUDIO`, `MODIFY_AUDIO_SETTINGS`, `WAKE_LOCK`.
-5. `npm run android:build` then `npm run android:open`.
-6. In Android Studio: **Build → Generate Signed Bundle → AAB**. Create a keystore and **back up the `.jks` file forever** — losing it locks you out of updating the app.
-7. Upload the `.aab` to **Play Console → Internal testing → Create release**. Add your email as a tester. Live in ~30 min, no full review needed.
+2. **`supabase/functions/create-checkout/index.ts`**
+   - Stop reading `withTrial` from the request body.
+   - Remove the `subscription_data.trial_period_days` block and the "has had trial" lookup that disables repeat trials.
+   - Redeploy the function.
 
-### Play Console forms you'll fill in
-- **Privacy policy URL** → `https://socialscopecoach.app/privacy-policy`
-- **Data safety** → declare: email (auth), audio recordings (feature, processed by your backend, not shared for ads), usage data
-- **Permissions justification** → "RECORD_AUDIO required because the core feature records the user's voice to analyze speech"
-- **Content rating questionnaire** → straightforward, ~5 minutes
-- **Target audience + ads** → no ads
+3. **`src/pages/CheckoutSuccess.tsx`** (only if it mentions the trial in copy) — update wording to remove trial references.
 
-### What you should NOT do
-- Don't link to Stripe checkout from inside the app in a way that pushes users to pay outside Play — Google's payments policy is strict on this. Subscriptions sold on your **website** before users install the app are fine; in-app upgrade buttons that open external checkout are a gray area. Worth reading Google's current Payments policy before you ship.
-- Don't lose the keystore `.jks` file.
+4. **`src/contexts/SubscriptionContext.tsx`** — leave `isTrialing` / `trialEnd` logic in place. It only activates if Stripe reports a trial, so existing trialing users aren't cut off mid-trial. New checkouts simply won't create trials anymore.
 
----
+## Out of scope
 
-**Tell me which option you want:**
-- "Do all the polish first" → I'll do items 1–4 above, then you build locally.
-- "Just icons + privacy link" → I'll do 1 and 2 only.
-- "Skip polish, I'll build now" → Nothing more to change; follow `ANDROID.md`.
-- "Draft Play Store listing copy too" (short description, full description, screenshots prompt) — I can add that.
+- Existing customers currently in a Stripe trial keep their trial until it ends naturally. If you want to cancel those mid-trial too, say so and I'll add that.
+- The promo/streak-based 7-day Pro trial system (separate from the Stripe checkout trial) is untouched. Tell me if that should also go.

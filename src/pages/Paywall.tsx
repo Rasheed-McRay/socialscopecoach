@@ -18,22 +18,21 @@ const FEATURES = [
 const Paywall = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const [isLoading, setIsLoading] = useState<"trial" | "subscribe" | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const handleLogout = async () => {
     await signOut();
     navigate("/");
   };
 
-  const handleCheckout = async (withTrial: boolean) => {
+  const handleCheckout = async () => {
     if (!user) return;
-    
-    setIsLoading(withTrial ? "trial" : "subscribe");
+
+    setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { withTrial }
-      });
-      
+      const { data, error } = await supabase.functions.invoke('create-checkout');
+
       if (error) throw error;
       if (data?.url) {
         window.location.href = data.url;
@@ -42,9 +41,10 @@ const Paywall = () => {
       console.error("Error creating checkout:", error);
       toast.error("Failed to start checkout. Please try again.");
     } finally {
-      setIsLoading(null);
+      setIsLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -110,35 +110,24 @@ const Paywall = () => {
                 ))}
               </ul>
 
-              {/* CTA Buttons */}
+              {/* CTA Button */}
               <div className="space-y-3">
                 <Button
-                  onClick={() => handleCheckout(true)}
-                  disabled={isLoading !== null}
+                  onClick={handleCheckout}
+                  disabled={isLoading}
                   className="w-full h-12 text-base bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
                 >
-                  {isLoading === "trial" ? (
+                  {isLoading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5 mr-2" />
-                      Start 7-Day Free Trial
+                      <Crown className="w-5 h-5 mr-2" />
+                      Subscribe Now
                     </>
                   )}
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleCheckout(false)}
-                  disabled={isLoading !== null}
-                  className="w-full h-11"
-                >
-                  {isLoading === "subscribe" ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    "Subscribe Now"
-                  )}
-                </Button>
               </div>
+
 
               {/* Fine print */}
               <p className="text-xs text-center text-muted-foreground">

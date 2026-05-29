@@ -8,18 +8,19 @@ interface ProcessingStateProps {
   stage: "uploading" | "transcribing" | "analyzing";
   /** Optional override; when omitted, progress animates automatically based on stage + elapsed time. */
   progress?: number;
+  /** "deep" (default) tunes durations for Pro-quality analyses; "fast" tunes for Flash-quality. */
+  pace?: "fast" | "deep";
   onCancel?: () => void;
 }
 
-const stages = {
+const stageDefs = {
   uploading: {
     icon: AudioWaveform,
     title: "Processing Audio",
     description: "Preparing your audio for analysis...",
-    // [stage start %, stage cap %, estimated duration ms to approach cap]
     start: 0,
     cap: 20,
-    estMs: 1500,
+    estMs: { fast: 1500, deep: 1500 },
   },
   transcribing: {
     icon: FileText,
@@ -27,7 +28,7 @@ const stages = {
     description: "Converting speech to text...",
     start: 20,
     cap: 60,
-    estMs: 7000,
+    estMs: { fast: 7000, deep: 7000 },
   },
   analyzing: {
     icon: Brain,
@@ -35,20 +36,19 @@ const stages = {
     description: "Evaluating tone, confidence, and conversation dynamics...",
     start: 60,
     cap: 97,
-    estMs: 10000,
+    estMs: { fast: 9000, deep: 22000 },
   },
-};
+} as const;
 
-export function ProcessingState({ stage, progress: progressOverride, onCancel }: ProcessingStateProps) {
-  const currentStage = stages[stage];
+export function ProcessingState({ stage, progress: progressOverride, pace = "deep", onCancel }: ProcessingStateProps) {
+  const currentStage = stageDefs[stage];
   const Icon = currentStage.icon;
+  const estMs = currentStage.estMs[pace];
 
-  const [autoProgress, setAutoProgress] = useState(currentStage.start);
+  const [autoProgress, setAutoProgress] = useState<number>(currentStage.start);
   const stageStartRef = useRef<number>(performance.now());
   const stageStartValueRef = useRef<number>(currentStage.start);
 
-  // Reset animation baseline whenever the stage changes; jump to the new stage's start
-  // (or keep current value if it's already further along, to avoid going backwards).
   useEffect(() => {
     stageStartRef.current = performance.now();
     setAutoProgress((prev) => {
@@ -58,14 +58,12 @@ export function ProcessingState({ stage, progress: progressOverride, onCancel }:
     });
   }, [stage, currentStage.start]);
 
-  // Smoothly ease toward the stage cap using 1 - exp(-t/tau) so it never overshoots
-  // and decelerates as it approaches the cap — feels accurate even when network latency varies.
   useEffect(() => {
     if (progressOverride !== undefined) return;
     let raf = 0;
     const tick = () => {
       const elapsed = performance.now() - stageStartRef.current;
-      const tau = currentStage.estMs / 3; // ~95% of the way after estMs
+      const tau = estMs / 3;
       const eased = 1 - Math.exp(-elapsed / tau);
       const next = stageStartValueRef.current + (currentStage.cap - stageStartValueRef.current) * eased;
       setAutoProgress((prev) => (next > prev ? next : prev));
@@ -73,7 +71,7 @@ export function ProcessingState({ stage, progress: progressOverride, onCancel }:
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [stage, currentStage.cap, currentStage.estMs, progressOverride]);
+  }, [stage, currentStage.cap, estMs, progressOverride]);
 
   const displayed = progressOverride ?? autoProgress;
 

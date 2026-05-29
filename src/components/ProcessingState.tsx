@@ -45,7 +45,7 @@ export function ProcessingState({ stage, progress: progressOverride, pace = "dee
   const Icon = currentStage.icon;
   const estMs = currentStage.estMs[pace];
 
-  const [autoProgress, setAutoProgress] = useState(currentStage.start);
+  const [autoProgress, setAutoProgress] = useState<number>(currentStage.start);
   const stageStartRef = useRef<number>(performance.now());
   const stageStartValueRef = useRef<number>(currentStage.start);
 

@@ -1,26 +1,31 @@
-# Remove the free trial
+# Hybrid model strategy
 
-You currently offer a "Start 7-Day Free Trial" button on the Paywall alongside "Subscribe Now". This plan removes the trial entirely so every new user goes straight to a paid subscription.
-
-Note: the existing trial is 7 days, not 2 weeks. I'll remove it completely — let me know if you actually meant to shorten it instead.
+Keep the depth of Pro where it matters (full conversation analysis) and Flash where speed matters more than nuance (short daily monologues).
 
 ## Changes
 
-1. **`src/pages/Paywall.tsx`**
-   - Remove the "Start 7-Day Free Trial" button and its loading state.
-   - Keep only the "Subscribe Now" CTA as the primary button (restyled with the gold gradient so it stays prominent).
-   - Simplify `handleCheckout` to no longer take a `withTrial` argument.
+### 1. `supabase/functions/analyze-conversation/index.ts`
+Revert the model back to `google/gemini-2.5-pro` (it was switched to flash in the previous turn). Restore the original comment.
 
-2. **`supabase/functions/create-checkout/index.ts`**
-   - Stop reading `withTrial` from the request body.
-   - Remove the `subscription_data.trial_period_days` block and the "has had trial" lookup that disables repeat trials.
-   - Redeploy the function.
+### 2. `supabase/functions/analyze-monologue/index.ts`
+No change — already on `google/gemini-2.5-flash`.
 
-3. **`src/pages/CheckoutSuccess.tsx`** (only if it mentions the trial in copy) — update wording to remove trial references.
+### 3. `src/components/ProcessingState.tsx`
+The auto-animating progress bar currently assumes one set of stage durations. Pro analyses take noticeably longer than Flash, so a single estimate will feel inaccurate for one path or the other.
 
-4. **`src/contexts/SubscriptionContext.tsx`** — leave `isTrialing` / `trialEnd` logic in place. It only activates if Stripe reports a trial, so existing trialing users aren't cut off mid-trial. New checkouts simply won't create trials anymore.
+Add an optional `pace` prop (`"fast" | "deep"`, default `"deep"`) that swaps the `estMs` values for the `analyzing` stage:
+- `deep` (Pro / conversation): analyzing ~22s to approach cap
+- `fast` (Flash / monologue): analyzing ~9s to approach cap
+
+Transcribing and uploading estimates stay the same for both.
+
+### 4. Callers pass the right pace
+- `src/pages/Record.tsx` → `<ProcessingState pace="deep" ... />`
+- Wherever the Daily Scope monologue renders `ProcessingState` (search for usage) → `pace="fast"`
+
+If Daily Scope doesn't currently use `ProcessingState`, skip step 4b — the default still works.
 
 ## Out of scope
-
-- Existing customers currently in a Stripe trial keep their trial until it ends naturally. If you want to cancel those mid-trial too, say so and I'll add that.
-- The promo/streak-based 7-day Pro trial system (separate from the Stripe checkout trial) is untouched. Tell me if that should also go.
+- No streaming of the AI response (would require larger refactor of the edge function + client).
+- No changes to scoring/prompts.
+- No changes to credit/usage logic.

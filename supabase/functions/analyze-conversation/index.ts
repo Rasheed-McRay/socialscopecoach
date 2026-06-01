@@ -117,9 +117,9 @@ Respond with valid JSON. EVERY text field must reference things "You:" said or d
   "socialScore": 72,
   "confidenceScore": 68,
   "nextSteps": [
-    "Actionable next step for 'You:' tied to specific observation",
-    "Second actionable step for 'You:'",
-    "Third actionable step for 'You:'"
+    "Actionable next step that specifically improves 'You:'s communication, charisma, or social skills — tied to a specific observation from this transcript (e.g. phrasing, tone, question-asking, active listening, storytelling, vocal delivery, body of conversation flow). MUST NOT be generic life/productivity advice or topic-specific knowledge — only social/communication skill-building.",
+    "Second social-skills-focused actionable step for 'You:' (charisma, rapport, presence, conversational dynamics, etc.) tied to a specific moment",
+    "Third social-skills-focused actionable step for 'You:' (e.g. a concrete phrase to try, a listening technique, a way to handle a recurring pattern) tied to a specific moment"
   ],
   "vocalTone": {
     "confidence": "Level with QUOTED evidence from 'You:'",

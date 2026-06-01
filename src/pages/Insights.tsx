@@ -198,29 +198,6 @@ const Insights = () => {
                   <InsightCard className="w-full md:w-[140px]">
                     <ScoreDial score={avgSocialScore ?? 0} label="Social Skills" size="sm" />
                   </InsightCard>
-
-                  {/* Confidence Score */}
-                  <InsightCard className="w-full md:w-[140px]">
-                    <ScoreDial score={avgConfidenceScore ?? 0} label="Confidence" size="sm" />
-                  </InsightCard>
-
-                  {/* Main Focus */}
-                  {mainFocus && (
-                    <InsightCard 
-                      className="w-full md:w-[160px] cursor-pointer hover:border-primary/40 transition-colors"
-                      onClick={() => setFocusDialogOpen(true)}
-                    >
-                      <div className="flex flex-col items-center justify-center h-full gap-2 md:gap-3">
-                        <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Target className="w-4 h-4 md:w-6 md:h-6 text-primary" />
-                        </div>
-                        <div className="text-center">
-                          <h3 className="text-xs md:text-base font-semibold text-foreground">Main Focus</h3>
-                          <p className="text-[10px] md:text-sm text-primary leading-tight">{mainFocus.preview}</p>
-                        </div>
-                      </div>
-                    </InsightCard>
-                  )}
                 </div>
               </section>
 

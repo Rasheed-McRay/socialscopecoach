@@ -259,15 +259,7 @@ const Insights = () => {
         </main>
       </div>
 
-      {/* Focus Examples Dialog */}
-      {mainFocus && (
-        <FocusExamplesDialog
-          open={focusDialogOpen}
-          onOpenChange={setFocusDialogOpen}
-          focusArea={mainFocus.full}
-        />
-      )}
-    </div>
+      </div>
   );
 };
 

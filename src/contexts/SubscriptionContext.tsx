@@ -31,15 +31,11 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
   const [tier, setTier] = useState<SubscriptionTier>('basic');
   const [loading, setLoading] = useState(true);
   const [hasFetched, setHasFetched] = useState(false);
-  const [isTrialing, setIsTrialing] = useState(false);
-  const [trialEnd, setTrialEnd] = useState<Date | null>(null);
 
   const fetchSubscription = useCallback(async () => {
     if (!user) {
       setTier('basic');
       setLoading(false);
-      setIsTrialing(false);
-      setTrialEnd(null);
       return;
     }
 
@@ -55,8 +51,6 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
       if (!stripeError && stripeData) {
         if (stripeData.subscribed) {
           setTier('pro');
-          setIsTrialing(stripeData.is_trialing || false);
-          setTrialEnd(stripeData.trial_end ? new Date(stripeData.trial_end) : null);
           setLoading(false);
           setHasFetched(true);
           return;
@@ -97,17 +91,15 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
     fetchSubscription();
   }, [user, authLoading, fetchSubscription]);
 
-  // isPro is true if user has pro subscription OR is trialing
-  const isPro = tier === 'pro' || isTrialing;
+  const isPro = tier === 'pro';
 
   const value: SubscriptionContextType = {
     tier,
     isPro,
     loading,
     refreshSubscription: fetchSubscription,
-    isTrialing,
-    trialEnd,
   };
+
 
   return (
     <SubscriptionContext.Provider value={value}>

@@ -9,9 +9,8 @@ interface SubscriptionContextType {
   isPro: boolean;
   loading: boolean;
   refreshSubscription: () => Promise<void>;
-  isTrialing: boolean;
-  trialEnd: Date | null;
 }
+
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 

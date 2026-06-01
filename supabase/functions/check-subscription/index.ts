@@ -164,9 +164,8 @@ serve(async (req) => {
       subscribed: hasActiveSub,
       tier: hasActiveSub ? "pro" : "basic",
       subscription_end: subscriptionEnd,
-      is_trialing: isTrialing,
-      trial_end: trialEnd,
     }), {
+
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

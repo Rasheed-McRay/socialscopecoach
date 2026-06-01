@@ -33,7 +33,6 @@ const Insights = () => {
   const [reports, setReports] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState<SavedReport | null>(null);
-  const [focusDialogOpen, setFocusDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchReports();

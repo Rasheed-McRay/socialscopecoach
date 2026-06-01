@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { AudioWaveform, ArrowLeft, Trash2, Target } from "lucide-react";
+import { AudioWaveform, ArrowLeft, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnalysisReport, AnalysisResult } from "@/components/AnalysisReport";
@@ -11,7 +11,6 @@ import { HeaderNav } from "@/components/HeaderNav";
 import { InsightCard } from "@/components/InsightCard";
 import { ScoreDial } from "@/components/ScoreDial";
 import { AnalysisCard } from "@/components/AnalysisCard";
-import { FocusExamplesDialog } from "@/components/FocusExamplesDialog";
 
 
 interface SavedReport {

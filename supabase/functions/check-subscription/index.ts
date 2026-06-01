@@ -55,47 +55,37 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
-    // Check for active OR trialing subscriptions
+    // Check for active subscriptions only (no trial entitlements)
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
+      status: "active",
       limit: 10,
     });
 
-    // Filter for active or trialing subscriptions
-    const activeSubscriptions = subscriptions.data.filter(
-      (sub: Stripe.Subscription) => sub.status === 'active' || sub.status === 'trialing'
-    );
+    const activeSubscriptions = subscriptions.data;
 
     const hasActiveSub = activeSubscriptions.length > 0;
     let subscriptionEnd = null;
-    let isTrialing = false;
-    let trialEnd = null;
 
     if (hasActiveSub) {
       const subscription = activeSubscriptions[0];
-      isTrialing = subscription.status === 'trialing';
-      
-      if (subscription.trial_end) {
-        trialEnd = new Date(subscription.trial_end * 1000).toISOString();
-      }
-      
+
       if (subscription.current_period_end) {
         subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       }
-      
+
       // Get subscription start date from Stripe
-      const subscriptionStartDate = subscription.current_period_start 
+      const subscriptionStartDate = subscription.current_period_start
         ? new Date(subscription.current_period_start * 1000).toISOString()
         : new Date().toISOString();
-      
-      logStep("Active subscription found", { 
-        subscriptionId: subscription.id, 
+
+      logStep("Active subscription found", {
+        subscriptionId: subscription.id,
         status: subscription.status,
-        isTrialing,
-        trialEnd,
         startDate: subscriptionStartDate,
-        endDate: subscriptionEnd 
+        endDate: subscriptionEnd
       });
+
 
       // Update user_subscriptions table to pro
       const { error: updateSubError } = await supabaseClient
@@ -174,9 +164,8 @@ serve(async (req) => {
       subscribed: hasActiveSub,
       tier: hasActiveSub ? "pro" : "basic",
       subscription_end: subscriptionEnd,
-      is_trialing: isTrialing,
-      trial_end: trialEnd,
     }), {
+
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

@@ -193,10 +193,15 @@ const Insights = () => {
                 </h2>
                 
                 {/* Insight cards grid */}
-                <div className="grid grid-cols-3 gap-2 md:flex md:gap-4">
+                <div className="grid grid-cols-2 gap-2 md:flex md:gap-4">
                   {/* Social Skills Score */}
                   <InsightCard className="w-full md:w-[140px]">
                     <ScoreDial score={avgSocialScore ?? 0} label="Social Skills" size="sm" />
+                  </InsightCard>
+
+                  {/* Confidence Score */}
+                  <InsightCard className="w-full md:w-[140px]">
+                    <ScoreDial score={avgConfidenceScore ?? 0} label="Confidence" size="sm" />
                   </InsightCard>
                 </div>
               </section>

@@ -141,8 +141,10 @@ serve(async (req) => {
         .eq('user_id', user.id)
         .single();
 
-      // Don't downgrade developers or owners
-      if (roleData && roleData.tier !== 'developer' && roleData.role !== 'owner') {
+      // Don't downgrade developers, owners, or the owner email
+      const OWNER_EMAIL = 'rmcclaryraynor@gmail.com';
+      const isOwnerEmail = user.email?.toLowerCase() === OWNER_EMAIL;
+      if (roleData && roleData.tier !== 'developer' && roleData.role !== 'owner' && !isOwnerEmail) {
         const { error: updateRoleError } = await supabaseClient
           .from('user_roles')
           .update({ 

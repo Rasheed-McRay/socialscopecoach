@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AudioWaveform, Mic, CheckCircle2, X } from "lucide-react";
+import { AudioWaveform, Speech, CheckCircle2, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { HeaderNav } from "@/components/HeaderNav";
 import { HomeRecorder } from "@/components/HomeRecorder";

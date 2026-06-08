@@ -54,7 +54,7 @@ export const RoleProvider = ({ children }: RoleProviderProps) => {
   const [tier, setTier] = useState<UserTier>('free');
   const [accessLevel, setAccessLevel] = useState<AccessLevel>('restricted');
   const [isHidden, setIsHidden] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [hasFetched, setHasFetched] = useState(false);
   const [impersonation, setImpersonation] = useState<ImpersonationState>({
     active: false,

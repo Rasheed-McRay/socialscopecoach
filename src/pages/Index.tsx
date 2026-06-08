@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AudioWaveform, Mic, CheckCircle2, X } from "lucide-react";
+import { AudioWaveform, Speech, CheckCircle2, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { HeaderNav } from "@/components/HeaderNav";
 import { HomeRecorder } from "@/components/HomeRecorder";
@@ -354,7 +354,7 @@ const Index = () => {
                 <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 border border-primary/20 p-6 md:p-8 space-y-5 transition-all duration-200 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(247,165,58,0.1)]">
                   <div className="text-center space-y-3">
                     <div className="w-16 h-16 rounded-full bg-gradient-primary mx-auto flex items-center justify-center glow-primary">
-                      <Mic className="w-8 h-8 text-primary-foreground" />
+                      <Speech className="w-8 h-8 text-primary-foreground" />
                     </div>
                     <h3 className="text-lg md:text-xl font-serif text-foreground">
                       Answer the Daily Scope

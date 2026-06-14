@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard, Settings2, RotateCcw, Shield, FileText, Trash2, Download } from "lucide-react";
-import {
 import { logger } from "@/lib/logger";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,

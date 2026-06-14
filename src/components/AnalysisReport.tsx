@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import {
 import { logger } from "@/lib/logger";
+import {
   TrendingUp,
   TrendingDown,
   Lightbulb,

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { AudioWaveform, Flame, Trophy, Star, TrendingUp } from "lucide-react";
+import { AudioWaveform, Flame, Trophy, TrendingUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { HeaderNav } from "@/components/HeaderNav";
@@ -86,26 +86,7 @@ const Progress = () => {
     confidence: Math.max(...reports.map(r => r.analysis_result?.confidenceScore || 0), 0),
   };
 
-  // Find biggest strength
-  const findBiggestStrength = () => {
-    const strengthCounts: Record<string, number> = {};
-    
-    reports.forEach(report => {
-      report.analysis_result?.strengths?.forEach((strength: string) => {
-        strengthCounts[strength] = (strengthCounts[strength] || 0) + 1;
-      });
-    });
-
-    const entries = Object.entries(strengthCounts);
-    if (entries.length === 0) return "Not yet determined";
-    
-    const topStrength = entries.sort((a, b) => b[1] - a[1])[0][0];
-    // Remove examples after colon
-    return topStrength.split(":")[0].trim();
-  };
-
   const streak = calculateStreak();
-  const biggestStrength = findBiggestStrength();
 
   return (
     <ProFeatureGate 
@@ -250,21 +231,6 @@ const Progress = () => {
                     <p className="text-3xl font-bold text-primary">{bestScores.confidence || "—"}</p>
                     <p className="text-sm text-muted-foreground">Confidence</p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Biggest Strength */}
-            <Card className="glass animate-fade-in" style={{ animationDelay: "0.4s" }}>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Star className="w-5 h-5 text-yellow-500" />
-                  Biggest Strength
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-4">
-                  <p className="text-xl font-semibold text-foreground">{biggestStrength}</p>
                 </div>
               </CardContent>
             </Card>

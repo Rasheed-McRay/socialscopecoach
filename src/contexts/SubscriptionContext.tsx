@@ -92,6 +92,49 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
     fetchSubscription();
   }, [user, authLoading, fetchSubscription]);
 
+  // Re-check subscription when the app resumes from background
+  // (web visibility change + Capacitor appStateChange on native).
+  useEffect(() => {
+    if (authLoading || !user) return;
+
+    let lastRefresh = Date.now();
+    const MIN_INTERVAL_MS = 5000; // throttle to avoid spam
+
+    const maybeRefresh = (reason: string) => {
+      const now = Date.now();
+      if (now - lastRefresh < MIN_INTERVAL_MS) return;
+      lastRefresh = now;
+      logger.log(`[Subscription] refresh on ${reason}`);
+      fetchSubscription();
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") maybeRefresh("visibilitychange");
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    // Capacitor native resume (Android/iOS). Plugin is optional.
+    let removeAppListener: (() => void) | undefined;
+    (async () => {
+      try {
+        const mod: any = await import(/* @vite-ignore */ ("@capacitor/" + "app"));
+        const App = mod.App;
+        const handle = await App.addListener("appStateChange", ({ isActive }) => {
+          if (isActive) maybeRefresh("appStateChange");
+        });
+        removeAppListener = () => handle.remove();
+      } catch {
+        // @capacitor/app not installed or not on native — visibilitychange covers web/PWA.
+      }
+    })();
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      removeAppListener?.();
+    };
+  }, [user, authLoading, fetchSubscription]);
+
+
   const isPro = tier === 'pro';
 
   const value: SubscriptionContextType = {

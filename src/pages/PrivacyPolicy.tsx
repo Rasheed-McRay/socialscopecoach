@@ -139,7 +139,7 @@ const PrivacyPolicy = () => {
               </a>
             </p>
             <p className="text-muted-foreground leading-relaxed mt-2">
-              <strong>Jurisdiction:</strong> [Your State], United States
+              <strong>Jurisdiction:</strong> North Carolina, United States
             </p>
           </section>
 

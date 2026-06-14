@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from "@/lib/logger";
 
 type SubscriptionTier = 'basic' | 'pro';
 
@@ -77,7 +78,7 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
         setTier(subscriptionResult.data.tier as SubscriptionTier);
       }
     } catch (err) {
-      console.error('Error fetching subscription:', err);
+      logger.error('Error fetching subscription:', err);
     } finally {
       setLoading(false);
       setHasFetched(true);

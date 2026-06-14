@@ -11,6 +11,7 @@ import { HeaderNav } from "@/components/HeaderNav";
 import { InsightCard } from "@/components/InsightCard";
 import { ScoreDial } from "@/components/ScoreDial";
 import { AnalysisCard } from "@/components/AnalysisCard";
+import { logger } from "@/lib/logger";
 
 
 interface SavedReport {
@@ -48,7 +49,7 @@ const Insights = () => {
       if (error) throw error;
       setReports(data as unknown as SavedReport[]);
     } catch (error) {
-      console.error("Error fetching reports:", error);
+      logger.error("Error fetching reports:", error);
       toast.error("Failed to load insights");
     } finally {
       setLoading(false);
@@ -67,7 +68,7 @@ const Insights = () => {
       setReports(reports.filter(r => r.id !== id));
       toast.success("Report deleted");
     } catch (error) {
-      console.error("Error deleting report:", error);
+      logger.error("Error deleting report:", error);
       toast.error("Failed to delete report");
     }
   };

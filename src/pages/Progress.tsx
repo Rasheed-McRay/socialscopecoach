@@ -7,6 +7,7 @@ import { HeaderNav } from "@/components/HeaderNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { ProFeatureGate } from "@/components/ProFeatureGate";
+import { logger } from "@/lib/logger";
 
 interface AnalysisResult {
   socialScore?: number;
@@ -44,7 +45,7 @@ const Progress = () => {
       if (error) throw error;
       setReports((data as Report[]) || []);
     } catch (error) {
-      console.error("Error fetching reports:", error);
+      logger.error("Error fetching reports:", error);
     } finally {
       setIsLoading(false);
     }

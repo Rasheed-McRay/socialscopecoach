@@ -8,6 +8,7 @@
  * All methods are safe to call from any platform.
  */
 import { isNativeApp, getPlatform } from "@/lib/nativeRuntime";
+import { logger } from "@/lib/logger";
 
 let webWakeLock: WakeLockSentinel | null = null;
 let foregroundServiceStarted = false;
@@ -22,7 +23,7 @@ export const startRecordingSession = async () => {
         webWakeLock = await navigator.wakeLock.request("screen");
       }
     } catch (err) {
-      console.log("Wake lock not available:", err);
+      logger.log("Wake lock not available:", err);
     }
     return;
   }
@@ -31,7 +32,7 @@ export const startRecordingSession = async () => {
     const { KeepAwake } = await import("@capacitor-community/keep-awake");
     await KeepAwake.keepAwake();
   } catch (err) {
-    console.log("KeepAwake unavailable:", err);
+    logger.log("KeepAwake unavailable:", err);
   }
 
   if (getPlatform() === "android") {
@@ -48,7 +49,7 @@ export const startRecordingSession = async () => {
       });
       foregroundServiceStarted = true;
     } catch (err) {
-      console.log("Foreground service unavailable:", err);
+      logger.log("Foreground service unavailable:", err);
     }
   }
 };

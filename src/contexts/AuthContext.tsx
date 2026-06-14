@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from "@/lib/logger";
 
 interface AuthContextType {
   user: User | null;
@@ -100,7 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               metadata: {},
             });
         } catch (err) {
-          console.error('Failed to track login:', err);
+          logger.error('Failed to track login:', err);
         }
       })();
     }
@@ -120,7 +121,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       // Even if the API call fails (e.g., session already expired), 
       // the local state is already cleared so the user appears logged out
-      console.log('Sign out completed (session may have already expired)');
+      logger.log('Sign out completed (session may have already expired)');
     }
   };
 

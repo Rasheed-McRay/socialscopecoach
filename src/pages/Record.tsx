@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { UnsavedAnalysisDialog } from "@/components/UnsavedAnalysisDialog";
 import { hapticSuccess } from "@/lib/haptics";
+import { logger } from "@/lib/logger";
 
 type AppState = "idle" | "processing" | "complete" | "limit-reached";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
@@ -159,7 +160,7 @@ const Record = () => {
       if (abortControllerRef.current?.signal.aborted) {
         return;
       }
-      console.error("Processing error:", error);
+      logger.error("Processing error:", error);
 
       // Restore usage on error (with lock to prevent race conditions)
       if (usageIncrementedRef.current && !restorationInProgressRef.current) {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useRole } from '@/contexts/RoleContext';
+import { logger } from "@/lib/logger";
 
 interface UserActivityStats {
   user_id: string;
@@ -39,7 +40,7 @@ export const useActivityStats = () => {
         .order('created_at', { ascending: false });
 
       if (activityError) {
-        console.error('Error fetching activities:', activityError);
+        logger.error('Error fetching activities:', activityError);
         setLoading(false);
         return;
       }
@@ -50,7 +51,7 @@ export const useActivityStats = () => {
         .select('user_id, display_name');
 
       if (profilesError) {
-        console.error('Error fetching profiles:', profilesError);
+        logger.error('Error fetching profiles:', profilesError);
       }
 
       // Fetch user roles for emails (if available via auth)
@@ -59,7 +60,7 @@ export const useActivityStats = () => {
         .select('user_id');
 
       if (rolesError) {
-        console.error('Error fetching roles:', rolesError);
+        logger.error('Error fetching roles:', rolesError);
       }
 
       // Build user stats map
@@ -130,7 +131,7 @@ export const useActivityStats = () => {
         activeUsersWeek: activeWeek.size,
       });
     } catch (err) {
-      console.error('Error fetching activity stats:', err);
+      logger.error('Error fetching activity stats:', err);
     } finally {
       setLoading(false);
     }

@@ -7,6 +7,7 @@ import { VoiceRecorder } from "./VoiceRecorder";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { logger } from "@/lib/logger";
 
 interface VoiceRegistrationProps {
   onComplete?: () => void;
@@ -55,7 +56,7 @@ export const VoiceRegistration = ({
       if (error) throw error;
       setSamples(data || []);
     } catch (error) {
-      console.error("Error fetching voice samples:", error);
+      logger.error("Error fetching voice samples:", error);
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +90,7 @@ export const VoiceRegistration = ({
             await supabase.storage.from("voice-samples").remove([oldFilePath]);
           }
         } catch (e) {
-          console.error("Failed to delete old voice sample file:", e);
+          logger.error("Failed to delete old voice sample file:", e);
           // Continue anyway - don't block new upload
         }
       }
@@ -184,7 +185,7 @@ export const VoiceRegistration = ({
         description: `Voice sample ${sampleNumber} saved successfully.`,
       });
     } catch (error) {
-      console.error("Error saving voice sample:", error);
+      logger.error("Error saving voice sample:", error);
       toast({
         title: "Error",
         description: "Failed to save voice sample. Please try again.",

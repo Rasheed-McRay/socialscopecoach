@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 
 const FEATURES = [
   "30 conversation analyses per month",
@@ -38,7 +39,7 @@ const Paywall = () => {
         window.location.href = data.url;
       }
     } catch (error) {
-      console.error("Error creating checkout:", error);
+      logger.error("Error creating checkout:", error);
       toast.error("Failed to start checkout. Please try again.");
     } finally {
       setIsLoading(false);

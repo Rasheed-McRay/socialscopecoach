@@ -3,6 +3,7 @@
  * No-ops on web.
  */
 import { isNativeApp } from "@/lib/nativeRuntime";
+import { logger } from "@/lib/logger";
 
 export const initNativeRuntime = async () => {
   if (!isNativeApp()) return;
@@ -16,7 +17,7 @@ export const initNativeRuntime = async () => {
       /* iOS doesn't support setBackgroundColor */
     });
   } catch (err) {
-    console.log("StatusBar unavailable:", err);
+    logger.log("StatusBar unavailable:", err);
   }
 
   try {
@@ -26,6 +27,6 @@ export const initNativeRuntime = async () => {
       SplashScreen.hide({ fadeOutDuration: 400 }).catch(() => undefined);
     }, 300);
   } catch (err) {
-    console.log("SplashScreen unavailable:", err);
+    logger.log("SplashScreen unavailable:", err);
   }
 };

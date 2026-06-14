@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 
 const MAX_RECORDING_TIME = 600; // 10 minutes in seconds
 const WARNING_TIME = 540; // 9 minutes - warn 1 minute before limit
@@ -31,10 +32,10 @@ export function AudioUploader({ onAudioReady, isProcessing, onRecordingStateChan
     try {
       if ('wakeLock' in navigator) {
         wakeLockRef.current = await navigator.wakeLock.request('screen');
-        console.log('Wake lock acquired');
+        logger.log('Wake lock acquired');
       }
     } catch (err) {
-      console.log('Wake lock not available:', err);
+      logger.log('Wake lock not available:', err);
     }
   };
 
@@ -44,9 +45,9 @@ export function AudioUploader({ onAudioReady, isProcessing, onRecordingStateChan
       try {
         await wakeLockRef.current.release();
         wakeLockRef.current = null;
-        console.log('Wake lock released');
+        logger.log('Wake lock released');
       } catch (err) {
-        console.log('Error releasing wake lock:', err);
+        logger.log('Error releasing wake lock:', err);
       }
     }
   };
@@ -107,7 +108,7 @@ export function AudioUploader({ onAudioReady, isProcessing, onRecordingStateChan
         });
       }, 1000);
     } catch (error) {
-      console.error("Error accessing microphone:", error);
+      logger.error("Error accessing microphone:", error);
       releaseWakeLock();
       
       if (error instanceof Error) {

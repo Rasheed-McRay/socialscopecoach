@@ -254,21 +254,8 @@ const Progress = () => {
               </CardContent>
             </Card>
 
-            {/* Biggest Strength */}
-            <Card className="glass animate-fade-in" style={{ animationDelay: "0.4s" }}>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Star className="w-5 h-5 text-yellow-500" />
-                  Biggest Strength
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-4">
-                  <p className="text-xl font-semibold text-foreground">{biggestStrength}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </main>
+            {/* Best Scores */}
+            <Card className="glass animate-fade-in" style={{ animationDelay: "0.3s" }}>
         </div>
       </div>
     </ProFeatureGate>

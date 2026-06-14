@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, Navigate } from "react-router-dom";
 import { CheckCircle, Sparkles, Mic, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,8 +8,16 @@ import confetti from "canvas-confetti";
 
 const CheckoutSuccess = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get("session_id");
   const { refreshSubscription, isPro } = useSubscription();
   const [refreshing, setRefreshing] = useState(true);
+
+  // Guard: only accessible after a real Stripe checkout (session_id present)
+  if (!sessionId) {
+    return <Navigate to="/settings" replace />;
+  }
+
 
   useEffect(() => {
     // Trigger confetti celebration

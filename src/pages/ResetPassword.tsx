@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AudioWaveform, Loader2, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const passwordSchema = z.string()
   .min(8, 'Password must be at least 8 characters')
@@ -16,6 +17,7 @@ const passwordSchema = z.string()
   .regex(/[0-9]/, 'Password must contain a number');
 
 const ResetPassword = () => {
+  usePageTitle("Reset Password");
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);

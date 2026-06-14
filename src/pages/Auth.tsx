@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AudioWaveform, Loader2, Mail, Lock, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string()
@@ -20,6 +21,7 @@ const passwordSchema = z.string()
 const displayNameSchema = z.string().min(2, 'Display name must be at least 2 characters').max(50, 'Display name must be less than 50 characters').optional();
 
 const Auth = () => {
+  usePageTitle("Sign In");
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');

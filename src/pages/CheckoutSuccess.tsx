@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import confetti from "canvas-confetti";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const CheckoutSuccess = () => {
+  usePageTitle("Checkout Complete");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");

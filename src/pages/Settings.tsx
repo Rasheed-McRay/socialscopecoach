@@ -26,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { HeaderNav } from "@/components/HeaderNav";
 import { AdminPanel } from "@/components/AdminPanel";
 import { toast } from "sonner";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const GOAL_LABELS: Record<string, string> = {
   confidence: "Become more confident",
@@ -57,6 +58,7 @@ const FREQUENCY_LABELS: Record<string, string> = {
 };
 
 const Settings = () => {
+  usePageTitle("Settings");
   const { user, signOut } = useAuth();
   const { tier, isPro, refreshSubscription } = useSubscription();
   const { isOwner, impersonation } = useRole();

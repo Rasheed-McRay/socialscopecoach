@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { ProFeatureGate } from "@/components/ProFeatureGate";
 import { logger } from "@/lib/logger";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface AnalysisResult {
   socialScore?: number;
@@ -25,6 +26,7 @@ interface Report {
 }
 
 const Progress = () => {
+  usePageTitle("Your Progress");
   const { user } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);

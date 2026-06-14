@@ -12,6 +12,7 @@ import { InsightCard } from "@/components/InsightCard";
 import { ScoreDial } from "@/components/ScoreDial";
 import { AnalysisCard } from "@/components/AnalysisCard";
 import { logger } from "@/lib/logger";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 
 interface SavedReport {
@@ -30,6 +31,7 @@ const getFirstSentence = (text: string): string => {
 };
 
 const Insights = () => {
+  usePageTitle("Insights");
   const { user } = useAuth();
   const [reports, setReports] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);

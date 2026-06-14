@@ -14,6 +14,7 @@ import { OptionCard } from "@/components/onboarding/OptionCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const GOALS = [
   { id: "confidence", icon: Sparkles, title: "Become more confident", description: "Feel comfortable in any conversation" },
@@ -47,6 +48,7 @@ const FREQUENCIES = [
 const TOTAL_STEPS = 4;
 
 const Onboarding = () => {
+  usePageTitle("Get Started");
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard, Settings2, RotateCcw, Shield, FileText, Trash2 } from "lucide-react";
+import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard, Settings2, RotateCcw, Shield, FileText, Trash2, Download } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -69,6 +69,7 @@ const Settings = () => {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isManagingSubscription, setIsManagingSubscription] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isExportingData, setIsExportingData] = useState(false);
 
   const [preferences, setPreferences] = useState<{
     primary_goal: string | null;
@@ -253,6 +254,33 @@ const Settings = () => {
       setIsDeletingAccount(false);
     }
   };
+
+  const handleExportData = async () => {
+    setIsExportingData(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("export-user-data");
+      if (error) throw error;
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const date = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `socialscopecoach-data-${date}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("Your data has been downloaded");
+    } catch (err: any) {
+      console.error("Export data failed:", err);
+      toast.error(err?.message || "Failed to export data. Please try again.");
+    } finally {
+      setIsExportingData(false);
+    }
+  };
+
+
 
 
   if (isLoading) {
@@ -587,6 +615,34 @@ const Settings = () => {
                       </span>
                       <ExternalLink className="w-3 h-3" />
                     </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Your Data */}
+              <Card className="glass">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Download className="w-5 h-5" />
+                    Your Data
+                  </CardTitle>
+                  <CardDescription>
+                    Download a JSON copy of your profile, reports, activity, and other data we store.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2"
+                    onClick={handleExportData}
+                    disabled={isExportingData}
+                  >
+                    {isExportingData ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4" />
+                    )}
+                    {isExportingData ? "Preparing…" : "Export my data"}
                   </Button>
                 </CardContent>
               </Card>

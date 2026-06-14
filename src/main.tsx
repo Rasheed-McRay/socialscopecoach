@@ -36,7 +36,12 @@ const removeSplashScreen = () => {
   }
 };
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);
 removeSplashScreen();
 initNativeRuntime();
+
 

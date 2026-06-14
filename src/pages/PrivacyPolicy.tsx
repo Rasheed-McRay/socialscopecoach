@@ -127,6 +127,22 @@ const PrivacyPolicy = () => {
             </p>
           </section>
 
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">11. Contact Us</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              If you have any questions about this Privacy Policy or wish to exercise your data rights, please contact us:
+            </p>
+            <p className="text-muted-foreground leading-relaxed mt-2">
+              <strong>Email:</strong>{" "}
+              <a href="mailto:privacy@socialscopecoach.com" className="text-primary hover:underline">
+                privacy@socialscopecoach.com
+              </a>
+            </p>
+            <p className="text-muted-foreground leading-relaxed mt-2">
+              <strong>Jurisdiction:</strong> [Your State], United States
+            </p>
+          </section>
+
         </div>
       </div>
     </div>

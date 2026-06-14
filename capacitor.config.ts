@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.29c424026efd4d75bd72b8324e49a11b',
+  appId: 'com.socialscopecoach.app',
   appName: 'SocialScope Coach',
   webDir: 'dist',
   // Match index.css --background (222 47% 6%) so there's no white flash

@@ -70,7 +70,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${siteUrl}/checkout-success`,
+      success_url: `${siteUrl}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/paywall`,
     };
 

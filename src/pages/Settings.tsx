@@ -1,6 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard, Settings2, RotateCcw, Shield, FileText } from "lucide-react";
+import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard, Settings2, RotateCcw, Shield, FileText, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -56,6 +68,8 @@ const Settings = () => {
   const [isSavingName, setIsSavingName] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isManagingSubscription, setIsManagingSubscription] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
   const [preferences, setPreferences] = useState<{
     primary_goal: string | null;
     improvement_context: string | null;
@@ -224,6 +238,22 @@ const Settings = () => {
       setIsManagingSubscription(false);
     }
   };
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    try {
+      const { error } = await supabase.functions.invoke("delete-account");
+      if (error) throw error;
+      toast.success("Account deleted");
+      await signOut();
+      navigate("/", { replace: true });
+    } catch (err: any) {
+      console.error("Delete account failed:", err);
+      toast.error(err?.message || "Failed to delete account. Please try again.");
+      setIsDeletingAccount(false);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -560,7 +590,56 @@ const Settings = () => {
                   </Button>
                 </CardContent>
               </Card>
+
+              {/* Danger Zone */}
+              <Card className="glass border-destructive/40">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-destructive">
+                    <Trash2 className="w-5 h-5" />
+                    Danger Zone
+                  </CardTitle>
+                  <CardDescription>
+                    Permanently delete your account and all associated data. This cannot be undone.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" className="w-full gap-2" disabled={isDeletingAccount}>
+                        {isDeletingAccount ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                        Delete Account
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete your profile, saved reports, voice samples,
+                          activity, and subscription record. Your data cannot be recovered. If you
+                          have an active subscription, cancel it from Manage Subscription first to
+                          avoid further charges.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeletingAccount}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteAccount}
+                          disabled={isDeletingAccount}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {isDeletingAccount ? "Deleting…" : "Yes, delete forever"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardContent>
+              </Card>
             </div>
+
           )}
         </main>
       </div>

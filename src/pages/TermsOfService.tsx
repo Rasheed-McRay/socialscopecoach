@@ -155,9 +155,15 @@ const TermsOfService = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">13. Governing Law</h2>
+            <h2 className="text-2xl font-semibold mb-4">13. Governing Law & Contact</h2>
             <p className="text-muted-foreground leading-relaxed">
-              These Terms shall be governed by and construed in accordance with the laws of the United States, without regard to its conflict of law provisions.
+              These Terms shall be governed by and construed in accordance with the laws of the State of [Your State], United States, without regard to its conflict of law provisions.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mt-4">
+              For questions about these Terms, contact us at{" "}
+              <a href="mailto:legal@socialscopecoach.com" className="text-primary hover:underline">
+                legal@socialscopecoach.com
+              </a>.
             </p>
           </section>
 

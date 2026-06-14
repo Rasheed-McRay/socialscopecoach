@@ -675,9 +675,8 @@ const Settings = () => {
                         <AlertDialogTitle>Delete your account?</AlertDialogTitle>
                         <AlertDialogDescription>
                           This will permanently delete your profile, saved reports, voice samples,
-                          activity, and subscription record. Your data cannot be recovered. If you
-                          have an active subscription, cancel it from Manage Subscription first to
-                          avoid further charges.
+                          activity, and subscription record. Any active subscription will be
+                          cancelled so you stop being charged. Your data cannot be recovered.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

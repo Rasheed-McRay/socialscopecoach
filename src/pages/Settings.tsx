@@ -239,6 +239,22 @@ const Settings = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    try {
+      const { error } = await supabase.functions.invoke("delete-account");
+      if (error) throw error;
+      toast.success("Account deleted");
+      await signOut();
+      navigate("/", { replace: true });
+    } catch (err: any) {
+      console.error("Delete account failed:", err);
+      toast.error(err?.message || "Failed to delete account. Please try again.");
+      setIsDeletingAccount(false);
+    }
+  };
+
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">

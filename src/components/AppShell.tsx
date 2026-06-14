@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
+import { OfflineBanner } from "./OfflineBanner";
 
 interface AppShellProps {
   children: ReactNode;
@@ -25,6 +26,7 @@ export function AppShell({
 
   return (
     <>
+      <OfflineBanner />
       {children}
       {showNav && (
         <BottomNav 

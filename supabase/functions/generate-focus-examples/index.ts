@@ -25,6 +25,7 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     const token = authHeader.replace("Bearer ", "");
@@ -39,6 +40,58 @@ serve(async (req) => {
     }
 
     console.log("Authenticated user:", user.id);
+
+    // Server-side tier validation using service role
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
+    const { data: roleData, error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .select("tier, access_level")
+      .eq("user_id", user.id)
+      .single();
+
+    if (roleError) {
+      console.log("Error fetching user role:", roleError.message);
+      return new Response(
+        JSON.stringify({ error: "Unable to verify subscription" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const allowedTiers = ["free", "premium", "developer"];
+    const allowedAccessLevels = ["restricted", "standard", "unlimited"];
+    const hasAccess =
+      allowedTiers.includes(roleData?.tier) &&
+      allowedAccessLevels.includes(roleData?.access_level);
+
+    if (!hasAccess) {
+      return new Response(
+        JSON.stringify({ error: "Not authorized to use this feature" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Per-day quota to prevent AI credit drain
+    const isPro = roleData?.tier === "premium" || roleData?.tier === "developer";
+    const isUnlimited = roleData?.access_level === "unlimited";
+    const dailyLimit = isUnlimited ? Number.POSITIVE_INFINITY : (isPro ? 100 : 20);
+
+    if (Number.isFinite(dailyLimit)) {
+      const startOfDay = new Date();
+      startOfDay.setUTCHours(0, 0, 0, 0);
+      const { count: usageCount } = await supabaseAdmin
+        .from("user_activity")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("activity_type", "focus_examples_generated")
+        .gte("created_at", startOfDay.toISOString());
+
+      if ((usageCount ?? 0) >= dailyLimit) {
+        return new Response(
+          JSON.stringify({ error: "Daily limit reached. Try again tomorrow." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     const { focusArea } = await req.json();
 
@@ -56,6 +109,18 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Log usage for quota tracking (non-blocking)
+    supabaseAdmin
+      .from("user_activity")
+      .insert({
+        user_id: user.id,
+        activity_type: "focus_examples_generated",
+        metadata: {},
+      })
+      .then(({ error }) => {
+        if (error) console.log("Failed to log focus_examples usage:", error.message);
+      });
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {

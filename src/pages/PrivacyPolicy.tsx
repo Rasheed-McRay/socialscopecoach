@@ -134,8 +134,8 @@ const PrivacyPolicy = () => {
             </p>
             <p className="text-muted-foreground leading-relaxed mt-2">
               <strong>Email:</strong>{" "}
-              <a href="mailto:privacy@socialscopecoach.com" className="text-primary hover:underline">
-                privacy@socialscopecoach.com
+              <a href="mailto:RasheedMcRay@socialscopecoach.app" className="text-primary hover:underline">
+                RasheedMcRay@socialscopecoach.app
               </a>
             </p>
             <p className="text-muted-foreground leading-relaxed mt-2">

@@ -161,8 +161,8 @@ const TermsOfService = () => {
             </p>
             <p className="text-muted-foreground leading-relaxed mt-4">
               For questions about these Terms, contact us at{" "}
-              <a href="mailto:legal@socialscopecoach.com" className="text-primary hover:underline">
-                legal@socialscopecoach.com
+              <a href="mailto:RasheedMcRay@socialscopecoach.app" className="text-primary hover:underline">
+                RasheedMcRay@socialscopecoach.app
               </a>.
             </p>
           </section>

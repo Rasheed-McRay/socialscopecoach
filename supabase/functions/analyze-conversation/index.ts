@@ -439,7 +439,7 @@ Remember: Every piece of feedback must reference specific moments, quotes, or pa
   } catch (error) {
     console.error("Error in analyze-conversation:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Analysis failed" }),
+      JSON.stringify({ error: "An internal error occurred. Please try again." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

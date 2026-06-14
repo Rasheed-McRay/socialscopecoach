@@ -4,6 +4,7 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -50,6 +51,37 @@ serve(async (req) => {
     const admin = createClient(supabaseUrl, supabaseServiceRoleKey, {
       auth: { persistSession: false },
     });
+    // Cancel any active Stripe subscriptions for this user so they stop being charged.
+    try {
+      const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+      const email = userData.user.email;
+      if (stripeKey && email) {
+        const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+        const customers = await stripe.customers.list({ email, limit: 10 });
+        for (const customer of customers.data) {
+          const subs = await stripe.subscriptions.list({
+            customer: customer.id,
+            status: "all",
+            limit: 100,
+          });
+          for (const sub of subs.data) {
+            if (sub.status === "active" || sub.status === "trialing" || sub.status === "past_due" || sub.status === "unpaid") {
+              try {
+                await stripe.subscriptions.cancel(sub.id, { invoice_now: false, prorate: false });
+                log("Cancelled Stripe subscription", { subscriptionId: sub.id, customerId: customer.id });
+              } catch (e) {
+                log("Failed to cancel subscription (non-fatal)", { subscriptionId: sub.id, error: String(e) });
+              }
+            }
+          }
+        }
+      } else if (!stripeKey) {
+        log("STRIPE_SECRET_KEY not set, skipping subscription cancellation");
+      }
+    } catch (e) {
+      log("Stripe cancellation step failed (non-fatal)", { error: String(e) });
+    }
+
 
     // Remove voice samples from storage (best-effort)
     try {

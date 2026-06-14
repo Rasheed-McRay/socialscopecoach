@@ -2,6 +2,8 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { initNativeRuntime } from "./lib/nativeBoot";
+import ErrorBoundary from "./components/ErrorBoundary";
+
 
 // Lock screen orientation to portrait on mobile/PWA
 const lockOrientation = async () => {

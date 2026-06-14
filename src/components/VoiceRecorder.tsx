@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { describeMicError } from "@/lib/nativeRuntime";
 import { hapticTap, hapticSuccess } from "@/lib/haptics";
+import { logger } from "@/lib/logger";
 interface VoiceRecorderProps {
   sampleNumber: number;
   isComplete: boolean;
@@ -80,7 +81,7 @@ export const VoiceRecorder = ({
         });
       }, 1000);
     } catch (error) {
-      console.error("Error accessing microphone:", error);
+      logger.error("Error accessing microphone:", error);
       const { title, description } = describeMicError(error);
       toast.error(title, { description });
     }

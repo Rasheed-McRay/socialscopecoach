@@ -1,36 +1,32 @@
-## Data Export (JSON Download)
+## Goal
+Silence the 62 `console.*` calls across `src/` in production builds, while keeping them in dev for debugging.
 
-Fulfills the Privacy Policy promise to let users download their own data.
+## Approach
+Instead of wrapping every call site in `if (import.meta.env.DEV)` (noisy, error-prone, 22 files), add a single logger utility and replace all `console.log/info/debug/warn` with it. Keep raw `console.error` only inside `ErrorBoundary` (so React error reporting still surfaces if the user opens devtools).
 
-### 1. New edge function: `export-user-data`
+### 1. New file: `src/lib/logger.ts`
+```ts
+const dev = import.meta.env.DEV;
+export const logger = {
+  log:   (...a: unknown[]) => { if (dev) console.log(...a); },
+  info:  (...a: unknown[]) => { if (dev) console.info(...a); },
+  debug: (...a: unknown[]) => { if (dev) console.debug(...a); },
+  warn:  (...a: unknown[]) => { if (dev) console.warn(...a); },
+  error: (...a: unknown[]) => { if (dev) console.error(...a); },
+};
+```
 
-- Path: `supabase/functions/export-user-data/index.ts`
-- Auth: validates JWT in code (uses `SUPABASE_ANON_KEY` + user's bearer token to resolve `auth.uid()`), then switches to `SUPABASE_SERVICE_ROLE_KEY` for the actual reads.
-- Returns a single JSON object for the calling user:
-  ```
-  {
-    exported_at, user: { id, email },
-    profile, roles, subscription,
-    daily_analysis_usage, monthly_analysis_usage,
-    daily_scope_completions, saved_reports,
-    user_activity, voice_samples
-  }
-  ```
-- Standard CORS headers, 200 on success, 401 on missing/invalid auth, 500 on server error.
-- No `config.toml` change needed (defaults are fine; JWT verified in code like the other functions).
+### 2. Codemod across 22 files
+In every file currently using `console.log|info|debug|warn|error`:
+- Add `import { logger } from "@/lib/logger";`
+- Replace `console.log(` → `logger.log(`, same for `info/debug/warn/error`.
 
-### 2. Settings UI
+Exception: `src/components/ErrorBoundary.tsx` keeps its `console.error` (real uncaught-error reporting).
 
-In `src/pages/Settings.tsx`, add an "Export my data" button placed next to / above the existing "Delete account" action. On click:
+### 3. Verify
+- Build passes
+- `rg "console\." src` returns only the ErrorBoundary line + the logger file itself.
 
-1. Get the current session.
-2. `supabase.functions.invoke('export-user-data')`.
-3. Build a `Blob` from the JSON, create an object URL, trigger a download as `socialscopecoach-data-YYYY-MM-DD.json`, revoke the URL.
-4. Toast success / error. Disable button + spinner while in flight.
-
-No new dependencies, no schema changes, no migrations.
-
-### Out of scope
-
-- No audio file downloads (just the `voice_samples` rows with their `audio_url`s — bucket is private, so links won't resolve publicly; acceptable for v1 and noted in the export).
-- No async/email delivery — synchronous download only.
+## Out of scope
+- Edge functions (server-side logs are fine, useful for debugging in the function logs panel).
+- `index.html` / vendor code.

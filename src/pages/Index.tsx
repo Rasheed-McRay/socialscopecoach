@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { transcribeAudio } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { logger } from "@/lib/logger";
 
 // Daily scope prompts - open-ended questions that encourage thoughtful, detailed responses
 // 365 open-ended daily prompts — one per day of the year, cycled in order.
@@ -436,7 +437,7 @@ const Index = () => {
       if (error) throw error;
       setDisplayName(data?.display_name || "");
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      logger.error("Error fetching profile:", error);
     }
   };
 
@@ -457,7 +458,7 @@ const Index = () => {
       if (error) throw error;
       setTodayCompletion(data);
     } catch (error) {
-      console.error("Error checking today's completion:", error);
+      logger.error("Error checking today's completion:", error);
     } finally {
       setLoadingCompletion(false);
     }
@@ -539,7 +540,7 @@ const Index = () => {
       if (abortControllerRef.current?.signal.aborted) {
         return;
       }
-      console.error("Error processing daily scope:", error);
+      logger.error("Error processing daily scope:", error);
       toast.error(error.message || "Failed to process recording");
     } finally {
       setIsProcessing(false);

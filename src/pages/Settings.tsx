@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard, Settings2, RotateCcw, Shield, FileText, Trash2, Download } from "lucide-react";
+import { logger } from "@/lib/logger";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -108,7 +109,7 @@ const Settings = () => {
         await refreshSubscription();
       }
     } catch (error) {
-      console.error("Error checking subscription:", error);
+      logger.error("Error checking subscription:", error);
     }
   };
 
@@ -132,7 +133,7 @@ const Settings = () => {
         practice_frequency: data?.practice_frequency || null,
       });
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      logger.error("Error fetching profile:", error);
     } finally {
       setIsLoading(false);
     }
@@ -151,7 +152,7 @@ const Settings = () => {
       if (error) throw error;
       toast.success("Display name updated");
     } catch (error) {
-      console.error("Error updating display name:", error);
+      logger.error("Error updating display name:", error);
       toast.error("Failed to update display name");
     } finally {
       setIsSavingName(false);
@@ -188,7 +189,7 @@ const Settings = () => {
       // Navigate to onboarding
       navigate("/onboarding");
     } catch (error) {
-      console.error("Error resetting onboarding:", error);
+      logger.error("Error resetting onboarding:", error);
       toast.error("Failed to reset preferences");
     } finally {
       setIsResettingOnboarding(false);
@@ -206,7 +207,7 @@ const Settings = () => {
         window.location.href = data.url;
       }
     } catch (error) {
-      console.error("Error creating checkout:", error);
+      logger.error("Error creating checkout:", error);
       toast.error("Failed to start checkout");
     } finally {
       setIsCheckingOut(false);
@@ -228,7 +229,7 @@ const Settings = () => {
         window.location.href = data.url;
       }
     } catch (error: any) {
-      console.error("Error opening customer portal:", error);
+      logger.error("Error opening customer portal:", error);
       // Handle case where user was granted pro access without Stripe
       if (error?.message?.includes('No Stripe customer') || error?.context?.body?.includes('No Stripe customer')) {
         toast.info("Your subscription was granted by an admin. No billing to manage.");
@@ -249,7 +250,7 @@ const Settings = () => {
       await signOut();
       navigate("/", { replace: true });
     } catch (err: any) {
-      console.error("Delete account failed:", err);
+      logger.error("Delete account failed:", err);
       toast.error(err?.message || "Failed to delete account. Please try again.");
       setIsDeletingAccount(false);
     }
@@ -273,7 +274,7 @@ const Settings = () => {
       URL.revokeObjectURL(url);
       toast.success("Your data has been downloaded");
     } catch (err: any) {
-      console.error("Export data failed:", err);
+      logger.error("Export data failed:", err);
       toast.error(err?.message || "Failed to export data. Please try again.");
     } finally {
       setIsExportingData(false);

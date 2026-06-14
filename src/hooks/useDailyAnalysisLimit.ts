@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { logger } from "@/lib/logger";
 
 const FREE_DAILY_LIMIT = 1;
 const PRO_MONTHLY_LIMIT = 30;
@@ -149,7 +150,7 @@ export const useDailyAnalysisLimit = () => {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching subscription date:', error);
+        logger.error('Error fetching subscription date:', error);
         return null;
       }
 
@@ -159,7 +160,7 @@ export const useDailyAnalysisLimit = () => {
         return date;
       }
     } catch (err) {
-      console.error('Error fetching subscription date:', err);
+      logger.error('Error fetching subscription date:', err);
     }
     return null;
   }, [user]);
@@ -189,7 +190,7 @@ export const useDailyAnalysisLimit = () => {
         .maybeSingle();
 
       if (dailyError) {
-        console.error('Error fetching daily usage:', dailyError);
+        logger.error('Error fetching daily usage:', dailyError);
       }
 
       if (isPro) {
@@ -206,7 +207,7 @@ export const useDailyAnalysisLimit = () => {
           .maybeSingle();
 
         if (monthlyError) {
-          console.error('Error fetching monthly usage:', monthlyError);
+          logger.error('Error fetching monthly usage:', monthlyError);
           setMonthlyCount(0);
         } else {
           setMonthlyCount(monthlyData?.analysis_count ?? 0);
@@ -220,7 +221,7 @@ export const useDailyAnalysisLimit = () => {
         setDailyBonusUsed((dailyData?.analysis_count ?? 0) >= 1);
       }
     } catch (err) {
-      console.error('Error fetching usage:', err);
+      logger.error('Error fetching usage:', err);
       setMonthlyCount(0);
       setDailyBonusUsed(false);
     } finally {
@@ -291,7 +292,7 @@ export const useDailyAnalysisLimit = () => {
 
       return true;
     } catch (err) {
-      console.error('Error decrementing usage:', err);
+      logger.error('Error decrementing usage:', err);
       return false;
     }
   }, [user, hasUnlimitedAccess, subscriptionStartedAt, fetchSubscriptionDate]);
@@ -324,7 +325,7 @@ export const useDailyAnalysisLimit = () => {
               .eq('id', existing.id);
 
             if (error) {
-              console.error('Error updating daily usage:', error);
+              logger.error('Error updating daily usage:', error);
               return { success: false, creditUsed: 'none' };
             }
           } else {
@@ -337,7 +338,7 @@ export const useDailyAnalysisLimit = () => {
               });
 
             if (error) {
-              console.error('Error inserting daily usage:', error);
+              logger.error('Error inserting daily usage:', error);
               return { success: false, creditUsed: 'none' };
             }
           }
@@ -368,7 +369,7 @@ export const useDailyAnalysisLimit = () => {
             .eq('id', existing.id);
 
           if (error) {
-            console.error('Error updating monthly usage:', error);
+            logger.error('Error updating monthly usage:', error);
             return { success: false, creditUsed: 'none' };
           }
 
@@ -384,7 +385,7 @@ export const useDailyAnalysisLimit = () => {
             });
 
           if (error) {
-            console.error('Error inserting monthly usage:', error);
+            logger.error('Error inserting monthly usage:', error);
             return { success: false, creditUsed: 'none' };
           }
 
@@ -403,7 +404,7 @@ export const useDailyAnalysisLimit = () => {
                 metadata: { tier: 'pro' },
               });
           } catch (err) {
-            console.error('Failed to track analysis:', err);
+            logger.error('Failed to track analysis:', err);
           }
         })();
 
@@ -432,7 +433,7 @@ export const useDailyAnalysisLimit = () => {
             .eq('id', existing.id);
 
           if (error) {
-            console.error('Error updating daily usage:', error);
+            logger.error('Error updating daily usage:', error);
             return { success: false, creditUsed: 'none' };
           }
         } else {
@@ -445,7 +446,7 @@ export const useDailyAnalysisLimit = () => {
             });
 
           if (error) {
-            console.error('Error inserting daily usage:', error);
+            logger.error('Error inserting daily usage:', error);
             return { success: false, creditUsed: 'none' };
           }
         }
@@ -464,14 +465,14 @@ export const useDailyAnalysisLimit = () => {
                 metadata: { tier: 'free' },
               });
           } catch (err) {
-            console.error('Failed to track analysis:', err);
+            logger.error('Failed to track analysis:', err);
           }
         })();
 
         return { success: true, creditUsed: 'daily_bonus' };
       }
     } catch (err) {
-      console.error('Error incrementing usage:', err);
+      logger.error('Error incrementing usage:', err);
       return { success: false, creditUsed: 'none' };
     }
   }, [user, isPro, hasUnlimitedAccess, dailyBonusUsed, monthlyRemaining, subscriptionStartedAt, fetchSubscriptionDate]);

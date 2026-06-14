@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { logger } from "@/lib/logger";
 
 export type ActivityType = 'login' | 'analysis';
 
@@ -27,13 +28,13 @@ export const useActivityTracker = () => {
         });
 
       if (error) {
-        console.error('Error tracking activity:', error);
+        logger.error('Error tracking activity:', error);
         return false;
       }
 
       return true;
     } catch (err) {
-      console.error('Error tracking activity:', err);
+      logger.error('Error tracking activity:', err);
       return false;
     }
   }, [user]);

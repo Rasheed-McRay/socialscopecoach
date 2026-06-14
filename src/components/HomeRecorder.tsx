@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { describeMicError } from "@/lib/nativeRuntime";
 import { startRecordingSession, stopRecordingSession } from "@/lib/recordingSession";
 import { hapticTap, hapticSuccess, hapticWarn } from "@/lib/haptics";
+import { logger } from "@/lib/logger";
 
 const MAX_RECORDING_TIME = 600; // 10 minutes in seconds
 const WARNING_TIME = 540; // 9 minutes - warn 1 minute before limit
@@ -78,7 +79,7 @@ export function HomeRecorder({ onRecordingComplete }: HomeRecorderProps) {
         });
       }, 1000);
     } catch (error) {
-      console.error("Error accessing microphone:", error);
+      logger.error("Error accessing microphone:", error);
       stopRecordingSession();
       const { title, description } = describeMicError(error);
       toast.error(title, { description });

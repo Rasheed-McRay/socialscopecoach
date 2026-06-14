@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { logger } from "@/lib/logger";
 import {
   TrendingUp,
   TrendingDown,
@@ -140,7 +141,7 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
         description: "Your analysis report has been saved.",
       });
     } catch (error) {
-      console.error("Error saving report:", error);
+      logger.error("Error saving report:", error);
       toast({
         title: "Save Failed",
         description: "Could not save the report. Please try again.",
@@ -170,7 +171,7 @@ export function AnalysisReport({ result, transcript, onReset, reportId, onSaved,
         description: "Your saved report has been deleted.",
       });
     } catch (error) {
-      console.error("Error deleting report:", error);
+      logger.error("Error deleting report:", error);
       toast({
         title: "Delete Failed",
         description: "Could not delete the report. Please try again.",

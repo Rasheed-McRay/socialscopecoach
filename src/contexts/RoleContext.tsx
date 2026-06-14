@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from "@/lib/logger";
 
 type AppRole = 'owner' | 'admin' | 'moderator' | 'user';
 type UserTier = 'free' | 'premium' | 'developer';
@@ -85,7 +86,7 @@ export const RoleProvider = ({ children }: RoleProviderProps) => {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching user role:', error);
+        logger.error('Error fetching user role:', error);
       } else if (data) {
         setRole(data.role as AppRole);
         setTier(data.tier as UserTier);
@@ -105,7 +106,7 @@ export const RoleProvider = ({ children }: RoleProviderProps) => {
           .then(() => {});
       }
     } catch (err) {
-      console.error('Error in fetchRole:', err);
+      logger.error('Error in fetchRole:', err);
     } finally {
       setLoading(false);
       setHasFetched(true);

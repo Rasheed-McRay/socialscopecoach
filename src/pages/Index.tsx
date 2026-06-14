@@ -11,6 +11,7 @@ import { transcribeAudio } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { logger } from "@/lib/logger";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // Daily scope prompts - open-ended questions that encourage thoughtful, detailed responses
 // 365 open-ended daily prompts — one per day of the year, cycled in order.
@@ -413,6 +414,7 @@ interface DailyScopeCompletion {
 }
 
 const Index = () => {
+  usePageTitle("Home");
   const { user } = useAuth();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");

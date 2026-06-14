@@ -6,7 +6,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Download, Check, Smartphone, AudioWaveform, ArrowRight } from 'lucide-react';
 import IOSInstallGuide from '@/components/IOSInstallGuide';
 import { InAppBrowserWarning } from '@/components/InAppBrowserWarning';
+import { usePageTitle } from "@/hooks/usePageTitle";
 const Install = () => {
+  usePageTitle("Install");
   const navigate = useNavigate();
   const {
     user

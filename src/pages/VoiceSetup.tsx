@@ -5,8 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { BottomNav } from "@/components/BottomNav";
 import { HeaderNav } from "@/components/HeaderNav";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const VoiceSetup = () => {
+  usePageTitle("Voice Setup");
   const navigate = useNavigate();
   const { user } = useAuth();
 

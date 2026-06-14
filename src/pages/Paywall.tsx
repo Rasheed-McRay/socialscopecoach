@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const FEATURES = [
   "30 conversation analyses per month",
@@ -17,6 +18,7 @@ const FEATURES = [
 ];
 
 const Paywall = () => {
+  usePageTitle("Upgrade to Pro");
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [isLoading, setIsLoading] = useState(false);

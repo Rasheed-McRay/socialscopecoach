@@ -14,10 +14,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { UnsavedAnalysisDialog } from "@/components/UnsavedAnalysisDialog";
 import { hapticSuccess } from "@/lib/haptics";
 import { logger } from "@/lib/logger";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 type AppState = "idle" | "processing" | "complete" | "limit-reached";
 type ProcessingStage = "uploading" | "transcribing" | "analyzing";
 const Record = () => {
+  usePageTitle("Record");
   const navigate = useNavigate();
   const [appState, setAppState] = useState<AppState>("idle");
   const [processingStage, setProcessingStage] = useState<ProcessingStage>("uploading");

@@ -116,7 +116,7 @@ serve(async (req) => {
     const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
     if (deleteError) {
       log("Failed to delete auth user", { error: deleteError.message });
-      return new Response(JSON.stringify({ error: deleteError.message }), {
+      return new Response(JSON.stringify({ error: "Failed to delete account. Please try again." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -130,7 +130,7 @@ serve(async (req) => {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     log("Unhandled error", { msg });
-    return new Response(JSON.stringify({ error: msg }), {
+    return new Response(JSON.stringify({ error: "An internal error occurred. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -541,7 +541,7 @@ const Settings = () => {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Button asChild variant="outline" className="w-full justify-between">
-                    <Link to="/privacy-policy">
+                    <Link to="/privacy">
                       <span className="flex items-center gap-2">
                         <Shield className="w-4 h-4" />
                         Privacy Policy
@@ -550,7 +550,7 @@ const Settings = () => {
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full justify-between">
-                    <Link to="/terms-of-service">
+                    <Link to="/terms">
                       <span className="flex items-center gap-2">
                         <FileText className="w-4 h-4" />
                         Terms of Service

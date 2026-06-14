@@ -373,7 +373,7 @@ Analyze their self-expression and provide personalized feedback with a rating.`
   } catch (error) {
     console.error("Error in analyze-monologue:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Analysis failed" }),
+      JSON.stringify({ error: "An internal error occurred. Please try again." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

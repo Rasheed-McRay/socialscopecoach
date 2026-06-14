@@ -117,8 +117,7 @@ export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) =>
     let removeAppListener: (() => void) | undefined;
     (async () => {
       try {
-        const mod: any = await import(/* @vite-ignore */ ("@capacitor/" + "app"));
-        const App = mod.App;
+        const { App } = await import("@capacitor/app");
         const handle = await App.addListener("appStateChange", ({ isActive }) => {
           if (isActive) maybeRefresh("appStateChange");
         });

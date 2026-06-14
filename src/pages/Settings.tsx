@@ -68,6 +68,8 @@ const Settings = () => {
   const [isSavingName, setIsSavingName] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isManagingSubscription, setIsManagingSubscription] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
   const [preferences, setPreferences] = useState<{
     primary_goal: string | null;
     improvement_context: string | null;

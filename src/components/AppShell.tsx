@@ -1,7 +1,9 @@
-import { ReactNode } from "react";
-import { useLocation } from "react-router-dom";
+import { ReactNode, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
 import { OfflineBanner } from "./OfflineBanner";
+import { registerCheckoutDeepLinks } from "@/lib/checkoutFlow";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 interface AppShellProps {
   children: ReactNode;
@@ -22,7 +24,25 @@ export function AppShell({
   onUnsavedNavigate,
 }: AppShellProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { refreshSubscription } = useSubscription();
   const showNav = NAV_ROUTES.includes(location.pathname);
+
+  useEffect(() => {
+    registerCheckoutDeepLinks({
+      onSuccess: (sessionId) => {
+        const qs = sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : "";
+        navigate(`/checkout-success${qs}`);
+        refreshSubscription();
+      },
+      onCancel: () => {
+        refreshSubscription();
+      },
+      onPortalReturn: () => {
+        refreshSubscription();
+      },
+    });
+  }, [navigate, refreshSubscription]);
 
   return (
     <>

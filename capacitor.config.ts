@@ -18,6 +18,11 @@ const config: CapacitorConfig = {
     allowMixedContent: false,
   },
   plugins: {
+    App: {
+      // Custom URL scheme for Stripe-checkout deep-link returns.
+      // Used by src/lib/checkoutFlow.ts.
+      urlScheme: 'socialscopecoach',
+    },
     SplashScreen: {
       launchShowDuration: 1500,
       launchAutoHide: false, // we hide it manually after React mounts

@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { clientPlatformHeader, openExternalCheckout } from "@/lib/checkoutFlow";
 
 const FEATURES = [
   "30 conversation analyses per month",

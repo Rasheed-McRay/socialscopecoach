@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard, Settings2, RotateCcw, Shield, FileText, Trash2, Download } from "lucide-react";
 import { logger } from "@/lib/logger";
+import { clientPlatformHeader, openExternalCheckout } from "@/lib/checkoutFlow";
 import {
   AlertDialog,
   AlertDialogAction,

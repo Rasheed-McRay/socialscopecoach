@@ -26,6 +26,7 @@ import Progress from "./pages/Progress";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import CheckoutReturn from "./pages/CheckoutReturn";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     <Route path="/terms" element={<TermsOfService />} />
+                    <Route path="/checkout-return" element={<CheckoutReturn />} />
                     <Route
                       path="/checkout-success"
                       element={

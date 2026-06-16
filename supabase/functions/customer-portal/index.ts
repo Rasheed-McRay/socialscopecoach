@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-client-platform",
 };
 
 const logStep = (step: string, details?: any) => {
@@ -59,9 +59,13 @@ serve(async (req) => {
     const origin = ALLOWED_ORIGINS.includes(requestOrigin)
       ? requestOrigin
       : (Deno.env.get("SITE_URL") ?? ALLOWED_ORIGINS[0]);
+    const isAndroid = req.headers.get("x-client-platform") === "android";
+    const returnUrl = isAndroid
+      ? "https://socialscopecoach.app/checkout-return?status=portal"
+      : `${origin}/settings`;
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${origin}/settings`,
+      return_url: returnUrl,
     });
     logStep("Customer portal session created", { url: portalSession.url });
 

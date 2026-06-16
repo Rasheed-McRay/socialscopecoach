@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-client-platform",
 };
 
 const logStep = (step: string, details?: any) => {
@@ -59,6 +59,17 @@ serve(async (req) => {
       ? requestOrigin
       : (Deno.env.get("SITE_URL") ?? ALLOWED_ORIGINS[0]);
 
+    // Android (Capacitor) clients must round-trip through a web bridge that
+    // forwards to a custom URL scheme — Stripe requires http(s) success/cancel URLs.
+    const isAndroid = req.headers.get("x-client-platform") === "android";
+    const bridgeBase = "https://socialscopecoach.app/checkout-return";
+    const successUrl = isAndroid
+      ? `${bridgeBase}?status=success&session_id={CHECKOUT_SESSION_ID}`
+      : `${siteUrl}/checkout-success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = isAndroid
+      ? `${bridgeBase}?status=cancel`
+      : `${siteUrl}/paywall`;
+
     // Create checkout session for Pro subscription
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
@@ -70,8 +81,8 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${siteUrl}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/paywall`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
     };
 
     const session = await stripe.checkout.sessions.create(sessionParams);

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AudioWaveform, LogOut, ArrowLeft, Mic, User, Loader2, Check, Crown, Sparkles, ExternalLink, CreditCard, Settings2, RotateCcw, Shield, FileText, Trash2, Download } from "lucide-react";
 import { logger } from "@/lib/logger";
+import { clientPlatformHeader, openExternalCheckout } from "@/lib/checkoutFlow";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -203,10 +204,12 @@ const Settings = () => {
     
     setIsCheckingOut(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout');
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        headers: clientPlatformHeader(),
+      });
       if (error) throw error;
       if (data?.url) {
-        window.location.href = data.url;
+        await openExternalCheckout(data.url);
       }
     } catch (error) {
       logger.error("Error creating checkout:", error);
@@ -221,14 +224,16 @@ const Settings = () => {
     
     setIsManagingSubscription(true);
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
+      const { data, error } = await supabase.functions.invoke('customer-portal', {
+        headers: clientPlatformHeader(),
+      });
       if (error) throw error;
       if (data?.error?.includes('No Stripe customer')) {
         toast.info("Your subscription was granted by an admin. No billing to manage.");
         return;
       }
       if (data?.url) {
-        window.location.href = data.url;
+        await openExternalCheckout(data.url);
       }
     } catch (error: any) {
       logger.error("Error opening customer portal:", error);

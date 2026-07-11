@@ -589,7 +589,7 @@ const Index = () => {
           </header>
 
           {/* Spacer for fixed header */}
-          <div className="h-[60px] safe-area-top flex-shrink-0" />
+          <div className="flex-shrink-0" style={{ height: 'calc(60px + env(safe-area-inset-top))' }} />
 
           {/* Main Content */}
           <main className="px-4 md:px-8 py-6 md:py-10 pb-28 space-y-6 max-w-4xl mx-auto flex-1">

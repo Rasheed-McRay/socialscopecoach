@@ -89,7 +89,14 @@ const TermsOfService = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">6. Content Ownership</h2>
+            <h2 className="text-2xl font-semibold mb-4">6. Recording Consent and Local Laws</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              You are solely responsible for complying with all applicable federal, state, and local laws regarding audio recording, including two-party and all-party consent requirements. Before recording any conversation through the Service, you must obtain any legally required consent from all participants. SocialScope is not responsible for your failure to obtain consent or for any unlawful recording made using the Service.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">7. Content Ownership</h2>
             <h3 className="text-lg font-medium mt-4 mb-2">Your Content</h3>
             <p className="text-muted-foreground leading-relaxed">
               You retain ownership of the audio recordings and content you upload. By uploading content, you grant us a limited license to process it for providing the Service.
@@ -102,7 +109,7 @@ const TermsOfService = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">7. Disclaimer of Warranties</h2>
+            <h2 className="text-2xl font-semibold mb-4">8. Disclaimer of Warranties</h2>
             <p className="text-muted-foreground leading-relaxed">
               THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. We do not guarantee that:
             </p>
@@ -118,14 +125,14 @@ const TermsOfService = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">8. Limitation of Liability</h2>
+            <h2 className="text-2xl font-semibold mb-4">9. Limitation of Liability</h2>
             <p className="text-muted-foreground leading-relaxed">
               TO THE MAXIMUM EXTENT PERMITTED BY LAW, SOCIALSCOPE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">9. Privacy</h2>
+            <h2 className="text-2xl font-semibold mb-4">10. Privacy</h2>
             <p className="text-muted-foreground leading-relaxed">
               Your use of the Service is also governed by our{" "}
               <Link to="/privacy" className="text-primary hover:underline">
@@ -136,28 +143,28 @@ const TermsOfService = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">10. Modifications to Service</h2>
+            <h2 className="text-2xl font-semibold mb-4">11. Modifications to Service</h2>
             <p className="text-muted-foreground leading-relaxed">
               We reserve the right to modify or discontinue the Service (or any part thereof) at any time, with or without notice. We shall not be liable to you or any third party for any modification, suspension, or discontinuance of the Service.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">11. Termination</h2>
+            <h2 className="text-2xl font-semibold mb-4">12. Termination</h2>
             <p className="text-muted-foreground leading-relaxed">
               We may terminate or suspend your account immediately, without prior notice, if you breach these Terms. Upon termination, your right to use the Service will cease immediately. You may delete your account at any time through your settings.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">12. Changes to Terms</h2>
+            <h2 className="text-2xl font-semibold mb-4">13. Changes to Terms</h2>
             <p className="text-muted-foreground leading-relaxed">
               We reserve the right to update these Terms at any time. We will notify you of material changes by posting the new Terms on this page. Your continued use of the Service after changes constitutes acceptance of the modified Terms.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">13. Governing Law & Contact</h2>
+            <h2 className="text-2xl font-semibold mb-4">14. Governing Law & Contact</h2>
             <p className="text-muted-foreground leading-relaxed">
               These Terms shall be governed by and construed in accordance with the laws of the State of North Carolina, United States, without regard to its conflict of law provisions.
             </p>

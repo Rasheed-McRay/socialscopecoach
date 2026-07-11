@@ -337,7 +337,7 @@ const Settings = () => {
         </header>
 
         {/* Spacer for fixed header */}
-        <div className="h-[72px] safe-area-top flex-shrink-0" />
+        <div className="flex-shrink-0" style={{ height: 'calc(72px + env(safe-area-inset-top))' }} />
 
         {/* Main Content */}
         <main className="container py-8 md:py-12 pb-28 md:pb-12 flex-1">
